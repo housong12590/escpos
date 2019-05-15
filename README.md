@@ -2,7 +2,9 @@
 
 特点:
 escpos 是一个xml模版转化成热敏打印指令的库,本项目适用于java和android
+
 轻量级 jar包只有75k大小
+
 转换效率贼高,无强制任何依赖
 
 [jar包下载地址](https://github.com/housong12590/escpos/blob/master/escpos.jar)
@@ -20,7 +22,7 @@ escpos 需要使用到json解析库,  支持 gson,jackson,fastjson进行解析, 
 使用方法:
 escpos默认实现了网络打印的功能,使用如下 
 ```java
-NetworkPrinter printer = new NetworkPrinter("192.168.10.99"); // 默认9100端口,可以指定端口和socket连接超时时间
+Printer printer = new NetworkPrinter("192.168.10.99"); // 默认9100端口,可以指定端口和socket连接超时时间
 printer.alwaysKeepConnect(true); // 是否一直保持跟打印机的连接
 printer.setConnectKeepTime(60 * 1000); // 最后一个打印任务完成后,跟打印机保持连接的时间 , 默认是任务队列打印完成之后就断开跟打印机的连接, 如果打印任务很频繁 建议使用alwaysKeepConnect , 如果打印分高峰低峰建议设置setConnectKeepTime 减小每次都跟打印机进行连接的消耗 . alwaysKeepConnect的优先级高于setConnectKeepTime
 printer.setOnPrintCallback(new OnPrintCallback());//设置打印任务的回调
