@@ -23,6 +23,12 @@ public class JSONUtil {
         return converter.toBean(json, Map.class);
     }
 
+    public static Map toMap(Object obj) {
+        checkNull();
+        String json = converter.toJson(obj);
+        return converter.toBean(json, Map.class);
+    }
+
     public static <T> T toBean(String json, Class<T> cls) {
         checkNull();
         return converter.toBean(json, cls);
