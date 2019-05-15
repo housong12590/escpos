@@ -1,6 +1,7 @@
 package com.cin.pos.parser;
 
 
+import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.Constants;
 import com.cin.pos.LocalVariable;
 import com.cin.pos.convert.ConverterKit;
@@ -38,9 +39,11 @@ public class TemplateParse {
             String name = set.getName().toLowerCase();
             Element element = ConverterKit.newElement(name);
             if (element != null) {
-                element.parser(set, data);
-                if (element.isCondition()) {
+                try {
+                    element.parser(set, data);
                     document.addElement(element);
+                } catch (ConditionNotExistException e) {
+                    LoggerUtil.info(e.getMessage());
                 }
             }
         }

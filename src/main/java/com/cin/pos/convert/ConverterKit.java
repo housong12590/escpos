@@ -23,7 +23,7 @@ public class ConverterKit {
 
     public static void registerConverter(Class<? extends Element> element, Converter converter) {
         converterMap.put(element, converter);
-        String elementName = element.getClass().getSimpleName().toLowerCase();
+        String elementName = element.getSimpleName().toLowerCase();
         elementMap.put(elementName, element);
     }
 

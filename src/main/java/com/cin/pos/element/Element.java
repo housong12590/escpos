@@ -1,15 +1,12 @@
 package com.cin.pos.element;
 
+import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.Constants;
 import com.cin.pos.parser.Parser;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.LoggerUtil;
 import com.cin.pos.util.StringUtil;
 import com.cin.pos.util.Util;
-import com.sun.org.apache.regexp.internal.RE;
-import javafx.scene.chart.ValueAxis;
 
-import javax.naming.CompositeName;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -20,7 +17,6 @@ public abstract class Element implements Parser {
     private int height;
     private int[] margin = new int[4];
     private boolean newLine = true;
-    private boolean condition;
 
     public int getWidth() {
         return width;
@@ -70,22 +66,12 @@ public abstract class Element implements Parser {
         this.newLine = newLine;
     }
 
-    public boolean isCondition() {
-        return condition;
-    }
-
-    public void setCondition(boolean condition) {
-        this.condition = condition;
-    }
-
     @Override
     public void parser(AttributeSet attrs, Map<String, Object> data) {
-        String condition = attrs.getAttributeValue("condition", true);
+        String condition = attrs.getAttributeValue("condition", "");
         // 条件不满足 不进行解析
-        this.condition = checkCondition(data, condition);
-        if (!this.condition) {
-            LoggerUtil.debug(String.format("%s 判断条件不成立 ,退出解析过程", condition));
-            return;
+        if (!checkCondition(data, condition)) {
+            throw new ConditionNotExistException(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(),condition));
         }
         this.width = attrs.getIntValue("width", WARP_CONTENT);
         this.height = attrs.getIntValue("height", WARP_CONTENT);

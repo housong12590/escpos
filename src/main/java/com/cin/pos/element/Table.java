@@ -94,6 +94,7 @@ public class Table extends Element {
                             td1.setAlign(td.align);
                             td1.setWeight(td.weight);
                             tr1.addTd(td1);
+                            tr1.setBold(bold);
                         }
                         trs.add(tr1);
                     }

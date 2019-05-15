@@ -72,15 +72,13 @@ public class Group extends Element {
     }
 
     private void generateChildElement(AttributeSet attrs, Map data) {
-        for (AttributeSet attributeSet : attrs.getAttributeSets()) {
-            String elementName = attributeSet.getName();
-            Element element = ConverterKit.newElement(elementName);
-            if (element != null) {
-                element.parser(attributeSet, data);
-                children.add(element);
-            } else {
-                LoggerUtil.error(String.format("%s 标签没有匹配到相应的元素 ", elementName));
-            }
+        String elementName = attrs.getName();
+        Element element = ConverterKit.newElement(elementName);
+        if (element != null) {
+            element.parser(attrs, data);
+            children.add(element);
+        } else {
+            LoggerUtil.error(String.format("%s 标签没有匹配到相应的元素 ", elementName));
         }
     }
 

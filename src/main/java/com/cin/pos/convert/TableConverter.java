@@ -57,25 +57,38 @@ public class TableConverter implements Converter<Table> {
         for (Table.TD td : tr.getTds()) {
             allWeight += td.getWeight();
         }
-        float each = charLen / allWeight;
-        List<Table.TD> tds = tr.getTds();
-        int sumWidth = 0;
-        for (Table.TD td : tds) {
-            int width = (int) (td.getWeight() * each);
-            td.setWidth(width);
-            sumWidth += width;
+//        float each = charLen / allWeight;
+//        List<Table.TD> tds = tr.getTds();
+//        int sumWidth = 0;
+//        for (Table.TD td : tds) {
+//            int width = (int) (td.getWeight() * each);
+//            td.setWidth(width);
+//            sumWidth += width;
+//        }
+//        out:
+//        while (true) {
+//            for (Table.TD td : tds) {
+//                if (sumWidth < charLen) {
+//                    int width = td.getWidth();
+//                    td.setWidth(width + 1);
+//                    sumWidth++;
+//                } else {
+//                    break out;
+//                }
+//            }
+//        }
+
+        float remainder = charLen % allWeight;
+        float each = charLen / (allWeight + remainder);
+        int wholeLength = 0;
+        for (int i = 0; i < tr.getTds().size(); i++) {
+            Table.TD td = tr.getTds().get(i);
+            float width = (td.getWeight() + remainder / tr.getTds().size()) * each;
+            td.setWidth((int) width);
+            wholeLength += width;
         }
-        out:
-        while (true) {
-            for (Table.TD td : tds) {
-                if (sumWidth < charLen) {
-                    int width = td.getWidth();
-                    td.setWidth(width + 1);
-                    sumWidth++;
-                } else {
-                    break out;
-                }
-            }
+        if (wholeLength > charLen) {
+            throw new RuntimeException("The whole length of the headers is longer than the width of this getPrinter device!");
         }
     }
 
