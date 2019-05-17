@@ -19,9 +19,20 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 
 public class TemplateParse {
+
+    private SAXParser saxParser;
+
+    public TemplateParse() {
+        try {
+            saxParser = XmlParseManager.getParserFactory().newSAXParser();
+        } catch (ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+        }
+    }
 
     public Document parser(String templateStr, Map data) {
         if (StringUtil.isEmpty(templateStr)) {
@@ -72,7 +83,6 @@ public class TemplateParse {
 
 
     private AttributeSet parserXmlTemplate(String templateStr) {
-        SAXParser saxParser = XmlParseManager.getSaxParser();
         XmlParseHandler handler = new XmlParseHandler();
         InputStream inputStream = new ByteArrayInputStream(templateStr.getBytes());
         try {

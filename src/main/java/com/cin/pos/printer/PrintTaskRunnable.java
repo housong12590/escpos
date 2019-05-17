@@ -47,7 +47,7 @@ public class PrintTaskRunnable implements Runnable {
         startTime = System.currentTimeMillis();
         if (templateParse != null) {
             try {
-                LoggerUtil.debug("开始解析模版...");
+                LoggerUtil.debug(String.format("%s 开始解析模版...", printer.getConnection()));
                 document = templateParse.parser(templateContent, templateData);
             } catch (Exception e) {
                 printError(e);
@@ -73,10 +73,10 @@ public class PrintTaskRunnable implements Runnable {
             throw new NullPointerException("printer connection can not null...");
         }
         if (!connection.isConnect()) {
-            LoggerUtil.debug(String.format("%s 正在连接打印机...", connection));
+            LoggerUtil.debug(String.format("%s 正在连接打印机...", printer.getConnection()));
             connection.doConnect();
         }
-        LoggerUtil.debug(String.format("%s 开始打印", this.tag));
+        LoggerUtil.debug(String.format("%s %s 开始打印", printer.getConnection(), this.tag));
         OrderSet orderSet = printer.getDevice().getOrderSet();
         connection.write(orderSet.reset());
     }
@@ -94,7 +94,7 @@ public class PrintTaskRunnable implements Runnable {
         connection.write(orderSet.paperFeed(5));
         connection.write(orderSet.cutPaper());
         connection.flush();
-        LoggerUtil.debug(String.format("发送打印指令长度为%s字节", len));
+        LoggerUtil.debug(String.format("%s 发送打印指令长度为%s字节", printer.getConnection(), len));
     }
 
     private void afterPrint() throws IOException {
@@ -109,7 +109,7 @@ public class PrintTaskRunnable implements Runnable {
         if (printCallback != null) {
             printCallback.onError(this.tag, e);
         }
-        LoggerUtil.error(String.format("%s 打印失败, %s", this.tag, e.getMessage()));
+        LoggerUtil.error(String.format("%s %s 打印失败, %s", printer.getConnection(), this.tag, e.getMessage()));
     }
 
     private void printSuccess() {
@@ -119,6 +119,6 @@ public class PrintTaskRunnable implements Runnable {
         }
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        LoggerUtil.debug(String.format("%s 打印完成, 耗时%sms", this.tag, elapsedTime));
+        LoggerUtil.debug(String.format("%s %s 打印完成, 耗时%sms", printer.getConnection(), this.tag, elapsedTime));
     }
 }
