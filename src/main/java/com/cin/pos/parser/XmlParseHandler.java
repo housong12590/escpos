@@ -22,14 +22,12 @@ public class XmlParseHandler extends DefaultHandler {
             attribute.put(name, value);
         }
         if (rootAttributeSet == null) {
-            rootAttributeSet = attribute;
-            parentAttributeSet = rootAttributeSet;
+            parentAttributeSet = rootAttributeSet = attribute;
         } else {
             attribute.setParent(parentAttributeSet);
             parentAttributeSet.addAttributeSet(attribute);
         }
-        currentAttributeSet = attribute;
-        parentAttributeSet = currentAttributeSet;
+        parentAttributeSet = currentAttributeSet = attribute;
     }
 
 
