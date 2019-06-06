@@ -1,9 +1,11 @@
 package com.cin.pos.callback;
 
+import com.cin.pos.printer.Printer;
+
 public interface OnPrintCallback {
 
-    void onSuccess(Object tag);
+    void onSuccess(Printer printer, Object tag);
 
-    void onError(Object tag, Throwable e);
+    void onError(Printer printer, Object tag, Throwable e);
 
 }

@@ -107,7 +107,7 @@ public class PrintTaskRunnable implements Runnable {
     private void printError(Throwable e) {
         OnPrintCallback printCallback = printer.getOnPrintCallback();
         if (printCallback != null) {
-            printCallback.onError(this.tag, e);
+            printCallback.onError(printer, this.tag, e);
         }
         LoggerUtil.error(String.format("%s %s 打印失败, %s", printer.getConnection(), this.tag, e.getMessage()));
     }
@@ -115,7 +115,7 @@ public class PrintTaskRunnable implements Runnable {
     private void printSuccess() {
         OnPrintCallback printCallback = printer.getOnPrintCallback();
         if (printCallback != null) {
-            printCallback.onSuccess(this.tag);
+            printCallback.onSuccess(printer, this.tag);
         }
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;

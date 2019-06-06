@@ -43,9 +43,6 @@ public class TemplateParse {
         templateStr = pretreatment(templateStr, data);
         Document document = new Document();
         AttributeSet attributeSet = parserXmlTemplate(templateStr);
-        if (attributeSet == null) {
-            throw new NullPointerException("模版解析失败...");
-        }
         for (AttributeSet set : attributeSet.getAttributeSets()) {
             String name = set.getName().toLowerCase();
             Element element = ConverterKit.newElement(name);

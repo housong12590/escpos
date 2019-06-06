@@ -50,7 +50,7 @@ public class ImageCreator {
         return null;
     }
 
-    private static void checkClassExist() {
+    public static void checkClassExist() {
         try {
             Class.forName("com.google.zxing.MultiFormatWriter");
         } catch (ClassNotFoundException e) {
