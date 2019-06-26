@@ -9,8 +9,8 @@ public class StandardOrderSet implements OrderSet {
     private static final byte ESC = 0x1B;
     private static final byte GS = 0x1D;
     private static final byte FS = 0x1C;
-    private static final byte[] BEL = new byte[]{ESC, 0x7};
-    /* 查询打印机状态 */
+    private static final byte[] BEL = new byte[]{ESC, 0x43, 2, 2,1};
+/* 查询打印机状态 */
     private static final byte[] STATUS = new byte[]{ESC, 'v'};
     /* 初始化打印机 ECS @ */
     private static final byte[] ESC_RESET = new byte[]{ESC, '@'};

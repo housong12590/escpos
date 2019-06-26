@@ -1,6 +1,7 @@
 package com.cin.pos.connect;
 
 
+import com.cin.pos.exception.ConnectException;
 import com.cin.pos.util.Util;
 
 import java.io.BufferedOutputStream;
@@ -29,14 +30,18 @@ public class SocketConnection implements Connection {
 
 
     @Override
-    public void doConnect() throws IOException {
+    public void doConnect() throws ConnectException {
         this.close();
-        socket = new Socket();
-        // 设置连接超时时间
-        socket.connect(new InetSocketAddress(hostname, port), timeout);
-        os = socket.getOutputStream();
-        is = socket.getInputStream();
-        bufferOs = new BufferedOutputStream(os, bufferSize);
+        try {
+            socket = new Socket();
+            // 设置连接超时时间
+            socket.connect(new InetSocketAddress(hostname, port), timeout);
+            os = socket.getOutputStream();
+            is = socket.getInputStream();
+            bufferOs = new BufferedOutputStream(os, bufferSize);
+        } catch (IOException e) {
+            throw new ConnectException();
+        }
     }
 
 
@@ -46,8 +51,7 @@ public class SocketConnection implements Connection {
             try {
                 socket.sendUrgentData(0xFF);
                 return true;
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }
         return false;
@@ -55,28 +59,40 @@ public class SocketConnection implements Connection {
 
 
     @Override
-    public void write(byte[] bytes) throws IOException {
+    public void write(byte[] bytes) throws ConnectException {
         if (bufferOs != null) {
-            bufferOs.write(bytes);
+            try {
+                bufferOs.write(bytes);
+            } catch (IOException e) {
+                throw new ConnectException();
+            }
         }
     }
 
     @Override
-    public void flush() throws IOException {
-        if (bufferOs != null) {
-            bufferOs.flush();
+    public void flush() throws ConnectException {
+        try {
+            if (bufferOs != null) {
+                bufferOs.flush();
+            }
+            if (os != null) {
+                os.flush();
+            }
+        } catch (IOException e) {
+            throw new ConnectException();
         }
-        if(os != null){
-            os.flush();
-        }
+
     }
 
     @Override
-    public int read(byte[] bytes) throws IOException {
+    public int read(byte[] bytes) throws ConnectException {
         if (is != null) {
-            return is.read(bytes);
+            try {
+                return is.read(bytes);
+            } catch (IOException ignored) {
+            }
         }
-        throw new IOException("inputStream can not null...");
+        throw new ConnectException();
     }
 
     @Override

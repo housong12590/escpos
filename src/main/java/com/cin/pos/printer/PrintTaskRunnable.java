@@ -1,16 +1,17 @@
 package com.cin.pos.printer;
 
+import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
-import com.cin.pos.device.Device;
 import com.cin.pos.convert.ConverterKit;
+import com.cin.pos.device.Device;
+import com.cin.pos.element.Document;
 import com.cin.pos.element.Element;
+import com.cin.pos.exception.ConnectException;
+import com.cin.pos.exception.TimeoutException;
+import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.parser.TemplateParse;
 import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.callback.OnPrintCallback;
-import com.cin.pos.element.Document;
-import com.cin.pos.orderset.OrderSet;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class PrintTaskRunnable implements Runnable {
@@ -22,10 +23,25 @@ public class PrintTaskRunnable implements Runnable {
     private long startTime;
     private String templateContent;
     private Map templateData;
+    private int interval;
+    private long createTime;
+    private boolean blocking;
+    private static final long invalidTime = 1800; // 打印超时时长
 
-    PrintTaskRunnable(Object tag, Printer printer) {
+    PrintTaskRunnable(Object tag, Printer printer, Integer interval, boolean blocking) {
         this.tag = tag;
         this.printer = printer;
+        this.interval = interval;
+        this.createTime = System.currentTimeMillis() / 1000;
+        this.blocking = blocking;
+    }
+
+    PrintTaskRunnable(Object tag, Printer printer) {
+        this(tag, printer, 0, false);
+    }
+
+    public long getCreateTime() {
+        return createTime;
     }
 
     public Document getDocument() {
@@ -40,6 +56,10 @@ public class PrintTaskRunnable implements Runnable {
         this.templateParse = templateParse;
         this.templateContent = templateContent;
         this.templateData = templateData;
+    }
+
+    public int getInterval() {
+        return interval;
     }
 
     @Override
@@ -58,22 +78,40 @@ public class PrintTaskRunnable implements Runnable {
             printError(new NullPointerException("document can not null..."));
             return;
         }
+        execPrint();
+    }
+
+    private void execPrint() {
         try {
             beforePrint();
             printDocument();
             afterPrint();
-        } catch (IOException e) {
-            printError(e);
+        } catch (ConnectException e) {
+            if (!blocking) {
+                printError(e);
+            } else {
+                long nowTime = System.currentTimeMillis() / 1000;
+                if (nowTime - createTime > invalidTime) {
+                    printError(new TimeoutException("打印超时,任务自动取消"));
+                    return;
+                }
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+                execPrint();
+            }
         }
     }
 
-    private void beforePrint() throws IOException {
+    private void beforePrint() throws ConnectException {
         Connection connection = printer.getConnection();
         if (connection == null) {
             throw new NullPointerException("printer connection can not null...");
         }
         if (!connection.isConnect()) {
-            LoggerUtil.debug(String.format("%s 正在连接打印机...", printer.getConnection()));
+//            LoggerUtil.debug(String.format("%s 正在连接打印机...", printer.getConnection()));
             connection.doConnect();
         }
         LoggerUtil.debug(String.format("%s %s 开始打印", printer.getConnection(), this.tag));
@@ -81,7 +119,7 @@ public class PrintTaskRunnable implements Runnable {
         connection.write(orderSet.reset());
     }
 
-    private void printDocument() throws IOException {
+    private void printDocument() throws ConnectException {
         Device device = printer.getDevice();
         Connection connection = printer.getConnection();
         int len = 0;
@@ -97,7 +135,7 @@ public class PrintTaskRunnable implements Runnable {
         LoggerUtil.debug(String.format("%s 发送打印指令长度为%s字节", printer.getConnection(), len));
     }
 
-    private void afterPrint() throws IOException {
+    private void afterPrint() throws ConnectException {
         Connection connection = printer.getConnection();
         OrderSet orderSet = printer.getDevice().getOrderSet();
         connection.write(orderSet.printEnd());

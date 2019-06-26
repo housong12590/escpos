@@ -20,17 +20,17 @@ import java.util.concurrent.Future;
 public class Printer {
 
     private static ExecutorService es = Executors.newCachedThreadPool();
-    private LinkedList<Runnable> printTaskQueue = new LinkedList<>();
+    private LinkedList<PrintTaskRunnable> printTaskQueue = new LinkedList<>();
     private final Object obj = new Object();
     private Connection connection;
     private long lastPrintTime;
     private long connectKeepTime;
+    private long invalidTime = 1800;
     private Device device;
     private boolean alwaysKeep = false;
     private Future<?> future;
     private OnPrintCallback mPrintCallback;
     private OnCloseCallback mCloseCallback;
-    private TemplateParse templateParse;
 
     public Printer(Connection connection, Device device) {
         this.connection = connection;
@@ -61,44 +61,42 @@ public class Printer {
         return connection;
     }
 
-    public String print(Document document) {
+    public String print(Document document, int interval) {
         String printId = generatePrintId();
-        return (String) print(document, printId);
+        return (String) print(document, printId, interval, false);
     }
 
-    public Object print(Document document, Object tag) {
-        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this);
+    public Object print(Document document, Object tag, int interval, boolean blocking) {
+        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval, blocking);
         runnable.setDocument(document);
         printTaskQueue.add(runnable);
         refreshTaskStatus();
         return tag;
     }
 
-    public String print(String templateContent) {
+    public String print(String templateContent, int interval) {
         String printId = generatePrintId();
-        return (String) print(templateContent, null, printId);
+        return (String) print(templateContent, null, printId, interval, false);
     }
 
-    public String print(File templateFile) {
+    public String print(File templateFile, int interval) {
         String printId = generatePrintId();
         if (!templateFile.exists()) {
             LoggerUtil.error(templateFile.getAbsolutePath() + " not found...");
             return printId;
         }
         String readString = Util.readString(templateFile);
-        return (String) print(readString, null, printId);
+        return (String) print(readString, null, printId, interval, false);
     }
 
-    public String print(String templateContent, Map data) {
+    public String print(String templateContent, Map data, int interval, boolean blocking) {
         String printId = generatePrintId();
-        return (String) print(templateContent, data, printId);
+        return (String) print(templateContent, data, printId, interval, blocking);
     }
 
-    public Object print(String templateContent, Map data, Object tag) {
-        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this);
-        if (templateParse == null) {
-            templateParse = new TemplateParse();
-        }
+    public Object print(String templateContent, Map data, Object tag, int interval, boolean blocking) {
+        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval, blocking);
+        TemplateParse templateParse = new TemplateParse();
         runnable.setTemplateParse(templateParse, templateContent, data);
         printTaskQueue.add(runnable);
         refreshTaskStatus();
@@ -146,9 +144,16 @@ public class Printer {
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
                 if (!printTaskQueue.isEmpty()) {
-                    Runnable runnable = printTaskQueue.removeFirst();
+                    PrintTaskRunnable runnable = printTaskQueue.removeFirst();
                     runnable.run();
                     lastPrintTime = System.currentTimeMillis();
+                    // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
+                    int interval = runnable.getInterval();
+                    try {
+                        Thread.sleep(interval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 } else if (alwaysKeep) {
                     try {
                         synchronized (obj) {
@@ -162,13 +167,13 @@ public class Printer {
                 } else if (connectKeepTime > 0) {
                     long nowTime = System.currentTimeMillis();
                     if (nowTime - lastPrintTime > connectKeepTime) {
-                        LoggerUtil.debug(String.format("线程已超过等待时间%sms,连接即将关闭", connectKeepTime));
+//                        LoggerUtil.debug(String.format("线程已超过等待时间%sms,连接即将关闭", connectKeepTime));
                         close();
                     } else {
                         try {
                             Thread.sleep(50);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+//                            e.printStackTrace();
                         }
                     }
                 } else {
