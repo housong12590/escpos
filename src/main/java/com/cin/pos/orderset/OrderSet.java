@@ -18,7 +18,7 @@ public interface OrderSet {
     /**
      * 查询状态
      */
-    byte[] status();
+    byte[] status(int n);
 
     /**
      * 左对齐

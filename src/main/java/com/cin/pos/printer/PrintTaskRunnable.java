@@ -26,14 +26,14 @@ public class PrintTaskRunnable implements Runnable {
     private int interval;
     private long createTime;
     private boolean blocking;
-    private static final long invalidTime = 1800; // 打印超时时长
+    private static final long invalidTime = 1200; // 打印超时时长
 
     PrintTaskRunnable(Object tag, Printer printer, Integer interval, boolean blocking) {
         this.tag = tag;
         this.printer = printer;
-        this.interval = interval;
         this.createTime = System.currentTimeMillis() / 1000;
         this.blocking = blocking;
+        this.interval = interval;
     }
 
     PrintTaskRunnable(Object tag, Printer printer) {
@@ -52,14 +52,18 @@ public class PrintTaskRunnable implements Runnable {
         this.document = document;
     }
 
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
     void setTemplateParse(TemplateParse templateParse, String templateContent, Map templateData) {
         this.templateParse = templateParse;
         this.templateContent = templateContent;
         this.templateData = templateData;
-    }
-
-    public int getInterval() {
-        return interval;
     }
 
     @Override
@@ -131,7 +135,6 @@ public class PrintTaskRunnable implements Runnable {
         OrderSet orderSet = device.getOrderSet();
         connection.write(orderSet.paperFeed(5));
         connection.write(orderSet.cutPaper());
-        connection.flush();
         LoggerUtil.debug(String.format("%s 发送打印指令长度为%s字节", printer.getConnection(), len));
     }
 
@@ -139,6 +142,7 @@ public class PrintTaskRunnable implements Runnable {
         Connection connection = printer.getConnection();
         OrderSet orderSet = printer.getDevice().getOrderSet();
         connection.write(orderSet.printEnd());
+        connection.flush();
         printSuccess();
     }
 

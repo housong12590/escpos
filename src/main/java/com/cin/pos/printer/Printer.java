@@ -25,7 +25,6 @@ public class Printer {
     private Connection connection;
     private long lastPrintTime;
     private long connectKeepTime;
-    private long invalidTime = 1800;
     private Device device;
     private boolean alwaysKeep = false;
     private Future<?> future;
@@ -39,6 +38,14 @@ public class Printer {
 
     public Device getDevice() {
         return device;
+    }
+
+    public int getPrintTaskSize() {
+        return printTaskQueue.size();
+    }
+
+    public void cancelPrintTask() {
+        printTaskQueue.clear();
     }
 
     public long getLastPrintTime() {
@@ -57,13 +64,14 @@ public class Printer {
         this.alwaysKeep = alwaysKeep;
     }
 
+
     public Connection getConnection() {
         return connection;
     }
 
-    public String print(Document document, int interval) {
+    public String print(Document document) {
         String printId = generatePrintId();
-        return (String) print(document, printId, interval, false);
+        return (String) print(document, printId, 0, false);
     }
 
     public Object print(Document document, Object tag, int interval, boolean blocking) {
@@ -148,9 +156,8 @@ public class Printer {
                     runnable.run();
                     lastPrintTime = System.currentTimeMillis();
                     // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
-                    int interval = runnable.getInterval();
                     try {
-                        Thread.sleep(interval);
+                        Thread.sleep(runnable.getInterval());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

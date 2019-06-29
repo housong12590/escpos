@@ -9,9 +9,9 @@ public class StandardOrderSet implements OrderSet {
     private static final byte ESC = 0x1B;
     private static final byte GS = 0x1D;
     private static final byte FS = 0x1C;
-    private static final byte[] BEL = new byte[]{ESC, 0x43, 2, 2,1};
-/* 查询打印机状态 */
-    private static final byte[] STATUS = new byte[]{ESC, 'v'};
+
+    /*打印完成之蜂鸣声*/
+    private static final byte[] BEL = new byte[]{ESC, 'B', 2, 1};
     /* 初始化打印机 ECS @ */
     private static final byte[] ESC_RESET = new byte[]{ESC, '@'};
     /* 靠左打印命令 */
@@ -39,6 +39,11 @@ public class StandardOrderSet implements OrderSet {
     /* 切纸 */
     private static final byte[] ESC_CUTPAPER = new byte[]{ESC, 0x6D};
 
+    /* 查询打印机状态 */
+    private static byte[] ESC_STATUS(int n) {
+        return new byte[]{ESC, 0x04, (byte) n};
+    }
+
     @Override
     public byte[] reset() {
         return ESC_RESET;
@@ -50,8 +55,8 @@ public class StandardOrderSet implements OrderSet {
     }
 
     @Override
-    public byte[] status() {
-        return STATUS;
+    public byte[] status(int n) {
+        return ESC_STATUS(n);
     }
 
     @Override
