@@ -28,6 +28,9 @@ public class Printer {
     private Device device;
     private boolean alwaysKeep = false;
     private Future<?> future;
+    private boolean bel;
+    private boolean blocking;
+    private int printerTimeOut;
     private OnPrintCallback mPrintCallback;
     private OnCloseCallback mCloseCallback;
 
@@ -64,18 +67,42 @@ public class Printer {
         this.alwaysKeep = alwaysKeep;
     }
 
+    public void setBel(boolean bel) {
+        this.bel = bel;
+    }
+
+    public boolean isBel() {
+        return bel;
+    }
+
+    public boolean isBlocking() {
+        return blocking;
+    }
+
+    public void setBlocking(boolean blocking, int timeOut) {
+        this.blocking = blocking;
+        this.printerTimeOut = timeOut;
+    }
 
     public Connection getConnection() {
         return connection;
     }
 
-    public String print(Document document) {
-        String printId = generatePrintId();
-        return (String) print(document, printId, 0, false);
+    public int getPrinterTimeOut() {
+        return printerTimeOut;
     }
 
-    public Object print(Document document, Object tag, int interval, boolean blocking) {
-        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval, blocking);
+    public void setPrinterTimeOut(int printerTimeOut) {
+        this.printerTimeOut = printerTimeOut;
+    }
+
+    public String print(Document document) {
+        String printId = generatePrintId();
+        return (String) print(document, printId, 0);
+    }
+
+    public Object print(Document document, Object tag, int interval) {
+        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
         runnable.setDocument(document);
         printTaskQueue.add(runnable);
         refreshTaskStatus();
@@ -84,7 +111,7 @@ public class Printer {
 
     public String print(String templateContent, int interval) {
         String printId = generatePrintId();
-        return (String) print(templateContent, null, printId, interval, false);
+        return (String) print(templateContent, null, printId, interval);
     }
 
     public String print(File templateFile, int interval) {
@@ -94,16 +121,16 @@ public class Printer {
             return printId;
         }
         String readString = Util.readString(templateFile);
-        return (String) print(readString, null, printId, interval, false);
+        return (String) print(readString, null, printId, interval);
     }
 
     public String print(String templateContent, Map data, int interval, boolean blocking) {
         String printId = generatePrintId();
-        return (String) print(templateContent, data, printId, interval, blocking);
+        return (String) print(templateContent, data, printId, interval);
     }
 
-    public Object print(String templateContent, Map data, Object tag, int interval, boolean blocking) {
-        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval, blocking);
+    public Object print(String templateContent, Map data, Object tag, int interval) {
+        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
         TemplateParse templateParse = new TemplateParse();
         runnable.setTemplateParse(templateParse, templateContent, data);
         printTaskQueue.add(runnable);

@@ -110,6 +110,12 @@ public class StandardOrderSet implements OrderSet {
     }
 
     @Override
+    public byte[] testSize(int w, int h) {
+        byte size = (byte) ((w == 2 ? 0x10 : w == 3 ? 0x20 : 0x00) | (h == 2 ? 0x01 : h == 3 ? 0x02 : 0x00));
+        return new byte[]{GS, '!', size};
+    }
+
+    @Override
     public byte[] paperFeed(int n) {
         if (n < 0) {
             n = 0;

@@ -71,7 +71,7 @@ public abstract class Element implements Parser {
         String condition = attrs.getAttributeValue("condition", "");
         // 条件不满足 不进行解析
         if (!checkCondition(data, condition)) {
-            throw new ConditionNotExistException(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(),condition));
+            throw new ConditionNotExistException(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(), condition));
         }
         this.width = attrs.getIntValue("width", WARP_CONTENT);
         this.height = attrs.getIntValue("height", WARP_CONTENT);
@@ -138,7 +138,7 @@ public abstract class Element implements Parser {
         Matcher matcher = Constants.REPLACE_PATTERN2.matcher(condition);
         if (matcher.find()) {
             String key = matcher.group(1);
-            Object value = data.get(key);
+            Object value = StringUtil.getValue(data, key);
             if (value == null) {
                 return false;
             } else {

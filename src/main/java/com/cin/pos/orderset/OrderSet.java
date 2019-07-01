@@ -71,6 +71,11 @@ public interface OrderSet {
     byte[] textSizeX3();
 
     /**
+     * 设置字体大小
+     */
+    byte[] testSize(int w, int h);
+
+    /**
      * 走纸
      *
      * @param n 行数

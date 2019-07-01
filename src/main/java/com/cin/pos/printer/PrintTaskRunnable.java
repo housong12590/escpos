@@ -25,19 +25,16 @@ public class PrintTaskRunnable implements Runnable {
     private Map templateData;
     private int interval;
     private long createTime;
-    private boolean blocking;
-    private static final long invalidTime = 1200; // 打印超时时长
 
-    PrintTaskRunnable(Object tag, Printer printer, Integer interval, boolean blocking) {
+    PrintTaskRunnable(Object tag, Printer printer, Integer interval) {
         this.tag = tag;
         this.printer = printer;
         this.createTime = System.currentTimeMillis() / 1000;
-        this.blocking = blocking;
         this.interval = interval;
     }
 
     PrintTaskRunnable(Object tag, Printer printer) {
-        this(tag, printer, 0, false);
+        this(tag, printer, 0);
     }
 
     public long getCreateTime() {
@@ -71,7 +68,7 @@ public class PrintTaskRunnable implements Runnable {
         startTime = System.currentTimeMillis();
         if (templateParse != null) {
             try {
-                LoggerUtil.debug(String.format("%s 开始解析模版...", printer.getConnection()));
+                LoggerUtil.debug(String.format("%s %s 开始解析模版...", printer.getConnection(), tag));
                 document = templateParse.parser(templateContent, templateData);
             } catch (Exception e) {
                 printError(e);
@@ -82,6 +79,7 @@ public class PrintTaskRunnable implements Runnable {
             printError(new NullPointerException("document can not null..."));
             return;
         }
+        LoggerUtil.debug(String.format("%s %s 模版解析完成, 准备发送打印数据", printer.getConnection(), tag));
         execPrint();
     }
 
@@ -91,12 +89,12 @@ public class PrintTaskRunnable implements Runnable {
             printDocument();
             afterPrint();
         } catch (ConnectException e) {
-            if (!blocking) {
+            if (!this.printer.isBlocking()) {
                 printError(e);
             } else {
                 long nowTime = System.currentTimeMillis() / 1000;
-                if (nowTime - createTime > invalidTime) {
-                    printError(new TimeoutException("打印超时,任务自动取消"));
+                if (nowTime - createTime > printer.getPrinterTimeOut()) {
+                    printError(new TimeoutException("打印机连接超时, 任务自动取消"));
                     return;
                 }
                 try {
@@ -135,32 +133,34 @@ public class PrintTaskRunnable implements Runnable {
         OrderSet orderSet = device.getOrderSet();
         connection.write(orderSet.paperFeed(5));
         connection.write(orderSet.cutPaper());
-        LoggerUtil.debug(String.format("%s 发送打印指令长度为%s字节", printer.getConnection(), len));
+        LoggerUtil.debug(String.format("%s %s 发送打印指令长度为%s字节", printer.getConnection(), tag, len));
     }
 
     private void afterPrint() throws ConnectException {
         Connection connection = printer.getConnection();
         OrderSet orderSet = printer.getDevice().getOrderSet();
-        connection.write(orderSet.printEnd());
+        if (printer.isBel()) {
+            connection.write(orderSet.printEnd());
+        }
         connection.flush();
         printSuccess();
     }
 
     private void printError(Throwable e) {
         OnPrintCallback printCallback = printer.getOnPrintCallback();
+        LoggerUtil.error(String.format("%s %s 打印失败, %s", printer.getConnection(), this.tag, e.getMessage()));
         if (printCallback != null) {
             printCallback.onError(printer, this.tag, e);
         }
-        LoggerUtil.error(String.format("%s %s 打印失败, %s", printer.getConnection(), this.tag, e.getMessage()));
     }
 
     private void printSuccess() {
         OnPrintCallback printCallback = printer.getOnPrintCallback();
-        if (printCallback != null) {
-            printCallback.onSuccess(printer, this.tag);
-        }
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         LoggerUtil.debug(String.format("%s %s 打印完成, 耗时%sms", printer.getConnection(), this.tag, elapsedTime));
+        if (printCallback != null) {
+            printCallback.onSuccess(printer, this.tag);
+        }
     }
 }

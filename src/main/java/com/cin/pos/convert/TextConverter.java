@@ -49,8 +49,10 @@ public class TextConverter implements Converter<Text> {
             buffer.write(orderSet.textSizeX1());
         } else if (size == Text.Size.big) {
             buffer.write(orderSet.textSizeX2());
-        } else {
+        } else if (size == Text.Size.oversized) {
             buffer.write(orderSet.textSizeX3());
+        } else {
+            buffer.write(orderSet.testSize(size.w, size.h));
         }
 
         // 文字对齐方向
@@ -106,7 +108,7 @@ public class TextConverter implements Converter<Text> {
         } else if (repeat == Text.Repeat.fill) {
             // 把一行填充满
             Text.Size size = text.getSize();
-            int length = StringUtil.lengthOfGBK(value) * size.value;
+            int length = StringUtil.lengthOfGBK(value) * size.w;
             int dstLen = (charLen - length - marginLeft - marginRight) / length;
             for (int i = 0; i < dstLen; i++) {
                 sb.append(value);
@@ -152,7 +154,7 @@ public class TextConverter implements Converter<Text> {
         int marginLeft = text.getMarginLeft();
         int marginRight = text.getMarginRight();
         // 自己所占用的宽度 字体变大时,所占用的宽度也会改变
-        int selfLen = StringUtil.lengthOfGBK(text.getValue()) * text.getSize().value;
+        int selfLen = StringUtil.lengthOfGBK(text.getValue()) * text.getSize().w;
         // texts 为空时 ,说明没有在section 标签内, auto当成fill来处理
         int repeatElementNum = 1;
         if (texts != null) {
@@ -163,7 +165,7 @@ public class TextConverter implements Converter<Text> {
                     }
                     String value = t1.getValue();
                     Text.Size size = t1.getSize();
-                    brotherLen += StringUtil.lengthOfGBK(value) * size.value;
+                    brotherLen += StringUtil.lengthOfGBK(value) * size.w;
                     brotherLen += t1.getMarginLeft();
                     brotherLen += t1.getMarginRight();
                 }
