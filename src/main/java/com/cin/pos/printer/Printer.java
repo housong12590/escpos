@@ -21,12 +21,10 @@ public class Printer {
 
     private static ExecutorService es = Executors.newCachedThreadPool();
     private LinkedList<PrintTaskRunnable> printTaskQueue = new LinkedList<>();
-    private final Object obj = new Object();
     private Connection connection;
     private long lastPrintTime;
     private long connectKeepTime;
     private Device device;
-    private boolean alwaysKeep = false;
     private Future<?> future;
     private boolean bel;
     private boolean blocking;
@@ -61,10 +59,6 @@ public class Printer {
 
     public void setConnectKeepTime(long millis) {
         this.connectKeepTime = millis;
-    }
-
-    public void alwaysKeepConnect(boolean alwaysKeep) {
-        this.alwaysKeep = alwaysKeep;
     }
 
     public void setBel(boolean bel) {
@@ -124,7 +118,7 @@ public class Printer {
         return (String) print(readString, null, printId, interval);
     }
 
-    public String print(String templateContent, Map data, int interval, boolean blocking) {
+    public String print(String templateContent, Map data, int interval) {
         String printId = generatePrintId();
         return (String) print(templateContent, data, printId, interval);
     }
@@ -142,9 +136,6 @@ public class Printer {
     private void refreshTaskStatus() {
         if (future == null || future.isDone()) {
             future = es.submit(new PrinterRunnable());
-        }
-        synchronized (obj) {
-            obj.notifyAll();
         }
     }
 
@@ -185,16 +176,6 @@ public class Printer {
                     // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
                     try {
                         Thread.sleep(runnable.getInterval());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else if (alwaysKeep) {
-                    try {
-                        synchronized (obj) {
-                            LoggerUtil.debug(String.format("%s 无打印任务,进入等待状态...", connection));
-                            obj.wait();
-                            LoggerUtil.debug(String.format("%s 激活打印线程,马上开始打印...", connection));
-                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
