@@ -10,17 +10,17 @@ import com.cin.pos.util.LoggerUtil;
 import com.cin.pos.util.Util;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class Printer {
 
-    private static ExecutorService es = Executors.newCachedThreadPool();
-    private LinkedList<PrintTaskRunnable> printTaskQueue = new LinkedList<>();
+    private ExecutorService es = Executors.newSingleThreadExecutor();
+    private ConcurrentLinkedQueue<PrintTaskRunnable> printTaskQueue = new ConcurrentLinkedQueue<>();
     private Connection connection;
     private long lastPrintTime;
     private long connectKeepTime;
@@ -128,6 +128,7 @@ public class Printer {
         TemplateParse templateParse = new TemplateParse();
         runnable.setTemplateParse(templateParse, templateContent, data);
         printTaskQueue.add(runnable);
+        LoggerUtil.debug(String.format("%s 添加到打印队列", tag.toString()));
         refreshTaskStatus();
         return tag;
     }
@@ -170,15 +171,17 @@ public class Printer {
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
                 if (!printTaskQueue.isEmpty()) {
-                    PrintTaskRunnable runnable = printTaskQueue.removeFirst();
+                    PrintTaskRunnable runnable = printTaskQueue.poll();
                     runnable.run();
                     lastPrintTime = System.currentTimeMillis();
                     // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
+
                     try {
                         Thread.sleep(runnable.getInterval());
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
                 } else if (connectKeepTime > 0) {
                     long nowTime = System.currentTimeMillis();
                     if (nowTime - lastPrintTime > connectKeepTime) {
