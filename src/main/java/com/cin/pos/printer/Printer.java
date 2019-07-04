@@ -11,21 +11,18 @@ import com.cin.pos.util.Util;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class Printer {
 
-    private ExecutorService es = Executors.newSingleThreadExecutor();
-    private ConcurrentLinkedQueue<PrintTaskRunnable> printTaskQueue = new ConcurrentLinkedQueue<>();
+    private Queue<PrintTaskRunnable> printTaskQueue;
     private Connection connection;
     private long lastPrintTime;
     private long connectKeepTime;
     private Device device;
-    private Future<?> future;
+    private Thread printerThread;
     private boolean bel;
     private boolean blocking;
     private int printerTimeOut;
@@ -35,6 +32,7 @@ public class Printer {
     public Printer(Connection connection, Device device) {
         this.connection = connection;
         this.device = device;
+        printTaskQueue = new ConcurrentLinkedQueue<>();
     }
 
     public Device getDevice() {
@@ -98,8 +96,7 @@ public class Printer {
     public Object print(Document document, Object tag, int interval) {
         PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
         runnable.setDocument(document);
-        printTaskQueue.add(runnable);
-        refreshTaskStatus();
+        addToPrintQueue(runnable, tag);
         return tag;
     }
 
@@ -127,21 +124,29 @@ public class Printer {
         PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
         TemplateParse templateParse = new TemplateParse();
         runnable.setTemplateParse(templateParse, templateContent, data);
-        printTaskQueue.add(runnable);
-        LoggerUtil.debug(String.format("%s %s 添加到打印队列", this.connection, tag.toString()));
-        refreshTaskStatus();
+        addToPrintQueue(runnable, tag);
         return tag;
     }
 
+    private synchronized void addToPrintQueue(PrintTaskRunnable runnable, Object tag) {
+        printTaskQueue.add(runnable);
+        LoggerUtil.debug(String.format("%s %s 添加到打印队列", this.connection, tag));
+        refreshPrintTask();
+    }
 
-    private void refreshTaskStatus() {
-        if (future == null || future.isDone()) {
-            future = es.submit(new PrinterRunnable());
+
+    private void refreshPrintTask() {
+        if (printerThread == null) {
+            LoggerUtil.debug(String.format("%s 创建新的打印线程", this.connection));
+            printerThread = new Thread(new PrinterRunnable());
+            printerThread.setName(this.connection.toString());
+            printerThread.start();
         }
     }
 
     public void close() {
-        future.cancel(true);
+        printerThread.interrupt();
+        printerThread = null;
         connection.close();
         if (mCloseCallback != null) {
             mCloseCallback.onClose(this);
@@ -169,29 +174,30 @@ public class Printer {
 
         @Override
         public void run() {
-            while (!Thread.currentThread().isInterrupted()) {
+            while (printerThread != null && !printerThread.isInterrupted()) {
                 if (!printTaskQueue.isEmpty()) {
+                    // 从队列获取第一个任务进行打印
                     PrintTaskRunnable runnable = printTaskQueue.poll();
-                    runnable.run();
-                    lastPrintTime = System.currentTimeMillis();
-                    // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
-
-                    try {
-                        Thread.sleep(runnable.getInterval());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if (runnable != null) {
+                        // 执行打印任务
+                        runnable.run();
+                        // 记录最后一次打印的时间
+                        lastPrintTime = System.currentTimeMillis();
+                        // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
+                        try {
+                            Thread.sleep(runnable.getInterval());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-
                 } else if (connectKeepTime > 0) {
                     long nowTime = System.currentTimeMillis();
                     if (nowTime - lastPrintTime > connectKeepTime) {
-//                        LoggerUtil.debug(String.format("线程已超过等待时间%sms,连接即将关闭", connectKeepTime));
                         close();
                     } else {
                         try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
+                            Thread.sleep(100);
+                        } catch (InterruptedException ignored) {
                         }
                     }
                 } else {

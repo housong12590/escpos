@@ -99,7 +99,7 @@ public class PrintTaskRunnable implements Runnable {
                     return;
                 }
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }
