@@ -92,6 +92,7 @@ public class PrintTaskRunnable implements Runnable {
             if (!this.printer.isBlocking()) {
                 printError(e);
             } else {
+                LoggerUtil.error(String.format("%s %s 打印机连接失败, 稍后尝试重新连接...", printer.getConnection(), this.tag));
                 long nowTime = System.currentTimeMillis() / 1000;
                 if (nowTime - createTime > printer.getPrinterTimeOut()) {
                     printError(new TimeoutException("打印机连接超时, 任务自动取消"));
