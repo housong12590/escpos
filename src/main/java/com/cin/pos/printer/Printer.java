@@ -128,7 +128,7 @@ public class Printer {
         TemplateParse templateParse = new TemplateParse();
         runnable.setTemplateParse(templateParse, templateContent, data);
         printTaskQueue.add(runnable);
-        LoggerUtil.debug(String.format("%s 添加到打印队列", tag.toString()));
+        LoggerUtil.debug(String.format("%s %s 添加到打印队列", this.connection, tag.toString()));
         refreshTaskStatus();
         return tag;
     }
