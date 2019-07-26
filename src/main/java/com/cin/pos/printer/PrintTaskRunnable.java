@@ -1,5 +1,6 @@
 package com.cin.pos.printer;
 
+import com.cin.pos.callback.OnConnectionErrorCallback;
 import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
 import com.cin.pos.convert.ConverterKit;
@@ -92,6 +93,7 @@ public class PrintTaskRunnable implements Runnable {
             if (!this.printer.isBlocking()) {
                 printError(e);
             } else {
+                connectionError();
                 LoggerUtil.error(String.format("%s %s 打印机连接失败, 稍后尝试重新连接...", printer.getConnection(), this.tag));
                 long nowTime = System.currentTimeMillis() / 1000;
                 if (nowTime - createTime > printer.getPrinterTimeOut()) {
@@ -105,6 +107,13 @@ public class PrintTaskRunnable implements Runnable {
                 }
                 execPrint();
             }
+        }
+    }
+
+    private void connectionError() {
+        OnConnectionErrorCallback errorCallback = printer.getConnectionErrorCallback();
+        if (errorCallback != null) {
+            errorCallback.onConnectionError(printer, this.tag);
         }
     }
 

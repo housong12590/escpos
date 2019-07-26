@@ -1,6 +1,7 @@
 package com.cin.pos.printer;
 
 import com.cin.pos.callback.OnCloseCallback;
+import com.cin.pos.callback.OnConnectionErrorCallback;
 import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
 import com.cin.pos.device.Device;
@@ -28,6 +29,7 @@ public class Printer {
     private int printerTimeOut;
     private OnPrintCallback mPrintCallback;
     private OnCloseCallback mCloseCallback;
+    private OnConnectionErrorCallback mConnectionErrorCallback;
 
     public Printer(Connection connection, Device device) {
         this.connection = connection;
@@ -164,6 +166,14 @@ public class Printer {
 
     OnPrintCallback getOnPrintCallback() {
         return this.mPrintCallback;
+    }
+
+    public void setOnConnectionErrorCallback(OnConnectionErrorCallback callback) {
+        this.mConnectionErrorCallback = callback;
+    }
+
+    public OnConnectionErrorCallback getConnectionErrorCallback() {
+        return mConnectionErrorCallback;
     }
 
     private String generatePrintId() {
