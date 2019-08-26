@@ -5,7 +5,7 @@ import com.cin.pos.device.Device;
 import com.cin.pos.element.Align;
 import com.cin.pos.element.Text;
 import com.cin.pos.util.ByteBuffer;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.StringUtils;
 import com.cin.pos.orderset.OrderSet;
 
 import java.io.UnsupportedEncodingException;
@@ -16,7 +16,7 @@ public class TextConverter implements Converter<Text> {
     @Override
     public byte[] toBytes(Device device, Text text) {
         OrderSet orderSet = device.getOrderSet();
-        if (StringUtil.isEmpty(text.getValue())) {
+        if (StringUtils.isEmpty(text.getValue())) {
             return new byte[0];
         }
         ByteBuffer buffer = new ByteBuffer();
@@ -108,7 +108,7 @@ public class TextConverter implements Converter<Text> {
         } else if (repeat == Text.Repeat.fill) {
             // 把一行填充满
             Text.Size size = text.getSize();
-            int length = StringUtil.lengthOfGBK(value) * size.w;
+            int length = StringUtils.lengthOfGBK(value) * size.w;
             int dstLen = (charLen - length - marginLeft - marginRight) / length;
             for (int i = 0; i < dstLen; i++) {
                 sb.append(value);
@@ -137,7 +137,7 @@ public class TextConverter implements Converter<Text> {
         // 一行实际内容的长度
         int lineMaxLen = charLen - leftBlankLen - rightBlankLen;
 
-        List<String> stringList = StringUtil.splitStringLenOfGBK(sb.toString(), lineMaxLen);
+        List<String> stringList = StringUtils.splitStringLenOfGBK(sb.toString(), lineMaxLen);
         sb.delete(0, sb.length());
         for (String str : stringList) {
             sb.append(leftBlank).append(str).append(rightBlank);
@@ -154,7 +154,7 @@ public class TextConverter implements Converter<Text> {
         int marginLeft = text.getMarginLeft();
         int marginRight = text.getMarginRight();
         // 自己所占用的宽度 字体变大时,所占用的宽度也会改变
-        int selfLen = StringUtil.lengthOfGBK(text.getValue()) * text.getSize().w;
+        int selfLen = StringUtils.lengthOfGBK(text.getValue()) * text.getSize().w;
         // texts 为空时 ,说明没有在section 标签内, auto当成fill来处理
         int repeatElementNum = 1;
         if (texts != null) {
@@ -165,7 +165,7 @@ public class TextConverter implements Converter<Text> {
                     }
                     String value = t1.getValue();
                     Text.Size size = t1.getSize();
-                    brotherLen += StringUtil.lengthOfGBK(value) * size.w;
+                    brotherLen += StringUtils.lengthOfGBK(value) * size.w;
                     brotherLen += t1.getMarginLeft();
                     brotherLen += t1.getMarginRight();
                 }

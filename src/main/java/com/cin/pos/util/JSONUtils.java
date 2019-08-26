@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class JSONUtil {
+public class JSONUtils {
 
     private static Converter converter = findSupportJsonLibrary();
 

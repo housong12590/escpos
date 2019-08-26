@@ -14,7 +14,7 @@ public final class Constants {
 
     public static final int SOCKET_TIMEOUT = 3000;
 
-    public static Pattern REPLACE_PATTERN1 = Pattern.compile("\\$\\{\\s*(.*?)\\s*}");
+    public static Pattern REPLACE_PATTERN = Pattern.compile("\\$\\{\\s*(.*?)\\s*}");
 
-    public static Pattern REPLACE_PATTERN2 = Pattern.compile("#\\{\\s*(.*?)\\s*}");
+    public static Pattern PARSE_PATTERN = Pattern.compile("#\\{\\s*(.*?)\\s*}");
 }

@@ -2,8 +2,8 @@ package com.cin.pos.convert;
 
 import com.cin.pos.device.Device;
 import com.cin.pos.element.*;
-import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class ConverterKit {
     }
 
     public static Converter matchConverter(String elementName) {
-        if (StringUtil.isNotEmpty(elementName)) {
+        if (StringUtils.isNotEmpty(elementName)) {
             Class<? extends Element> elementClass = elementMap.get(elementName);
             if (elementClass != null) {
                 return converterMap.get(elementClass);
@@ -55,11 +55,11 @@ public class ConverterKit {
         if (converter != null) {
             return converter.toBytes(device, element);
         }
-        LoggerUtil.error(String.format("没有匹配到%s元素的转换器", element.getClass().getName()));
-        LoggerUtil.info("可用的转换器如下: ");
+        LoggerUtils.error(String.format("没有匹配到%s元素的转换器", element.getClass().getName()));
+        LoggerUtils.info("可用的转换器如下: ");
         for (Map.Entry<Class<? extends Element>, Converter> entry : converterMap.entrySet()) {
             Converter value = entry.getValue();
-            LoggerUtil.info(value.getClass().getName());
+            LoggerUtils.info(value.getClass().getName());
         }
         return new byte[0];
     }

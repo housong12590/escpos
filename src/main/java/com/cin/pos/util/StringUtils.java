@@ -4,9 +4,9 @@ package com.cin.pos.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtil {
+public class StringUtils {
 
     public static int lengthOfGBK(String value) {
         if (value == null)
@@ -117,43 +117,12 @@ public class StringUtil {
         return sb.toString();
     }
 
-    public static String subExpression(Map map, Pattern regexp, String text) {
-        return subExpression(map, regexp, text, null);
-    }
-
-
-    public static String subExpression(Map map, Pattern regexp, String text, String defValue) {
-        Matcher matcher = regexp.matcher(text);
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            String key = matcher.group(1);
-            Object value = getValue(map, key);
-            if (value == null) {
-                if (defValue != null) {
-                    value = defValue;
-                } else {
-                    value = "null";
-                }
-            }
-            String valueStr = value.toString();
-            matcher.appendReplacement(sb, valueStr);
-        }
-        matcher.appendTail(sb);
-        return sb.toString();
-    }
-
     public static boolean isEmpty(String text) {
-        if (text == null || text.length() == 0) {
-            return true;
-        }
-        return false;
+        return text == null || text.length() == 0;
     }
 
     public static boolean isNotEmpty(String text) {
-        if (text != null && text.length() != 0) {
-            return true;
-        }
-        return false;
+        return !isEmpty(text);
     }
 
     public static String inputStream2String(InputStream inputStream) {
@@ -167,18 +136,13 @@ public class StringUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Util.ioClose(inputStream);
+            Utils.safeClose(inputStream);
         }
         return null;
     }
 
     public static InputStream string2inputStream(String str) {
-        try {
-            return new ByteArrayInputStream(str.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));
     }
 
     public static String[] spiltString(String text, int subLen) {
@@ -196,7 +160,7 @@ public class StringUtil {
         return subs;
     }
 
-    public static String getExpressionKey(Pattern pattern, String expression) {
+    public static String getPlaceholderKey(Pattern pattern, String expression) {
         Matcher matcher = pattern.matcher(expression);
         if (matcher.find()) {
             return matcher.group(1);
@@ -242,7 +206,7 @@ public class StringUtil {
         if (keys.isEmpty()) {
             return obj;
         }
-        key = StringUtil.arrayToString(keys, ".");
+        key = StringUtils.arrayToString(keys, ".");
         try {
             map = (Map) obj;
         } catch (Exception e) {

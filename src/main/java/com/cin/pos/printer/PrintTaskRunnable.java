@@ -11,7 +11,7 @@ import com.cin.pos.exception.ConnectException;
 import com.cin.pos.exception.TimeoutException;
 import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.parser.PrintTemplate;
-import com.cin.pos.util.LoggerUtil;
+import com.cin.pos.util.LoggerUtils;
 
 import java.util.Map;
 
@@ -22,8 +22,6 @@ public class PrintTaskRunnable implements Runnable {
     private Object tag;
     private Printer printer;
     private long startTime;
-    private String templateContent;
-    private Map templateData;
     private int interval;
     private long createTime;
 
@@ -60,8 +58,6 @@ public class PrintTaskRunnable implements Runnable {
 
     void setTemplateParse(PrintTemplate printTemplate, String templateContent, Map templateData) {
         this.printTemplate = printTemplate;
-        this.templateContent = templateContent;
-        this.templateData = templateData;
     }
 
     @Override
@@ -69,8 +65,8 @@ public class PrintTaskRunnable implements Runnable {
         startTime = System.currentTimeMillis();
         if (printTemplate != null) {
             try {
-                LoggerUtil.debug(String.format("%s %s 开始解析模版...", printer.getConnection(), tag));
-                document = printTemplate.parser(templateContent, templateData);
+                LoggerUtils.debug(String.format("%s %s 开始解析模版...", printer.getConnection(), tag));
+                this.document = printTemplate.toDocument();
             } catch (Exception e) {
                 printError(e);
                 return;
@@ -80,7 +76,7 @@ public class PrintTaskRunnable implements Runnable {
             printError(new NullPointerException("document can not null..."));
             return;
         }
-        LoggerUtil.debug(String.format("%s %s 模版解析完成, 准备发送打印数据", printer.getConnection(), tag));
+        LoggerUtils.debug(String.format("%s %s 模版解析完成, 准备发送打印数据", printer.getConnection(), tag));
         execPrint();
     }
 
@@ -94,7 +90,7 @@ public class PrintTaskRunnable implements Runnable {
                 printError(e);
             } else {
                 connectionError();
-                LoggerUtil.error(String.format("%s %s 打印机连接失败, 稍后尝试重新连接...", printer.getConnection(), this.tag));
+                LoggerUtils.error(String.format("%s %s 打印机连接失败, 稍后尝试重新连接...", printer.getConnection(), this.tag));
                 long nowTime = System.currentTimeMillis() / 1000;
                 if (nowTime - createTime > printer.getPrinterTimeOut()) {
                     printError(new TimeoutException("打印机连接超时, 任务自动取消"));
@@ -123,10 +119,10 @@ public class PrintTaskRunnable implements Runnable {
             throw new NullPointerException("printer connection can not null...");
         }
         if (!connection.isConnect()) {
-//            LoggerUtil.debug(String.format("%s 正在连接打印机...", printer.getConnection()));
+//            LoggerUtils.debug(String.format("%s 正在连接打印机...", printer.getConnection()));
             connection.doConnect();
         }
-        LoggerUtil.debug(String.format("%s %s 开始打印", printer.getConnection(), this.tag));
+        LoggerUtils.debug(String.format("%s %s 开始打印", printer.getConnection(), this.tag));
         OrderSet orderSet = printer.getDevice().getOrderSet();
         connection.write(orderSet.reset());
     }
@@ -143,7 +139,7 @@ public class PrintTaskRunnable implements Runnable {
         OrderSet orderSet = device.getOrderSet();
         connection.write(orderSet.paperFeed(5));
         connection.write(orderSet.cutPaper());
-        LoggerUtil.debug(String.format("%s %s 发送打印指令长度为%s字节", printer.getConnection(), tag, len));
+        LoggerUtils.debug(String.format("%s %s 发送打印指令长度为%s字节", printer.getConnection(), tag, len));
     }
 
     private void afterPrint() throws ConnectException {
@@ -158,7 +154,7 @@ public class PrintTaskRunnable implements Runnable {
 
     private void printError(Throwable e) {
         OnPrintCallback printCallback = printer.getOnPrintCallback();
-        LoggerUtil.error(String.format("%s %s 打印失败, %s", printer.getConnection(), this.tag, e.getMessage()));
+        LoggerUtils.error(String.format("%s %s 打印失败, %s", printer.getConnection(), this.tag, e.getMessage()));
         if (printCallback != null) {
             printCallback.onError(printer, this.tag, e);
         }
@@ -168,7 +164,7 @@ public class PrintTaskRunnable implements Runnable {
         OnPrintCallback printCallback = printer.getOnPrintCallback();
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        LoggerUtil.debug(String.format("%s %s 打印完成, 耗时%sms", printer.getConnection(), this.tag, elapsedTime));
+        LoggerUtils.debug(String.format("%s %s 打印完成, 耗时%sms", printer.getConnection(), this.tag, elapsedTime));
         if (printCallback != null) {
             printCallback.onSuccess(printer, this.tag);
         }

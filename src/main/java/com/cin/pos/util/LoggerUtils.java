@@ -3,7 +3,7 @@ package com.cin.pos.util;
 import com.cin.pos.platform.Platform;
 import com.cin.pos.platform.log.Logger;
 
-public class LoggerUtil {
+public class LoggerUtils {
 
     private static Logger logger = Platform.get().getLogger();
 

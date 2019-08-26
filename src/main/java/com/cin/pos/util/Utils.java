@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class Util {
+public class Utils {
 
     private static DateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -20,7 +20,7 @@ public class Util {
     }
 
 
-    public static void ioClose(Closeable... closeable) {
+    public static void safeClose(Closeable... closeable) {
         for (Closeable c : closeable) {
             try {
                 if (c != null) {
@@ -57,6 +57,9 @@ public class Util {
     }
 
     public static String toString(Object obj) {
+        if (obj == null) {
+            return null;
+        }
         return obj != null ? obj.toString() : "";
     }
 
@@ -65,7 +68,7 @@ public class Util {
         return new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static String readString(File file) {
+    public static String fileRead(File file) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
@@ -78,15 +81,10 @@ public class Util {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            safeClose(reader);
         }
         return null;
     }
+
 
 }

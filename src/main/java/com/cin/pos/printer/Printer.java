@@ -7,8 +7,8 @@ import com.cin.pos.connect.Connection;
 import com.cin.pos.device.Device;
 import com.cin.pos.element.Document;
 import com.cin.pos.parser.PrintTemplate;
-import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.util.Util;
+import com.cin.pos.util.FileUtils;
+import com.cin.pos.util.LoggerUtils;
 
 import java.io.File;
 import java.util.Map;
@@ -110,10 +110,10 @@ public class Printer {
     public String print(File templateFile, int interval) {
         String printId = generatePrintId();
         if (!templateFile.exists()) {
-            LoggerUtil.error(templateFile.getAbsolutePath() + " not found...");
+            LoggerUtils.error(templateFile.getAbsolutePath() + " not found...");
             return printId;
         }
-        String readString = Util.readString(templateFile);
+        String readString = FileUtils.fileRead(templateFile);
         return (String) print(readString, null, printId, interval);
     }
 
@@ -124,7 +124,7 @@ public class Printer {
 
     public Object print(String templateContent, Map data, Object tag, int interval) {
         PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
-        PrintTemplate printTemplate = new PrintTemplate();
+        PrintTemplate printTemplate = new PrintTemplate(templateContent, data);
         runnable.setTemplateParse(printTemplate, templateContent, data);
         addToPrintQueue(runnable, tag);
         return tag;
@@ -132,14 +132,14 @@ public class Printer {
 
     private synchronized void addToPrintQueue(PrintTaskRunnable runnable, Object tag) {
         printTaskQueue.add(runnable);
-        LoggerUtil.debug(String.format("%s %s 添加到打印队列", this.connection, tag));
+        LoggerUtils.debug(String.format("%s %s 添加到打印队列", this.connection, tag));
         refreshPrintTask();
     }
 
 
     private void refreshPrintTask() {
         if (printerThread == null) {
-            LoggerUtil.debug(String.format("%s 创建新的打印线程", this.connection));
+            LoggerUtils.debug(String.format("%s 创建新的打印线程", this.connection));
             printerThread = new Thread(new PrinterRunnable());
             printerThread.setName(this.connection.toString());
             printerThread.start();
@@ -153,7 +153,7 @@ public class Printer {
         if (mCloseCallback != null) {
             mCloseCallback.onClose(this);
         }
-        LoggerUtil.debug(String.format("%s 打印机连接已销毁", this.connection));
+        LoggerUtils.debug(String.format("%s 打印机连接已销毁", this.connection));
     }
 
     public void setOnCloseCallback(OnCloseCallback callback) {

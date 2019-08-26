@@ -3,8 +3,8 @@ package com.cin.pos.element;
 
 import com.cin.pos.Constants;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.ExpressionUtils;
+import com.cin.pos.util.LoggerUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,17 +73,17 @@ public class Table extends Element {
 
         private void repeatTr(TR tr) {
             if (data == null) {
-                LoggerUtil.error("模版数据为空, 无法进行table repeat操作");
+                LoggerUtils.error("模版数据为空, 无法进行table repeat操作");
                 return;
             }
-            Matcher matcher = Constants.REPLACE_PATTERN2.matcher(tr.repeatKey);
+            Matcher matcher = Constants.PARSE_PATTERN.matcher(tr.repeatKey);
             if (matcher.find()) {
                 try {
                     String expression = matcher.group(0);
                     String key = matcher.group(1);
-                    List<Map> list = (List<Map>) StringUtil.getValue(data, key);
+                    List<Map> list = (List<Map>) ExpressionUtils.getExpressionValue(data, key);
                     if (list == null) {
-                        LoggerUtil.error("模版变量 " + expression + " 找不到指定的属性");
+                        LoggerUtils.error("模版变量 " + expression + " 找不到指定的属性");
                         return;
                     }
                     for (Map item : list) {
@@ -151,7 +151,7 @@ public class Table extends Element {
         private int width;
 
         public TD(Map item, String value) {
-            this.value = StringUtil.subExpression(item, Constants.REPLACE_PATTERN2, value);
+            this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, value, item);
         }
 
         public TD(AttributeSet attrs) {

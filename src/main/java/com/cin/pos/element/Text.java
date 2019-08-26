@@ -3,8 +3,8 @@ package com.cin.pos.element;
 
 import com.cin.pos.Constants;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.StringUtil;
-import com.cin.pos.util.Util;
+import com.cin.pos.util.ExpressionUtils;
+import com.cin.pos.util.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public class Text extends Element {
         this.size = parserTextSize(attrs.getAttributeValue("size"), this.size);
         this.value = attrs.getAttributeValue("value", this.value);
         this.repeat = parserRepeat(attrs.getAttributeValue("repeat"), this.repeat);
-        this.value = StringUtil.subExpression(data, Constants.REPLACE_PATTERN2, this.value);
+        this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, this.value, data);
         // 1,1,1,1 大小,加粗,对齐,下划线
 //        String style = attrs.getAttributeValue("style");
 
@@ -200,7 +200,7 @@ public class Text extends Element {
                 repeat = Repeat.fill;
                 break;
             default:
-                int count = Util.toInt(attribute, 0);
+                int count = Utils.toInt(attribute, 0);
                 repeat = Repeat.count;
                 repeat.value = count;
                 break;

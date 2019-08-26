@@ -2,7 +2,7 @@ package com.cin.pos.connect;
 
 
 import com.cin.pos.exception.ConnectException;
-import com.cin.pos.util.Util;
+import com.cin.pos.util.Utils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class SocketConnection implements Connection {
 
     @Override
     public void close() {
-        Util.ioClose(is, bufferOs, os, socket);
+        Utils.safeClose(is, bufferOs, os, socket);
     }
 
     @Override

@@ -8,14 +8,16 @@ import com.cin.pos.element.Document;
 import com.cin.pos.element.Element;
 import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.ExpressionUtils;
+import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.StringUtils;
 
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -24,14 +26,23 @@ import javax.xml.parsers.SAXParser;
 public class PrintTemplate {
 
     private SAXParser saxParser;
+    private String templateStr;
+    private Map data;
 
-    public PrintTemplate() {
-        saxParser = XmlParseFactory.newParser();
+
+    public PrintTemplate(String templateStr) {
+        this(templateStr, null);
     }
 
-    public Document parser(String templateStr, Map data) {
-        if (StringUtil.isEmpty(templateStr)) {
-            LoggerUtil.debug("模版内容为空");
+    public PrintTemplate(String templateStr, Map data) {
+        this.templateStr = templateStr;
+        this.data = data;
+        this.saxParser = XmlParseFactory.newParser();
+    }
+
+    public Document toDocument() {
+        if (StringUtils.isEmpty(templateStr)) {
+            LoggerUtils.debug("模版内容为空");
             throw new NullPointerException("模版内容为空");
         }
         // 模版预处理,替换模版里的占位符 如 : ${keys}  注: #{keys}在这里暂不处理
@@ -39,33 +50,43 @@ public class PrintTemplate {
         Document document = new Document();
         AttributeSet attributeSet = parserXmlTemplate(templateStr);
         for (AttributeSet set : attributeSet.getAttributeSets()) {
-            String name = set.getName().toLowerCase();
-            Element element = ConverterKit.newElement(name);
+            String elementName = set.getName().toLowerCase();
+            Element element = ConverterKit.newElement(elementName);
             if (element != null) {
                 try {
                     element.parser(set, data);
                     document.addElement(element);
                 } catch (ConditionNotExistException e) {
-                    LoggerUtil.info(e.getMessage());
+                    LoggerUtils.info(e.getMessage());
                 }
             }
         }
         return document;
     }
 
+    public String preview() {
+        Document document = toDocument();
+        List<Element> elements = document.getElements();
+        StringBuilder sb = new StringBuilder();
+        for (Element element : elements) {
+            sb.append(element.toString());
+        }
+        return sb.toString();
+    }
+
 
     private String pretreatment(String templateStr, Map data) {
-        Matcher matcher = Constants.REPLACE_PATTERN1.matcher(templateStr);
+        Matcher matcher = Constants.REPLACE_PATTERN.matcher(templateStr);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
-            String key = matcher.group(1);
-            Object obj = StringUtil.getValue(data, key);
+            String expression = matcher.group(1);
+            Object obj = ExpressionUtils.getExpressionValue(data, expression);
             String value = obj == null ? null : obj.toString();
             if (value == null) {
-                value = LocalVariable.getValue(key);
+                value = LocalVariable.getValue(expression);
             }
             if (value == null) {
-                value = "null";
+                value = expression;
             }
             matcher.appendReplacement(sb, value);
         }
@@ -84,4 +105,5 @@ public class PrintTemplate {
         }
         return handler.getRootAttributeSet();
     }
+
 }

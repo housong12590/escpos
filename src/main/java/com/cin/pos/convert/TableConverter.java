@@ -5,7 +5,7 @@ import com.cin.pos.device.Device;
 import com.cin.pos.element.Align;
 import com.cin.pos.element.Table;
 import com.cin.pos.util.ByteBuffer;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.StringUtils;
 import com.cin.pos.orderset.OrderSet;
 
 import java.io.UnsupportedEncodingException;
@@ -100,15 +100,15 @@ public class TableConverter implements Converter<Table> {
         for (Table.TD td : tds) {
             String value = td.getValue();
             int width = td.getWidth();
-            List<String> splitValue = StringUtil.splitStringLenOfGBK(value, width);
+            List<String> splitValue = StringUtils.splitStringLenOfGBK(value, width);
             for (int j = 0; j < splitValue.size(); j++) {
                 String rowStr = splitValue.get(j);
                 if (td.getAlign() == Align.center) {
-                    rowStr = StringUtil.fillBlankBoth2GBKLength(rowStr, width);
+                    rowStr = StringUtils.fillBlankBoth2GBKLength(rowStr, width);
                 } else if (td.getAlign() == Align.right) {
-                    rowStr = StringUtil.fillBlankLeft2GBKLength(rowStr, width);
+                    rowStr = StringUtils.fillBlankLeft2GBKLength(rowStr, width);
                 } else if (td.getAlign() == Align.left) {
-                    rowStr = StringUtil.fillBlankRight2GBKLength(rowStr, width);
+                    rowStr = StringUtils.fillBlankRight2GBKLength(rowStr, width);
                 }
                 splitValue.set(j, rowStr);
                 if (splitValue.size() > maxLine) {

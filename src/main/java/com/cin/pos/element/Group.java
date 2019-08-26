@@ -3,8 +3,8 @@ package com.cin.pos.element;
 import com.cin.pos.Constants;
 import com.cin.pos.convert.ConverterKit;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,21 +36,21 @@ public class Group extends Element {
 
 
     private Object getExpressionValue(Map data, String expression) {
-        Matcher matcher = Constants.REPLACE_PATTERN2.matcher(expression);
+        Matcher matcher = Constants.PARSE_PATTERN.matcher(expression);
         if (matcher.find()) {
-            String key = StringUtil.getExpressionKey(Constants.REPLACE_PATTERN2, expression);
-            if (StringUtil.isEmpty(key)) {
+            String key = StringUtils.getPlaceholderKey(Constants.PARSE_PATTERN, expression);
+            if (StringUtils.isEmpty(key)) {
                 return null;
             }
             Object value = data.get(key);
             if (value == null) {
-                LoggerUtil.error(String.format("找不到%s的值, 检查表达式是否正确", expression));
+                LoggerUtils.error(String.format("找不到%s的值, 检查表达式是否正确", expression));
                 return null;
             } else {
                 return value;
             }
         } else {
-            LoggerUtil.error("表达式格式不合法, 正确表达式如下 #{value} or #{ data.users } ");
+            LoggerUtils.error("表达式格式不合法, 正确表达式如下 #{value} or #{ data.users } ");
         }
         return null;
     }
@@ -66,7 +66,7 @@ public class Group extends Element {
                     generateChildElement(attributeSet, itemMap);
                 }
             } else {
-                LoggerUtil.error(String.format("数据格式不满足遍历条件 %s", item));
+                LoggerUtils.error(String.format("数据格式不满足遍历条件 %s", item));
             }
         }
     }
@@ -78,7 +78,7 @@ public class Group extends Element {
             element.parser(attrs, data);
             children.add(element);
         } else {
-            LoggerUtil.error(String.format("%s 标签没有匹配到相应的元素 ", elementName));
+            LoggerUtils.error(String.format("%s 标签没有匹配到相应的元素 ", elementName));
         }
     }
 

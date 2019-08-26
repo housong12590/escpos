@@ -4,8 +4,9 @@ import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.Constants;
 import com.cin.pos.parser.Parser;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.StringUtil;
-import com.cin.pos.util.Util;
+import com.cin.pos.util.ExpressionUtils;
+import com.cin.pos.util.StringUtils;
+import com.cin.pos.util.Utils;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -81,11 +82,11 @@ public abstract class Element implements Parser {
 
     private void parserMargin(AttributeSet attrs, int[] margin) {
         String value = attrs.getAttributeValue("margin");
-        if (StringUtil.isNotEmpty(value)) {
+        if (StringUtils.isNotEmpty(value)) {
             String[] splits = value.split(",");
             int[] margins = new int[splits.length];
             for (int i = 0; i < splits.length; i++) {
-                margins[i] = Util.toInt(splits[i]);
+                margins[i] = Utils.toInt(splits[i]);
             }
             int left, top, right, bottom;
             if (margins.length == 1) {
@@ -111,34 +112,34 @@ public abstract class Element implements Parser {
             margin[3] = bottom;
         }
         String marginLeft = attrs.getAttributeValue("marginLeft");
-        if (StringUtil.isNotEmpty(marginLeft)) {
-            margin[0] = Util.toInt(marginLeft, margin[0]);
+        if (StringUtils.isNotEmpty(marginLeft)) {
+            margin[0] = Utils.toInt(marginLeft, margin[0]);
         }
         String marginTop = attrs.getAttributeValue("marginTop");
-        if (StringUtil.isNotEmpty(marginTop)) {
-            margin[1] = Util.toInt(marginTop, margin[1]);
+        if (StringUtils.isNotEmpty(marginTop)) {
+            margin[1] = Utils.toInt(marginTop, margin[1]);
         }
         String marginRight = attrs.getAttributeValue("marginRight");
-        if (StringUtil.isNotEmpty(marginRight)) {
-            margin[2] = Util.toInt(marginRight, margin[2]);
+        if (StringUtils.isNotEmpty(marginRight)) {
+            margin[2] = Utils.toInt(marginRight, margin[2]);
         }
         String marginBottom = attrs.getAttributeValue("marginBottom");
-        if (StringUtil.isNotEmpty(marginBottom)) {
-            margin[3] = Util.toInt(marginBottom, margin[3]);
+        if (StringUtils.isNotEmpty(marginBottom)) {
+            margin[3] = Utils.toInt(marginBottom, margin[3]);
         }
     }
 
     private boolean checkCondition(Map data, String condition) {
-        if (StringUtil.isEmpty(condition)) {
+        if (StringUtils.isEmpty(condition)) {
             return true;
         }
         if (condition.equals("true") || condition.equals("false")) {
             return Boolean.parseBoolean(condition);
         }
-        Matcher matcher = Constants.REPLACE_PATTERN2.matcher(condition);
+        Matcher matcher = Constants.PARSE_PATTERN.matcher(condition);
         if (matcher.find()) {
             String key = matcher.group(1);
-            Object value = StringUtil.getValue(data, key);
+            Object value = ExpressionUtils.getExpressionValue(data, key);
             if (value == null) {
                 return false;
             } else {

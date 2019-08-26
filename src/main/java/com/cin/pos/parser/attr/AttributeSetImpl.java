@@ -1,6 +1,6 @@
 package com.cin.pos.parser.attr;
 
-import com.cin.pos.util.Util;
+import com.cin.pos.util.Utils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,7 +37,7 @@ public class AttributeSetImpl implements AttributeSet {
 
     @Override
     public String getAttributeValue(String attribute) {
-        return Util.toString(attributeSet.get(attribute));
+        return Utils.toString(attributeSet.get(attribute));
     }
 
     @Override
@@ -46,14 +46,14 @@ public class AttributeSetImpl implements AttributeSet {
         if (value != null) {
             return value.toString();
         }
-        return Util.toString(defaultValue);
+        return Utils.toString(defaultValue);
     }
 
     @Override
     public boolean getBooleanValue(String attribute, boolean defaultValue) {
         Object value = attributeSet.get(attribute);
         if (value != null) {
-            return Util.toBoolean(value);
+            return Utils.toBoolean(value);
         }
         return defaultValue;
     }
@@ -62,7 +62,7 @@ public class AttributeSetImpl implements AttributeSet {
     public int getIntValue(String attribute, int defaultValue) {
         Object value = attributeSet.get(attribute);
         if (value != null) {
-            return Util.toInt(value);
+            return Utils.toInt(value);
         }
         return defaultValue;
     }
@@ -71,7 +71,7 @@ public class AttributeSetImpl implements AttributeSet {
     public float getFloatValue(String attribute, float defaultValue) {
         Object value = attributeSet.get(attribute);
         if (value != null) {
-            return Util.toFloat(value);
+            return Utils.toFloat(value);
         }
         return defaultValue;
     }

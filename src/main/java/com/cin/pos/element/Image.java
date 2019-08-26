@@ -3,8 +3,8 @@ package com.cin.pos.element;
 
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ImageCreator;
-import com.cin.pos.util.LoggerUtil;
-import com.cin.pos.util.StringUtil;
+import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.StringUtils;
 
 import java.util.Map;
 
@@ -74,7 +74,7 @@ public class Image extends Element {
         this.value = attrs.getAttributeValue("value", this.value);
         this.type = parserImageType(attrs.getAttributeValue("type"), this.type);
         this.align = Align.parserAlign(attrs.getAttributeValue("align"), this.align);
-        if (StringUtil.isNotEmpty(this.value)) {
+        if (StringUtils.isNotEmpty(this.value)) {
             if (getWidth() > 0 && getHeight() > 0) {
                 if (type == Image.Type.image) {
                     this.pixels = ImageCreator.createImagePixels(this.value, getWidth(), getHeight());
@@ -84,11 +84,11 @@ public class Image extends Element {
                     this.pixels = ImageCreator.createBarcodePixels(this.value, getWidth(), getHeight());
                 }
                 if (this.pixels == null) {
-                    LoggerUtil.error("image pixels can not null !!!");
+                    LoggerUtils.error("image pixels can not null !!!");
                 }
             }
         } else {
-            LoggerUtil.error("image value can not null !!!");
+            LoggerUtils.error("image value can not null !!!");
         }
 
     }
