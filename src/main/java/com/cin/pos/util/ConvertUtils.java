@@ -73,4 +73,11 @@ public class ConvertUtils {
         }
         return defValue;
     }
+
+    public static boolean toBool(Object obj, boolean defValue) {
+        if (obj == null) {
+            return defValue;
+        }
+        return Boolean.parseBoolean(toString(obj));
+    }
 }

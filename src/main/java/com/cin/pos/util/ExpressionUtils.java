@@ -26,6 +26,14 @@ public class ExpressionUtils {
         return sb.toString();
     }
 
+    public static String getExpression(Pattern regexp, String text) {
+        Matcher matcher = regexp.matcher(text);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
     public static Object getExpressionValue(Object source, String expression) {
         if (source == null) {
             return null;

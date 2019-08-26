@@ -6,6 +6,8 @@ public interface AttributeSet {
 
     String getName();
 
+    boolean hasAttribute(String attributeName);
+
     int getAttributeCount();
 
     String getAttributeValue(String attribute);

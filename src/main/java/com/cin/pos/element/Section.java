@@ -1,10 +1,11 @@
 package com.cin.pos.element;
 
 
+import com.cin.pos.common.Dict;
+import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 
 import java.util.LinkedList;
-import java.util.Map;
 
 public class Section extends Element {
 
@@ -28,7 +29,7 @@ public class Section extends Element {
 
 
     @Override
-    public void parser(AttributeSet attrs, Map<String, Object> data) {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
         super.parser(attrs, data);
         for (AttributeSet attributeSet : attrs.getAttributeSets()) {
             Text text = new Text();

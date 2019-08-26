@@ -1,15 +1,14 @@
 package com.cin.pos.element;
 
-import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.Constants;
+import com.cin.pos.common.Dict;
+import com.cin.pos.element.exception.ConditionNotExistException;
+import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.Parser;
 import com.cin.pos.parser.attr.AttributeSet;
+import com.cin.pos.util.ConvertUtils;
 import com.cin.pos.util.ExpressionUtils;
 import com.cin.pos.util.StringUtils;
-import com.cin.pos.util.Utils;
-
-import java.util.Map;
-import java.util.regex.Matcher;
 
 public abstract class Element implements Parser {
 
@@ -68,11 +67,13 @@ public abstract class Element implements Parser {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Map<String, Object> data) {
-        String condition = attrs.getAttributeValue("condition", "");
-        // 条件不满足 不进行解析
-        if (!checkCondition(data, condition)) {
-            throw new ConditionNotExistException(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(), condition));
+    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+        if (!attrs.hasAttribute("condition")) {
+            String condition = attrs.getAttributeValue("condition", null);
+            if (!checkCondition(data, condition)) {
+                // 条件不满足 不进行解析
+                throw new ConditionNotExistException(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(), condition));
+            }
         }
         this.width = attrs.getIntValue("width", WARP_CONTENT);
         this.height = attrs.getIntValue("height", WARP_CONTENT);
@@ -86,7 +87,7 @@ public abstract class Element implements Parser {
             String[] splits = value.split(",");
             int[] margins = new int[splits.length];
             for (int i = 0; i < splits.length; i++) {
-                margins[i] = Utils.toInt(splits[i]);
+                margins[i] = ConvertUtils.toInt(splits[i]);
             }
             int left, top, right, bottom;
             if (margins.length == 1) {
@@ -111,35 +112,25 @@ public abstract class Element implements Parser {
             margin[2] = right;
             margin[3] = bottom;
         }
-        String marginLeft = attrs.getAttributeValue("marginLeft");
-        if (StringUtils.isNotEmpty(marginLeft)) {
-            margin[0] = Utils.toInt(marginLeft, margin[0]);
-        }
-        String marginTop = attrs.getAttributeValue("marginTop");
-        if (StringUtils.isNotEmpty(marginTop)) {
-            margin[1] = Utils.toInt(marginTop, margin[1]);
-        }
-        String marginRight = attrs.getAttributeValue("marginRight");
-        if (StringUtils.isNotEmpty(marginRight)) {
-            margin[2] = Utils.toInt(marginRight, margin[2]);
-        }
-        String marginBottom = attrs.getAttributeValue("marginBottom");
-        if (StringUtils.isNotEmpty(marginBottom)) {
-            margin[3] = Utils.toInt(marginBottom, margin[3]);
-        }
+        margin[0] = attrs.getIntValue("marginLeft", margin[0]);
+        margin[1] = attrs.getIntValue("marginTop", margin[1]);
+        margin[2] = attrs.getIntValue("marginRight", margin[2]);
+        margin[3] = attrs.getIntValue("marginBottom", margin[3]);
     }
 
-    private boolean checkCondition(Map data, String condition) {
+    private boolean checkCondition(Dict data, String condition) {
+        if (data == null) {
+            return false;
+        }
         if (StringUtils.isEmpty(condition)) {
             return true;
         }
-        if (condition.equals("true") || condition.equals("false")) {
+        if (condition.matches("(true|false)")) {
             return Boolean.parseBoolean(condition);
         }
-        Matcher matcher = Constants.PARSE_PATTERN.matcher(condition);
-        if (matcher.find()) {
-            String key = matcher.group(1);
-            Object value = ExpressionUtils.getExpressionValue(data, key);
+        String placeholderKey = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, condition);
+        if (!StringUtils.isEmpty(placeholderKey)) {
+            Object value = data.getExpressionValue(placeholderKey);
             if (value == null) {
                 return false;
             } else {

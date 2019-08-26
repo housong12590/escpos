@@ -1,4 +1,4 @@
-package com.cin.pos;
+package com.cin.pos.common;
 
 
 import com.cin.pos.util.BeanUtils;

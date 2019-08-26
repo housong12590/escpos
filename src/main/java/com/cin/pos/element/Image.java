@@ -1,12 +1,12 @@
 package com.cin.pos.element;
 
 
+import com.cin.pos.common.Dict;
+import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ImageCreator;
 import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.StringUtils;
-
-import java.util.Map;
 
 public class Image extends Element {
 
@@ -69,7 +69,7 @@ public class Image extends Element {
 
 
     @Override
-    public void parser(AttributeSet attrs, Map<String, Object> data) {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
         super.parser(attrs, data);
         this.value = attrs.getAttributeValue("value", this.value);
         this.type = parserImageType(attrs.getAttributeValue("type"), this.type);

@@ -1,5 +1,6 @@
 package com.cin.pos.printer;
 
+import com.cin.pos.common.Dict;
 import com.cin.pos.callback.OnCloseCallback;
 import com.cin.pos.callback.OnConnectionErrorCallback;
 import com.cin.pos.callback.OnPrintCallback;
@@ -11,7 +12,6 @@ import com.cin.pos.util.FileUtils;
 import com.cin.pos.util.LoggerUtils;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -117,12 +117,12 @@ public class Printer {
         return (String) print(readString, null, printId, interval);
     }
 
-    public String print(String templateContent, Map data, int interval) {
+    public String print(String templateContent, Dict data, int interval) {
         String printId = generatePrintId();
         return (String) print(templateContent, data, printId, interval);
     }
 
-    public Object print(String templateContent, Map data, Object tag, int interval) {
+    public Object print(String templateContent, Dict data, Object tag, int interval) {
         PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
         PrintTemplate printTemplate = new PrintTemplate(templateContent, data);
         runnable.setTemplateParse(printTemplate, templateContent, data);

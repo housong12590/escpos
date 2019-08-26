@@ -2,18 +2,20 @@ package com.cin.pos.parser;
 
 
 import com.cin.pos.Constants;
+import com.cin.pos.common.Dict;
 import com.cin.pos.LocalVariable;
 import com.cin.pos.convert.ConverterKit;
 import com.cin.pos.element.Document;
 import com.cin.pos.element.Element;
 import com.cin.pos.element.exception.ConditionNotExistException;
+import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ExpressionUtils;
 import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.StringUtils;
-
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,20 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import javax.xml.parsers.SAXParser;
-
 public class PrintTemplate {
 
     private SAXParser saxParser;
     private String templateStr;
-    private Map data;
+    private Dict data;
 
 
     public PrintTemplate(String templateStr) {
         this(templateStr, null);
     }
 
-    public PrintTemplate(String templateStr, Map data) {
+    public PrintTemplate(String templateStr, Dict data) {
         this.templateStr = templateStr;
         this.data = data;
         this.saxParser = XmlParseFactory.newParser();
@@ -56,7 +56,7 @@ public class PrintTemplate {
                 try {
                     element.parser(set, data);
                     document.addElement(element);
-                } catch (ConditionNotExistException e) {
+                } catch (ConditionNotExistException|TemplateParseException e) {
                     LoggerUtils.info(e.getMessage());
                 }
             }

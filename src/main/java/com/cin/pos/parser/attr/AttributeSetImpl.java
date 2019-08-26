@@ -1,6 +1,6 @@
 package com.cin.pos.parser.attr;
 
-import com.cin.pos.util.Utils;
+import com.cin.pos.util.ConvertUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,49 +31,42 @@ public class AttributeSetImpl implements AttributeSet {
     }
 
     @Override
+    public boolean hasAttribute(String attributeName) {
+        return attributeSet.containsKey(attributeName);
+    }
+
+    @Override
     public int getAttributeCount() {
         return attributeSet.size();
     }
 
     @Override
     public String getAttributeValue(String attribute) {
-        return Utils.toString(attributeSet.get(attribute));
+        return ConvertUtils.toString(attributeSet.get(attribute));
     }
 
     @Override
     public String getAttributeValue(String attribute, Object defaultValue) {
         Object value = attributeSet.get(attribute);
-        if (value != null) {
-            return value.toString();
-        }
-        return Utils.toString(defaultValue);
+        return ConvertUtils.toString(value, ConvertUtils.toString(defaultValue));
     }
 
     @Override
     public boolean getBooleanValue(String attribute, boolean defaultValue) {
         Object value = attributeSet.get(attribute);
-        if (value != null) {
-            return Utils.toBoolean(value);
-        }
-        return defaultValue;
+        return ConvertUtils.toBool(value, defaultValue);
     }
 
     @Override
     public int getIntValue(String attribute, int defaultValue) {
         Object value = attributeSet.get(attribute);
-        if (value != null) {
-            return Utils.toInt(value);
-        }
-        return defaultValue;
+        return ConvertUtils.toInt(value, defaultValue);
     }
 
     @Override
     public float getFloatValue(String attribute, float defaultValue) {
         Object value = attributeSet.get(attribute);
-        if (value != null) {
-            return Utils.toFloat(value);
-        }
-        return defaultValue;
+        return ConvertUtils.toFloat(value, defaultValue);
     }
 
     @Override

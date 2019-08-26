@@ -2,12 +2,13 @@ package com.cin.pos.element;
 
 
 import com.cin.pos.Constants;
+import com.cin.pos.common.Dict;
+import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
+import com.cin.pos.util.ConvertUtils;
 import com.cin.pos.util.ExpressionUtils;
-import com.cin.pos.util.Utils;
 
 import java.util.List;
-import java.util.Map;
 
 public class Text extends Element {
 
@@ -72,7 +73,7 @@ public class Text extends Element {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Map<String, Object> data) {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
         super.parser(attrs, data);
         this.bold = attrs.getBooleanValue("bold", this.bold);
         this.underline = attrs.getBooleanValue("underline", this.underline);
@@ -81,9 +82,6 @@ public class Text extends Element {
         this.value = attrs.getAttributeValue("value", this.value);
         this.repeat = parserRepeat(attrs.getAttributeValue("repeat"), this.repeat);
         this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, this.value, data);
-        // 1,1,1,1 大小,加粗,对齐,下划线
-//        String style = attrs.getAttributeValue("style");
-
     }
 
 
@@ -200,7 +198,7 @@ public class Text extends Element {
                 repeat = Repeat.fill;
                 break;
             default:
-                int count = Utils.toInt(attribute, 0);
+                int count = ConvertUtils.toInt(attribute, 0);
                 repeat = Repeat.count;
                 repeat.value = count;
                 break;

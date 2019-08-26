@@ -2,25 +2,27 @@ package com.cin.pos.element;
 
 
 import com.cin.pos.Constants;
+import com.cin.pos.common.Dict;
+import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
+import com.cin.pos.util.ConvertUtils;
 import com.cin.pos.util.ExpressionUtils;
 import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 public class Table extends Element {
 
     private List<TR> trs = new ArrayList<>();
-    private Map<String, Object> data;
+    private Dict data;
 
 
     public Table() {
 
     }
-
 
     public List<TR> getTrs() {
         return trs;
@@ -32,20 +34,18 @@ public class Table extends Element {
 
 
     @Override
-    public void parser(AttributeSet attrs, Map<String, Object> data) {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
         super.parser(attrs, data);
         this.data = data;
         List<AttributeSet> attributeSets = attrs.getAttributeSets();
         for (AttributeSet trAttrs : attributeSets) {
-            TR tr = new TR(trAttrs);
-            if (!tr.repeat) {
-                this.trs.add(tr);
-            }
+            TR tr = new TR();
+            tr.parser(trAttrs, data);
         }
     }
 
 
-    public class TR {
+    public class TR extends Element {
 
         private List<TD> tds = new ArrayList<>();
         private boolean bold = false;
@@ -55,56 +55,6 @@ public class Table extends Element {
         public TR() {
 
         }
-
-        public TR(AttributeSet attrs) {
-            this.bold = attrs.getBooleanValue("bold", false);
-            this.repeat = attrs.getBooleanValue("repeat", false);
-            this.repeatKey = attrs.getAttributeValue("repeatKey");
-
-            List<AttributeSet> attributeSets = attrs.getAttributeSets();
-            for (AttributeSet attributeSet : attributeSets) {
-                TD td = new TD(attributeSet);
-                tds.add(td);
-            }
-            if (this.repeat) {
-                repeatTr(this);
-            }
-        }
-
-        private void repeatTr(TR tr) {
-            if (data == null) {
-                LoggerUtils.error("模版数据为空, 无法进行table repeat操作");
-                return;
-            }
-            Matcher matcher = Constants.PARSE_PATTERN.matcher(tr.repeatKey);
-            if (matcher.find()) {
-                try {
-                    String expression = matcher.group(0);
-                    String key = matcher.group(1);
-                    List<Map> list = (List<Map>) ExpressionUtils.getExpressionValue(data, key);
-                    if (list == null) {
-                        LoggerUtils.error("模版变量 " + expression + " 找不到指定的属性");
-                        return;
-                    }
-                    for (Map item : list) {
-                        TR tr1 = new TR();
-                        tr.setBold(isBold());
-                        for (TD td : tr.getTds()) {
-                            TD td1 = new TD(item, td.value);
-                            td1.setAlign(td.align);
-                            td1.setWeight(td.weight);
-                            tr1.addTd(td1);
-                            tr1.setBold(bold);
-                        }
-                        trs.add(tr1);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
-
 
         public boolean isRepeat() {
             return repeat;
@@ -141,23 +91,91 @@ public class Table extends Element {
         public void setRepeatKey(String repeatKey) {
             this.repeatKey = repeatKey;
         }
+
+        @Override
+        public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+            this.bold = attrs.getBooleanValue("bold", false);
+            this.repeat = attrs.getBooleanValue("repeat", false);
+            this.repeatKey = attrs.getAttributeValue("repeatKey");
+
+            if (!this.repeat) {
+                for (AttributeSet attributeSet : attrs.getAttributeSets()) {
+                    TD td = new TD();
+                    td.parser(attributeSet, null);
+                    tds.add(td);
+                }
+            } else {
+
+            }
+
+            for (AttributeSet attributeSet : attrs.getAttributeSets()) {
+                TD td = new TD();
+                td.parser(attributeSet, this.repeat ? null : null);
+                tds.add(td);
+            }
+
+            List<AttributeSet> attributeSets = attrs.getAttributeSets();
+            for (AttributeSet attributeSet : attributeSets) {
+                TD td = new TD();
+                td.parser(attributeSet, data);
+                tds.add(td);
+            }
+            if (this.repeat) {
+                repeatTr(this);
+            }
+        }
+
+        private void repeatTr(TR tr) throws TemplateParseException {
+            if (data == null) {
+                LoggerUtils.error("模版数据为空, 无法进行table repeat操作");
+                return;
+            }
+            String expression = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, tr.repeatKey);
+            if (StringUtils.isEmpty(expression)) {
+                throw new TemplateParseException("无效的表达式" + tr.repeatKey);
+            }
+            Object expressionValue = data.getExpressionValue(expression);
+            if (expressionValue == null) {
+                throw new TemplateParseException(tr.repeatKey + "表达式值为空值");
+            }
+            if (!(expressionValue instanceof Iterable)) {
+                throw new TemplateParseException(tr.repeatKey + "的值不是一个可迭代对象,无法进行遍历");
+            }
+            for (Object value : ((Iterable) expressionValue)) {
+                if (value instanceof Map) {
+                    Dict item = Dict.create(value);
+                    TR tr1 = new TR();
+                    tr.setBold(isBold());
+                    for (TD td : tr.getTds()) {
+
+                        TD td1 = new TD(null, td.weight, td.align, td.width);
+                        tr1.addTd(td1);
+                        tr1.setBold(bold);
+                    }
+                    trs.add(tr1);
+                } else {
+                    throw new TemplateParseException(tr.repeatKey + "数据格式不正确");
+                }
+            }
+        }
     }
 
-    public class TD {
+    public class TD extends Element {
 
         private String value = "";
         private int weight = 1;
         private Align align = Align.left;
         private int width;
 
-        public TD(Map item, String value) {
-            this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, value, item);
+        public TD() {
+
         }
 
-        public TD(AttributeSet attrs) {
-            this.value = attrs.getAttributeValue("value", this.value);
-            this.weight = attrs.getIntValue("weight", this.weight);
-            this.align = Align.parserAlign(attrs.getAttributeValue("align"), this.align);
+        public TD(String value, int weight, Align align, int width) {
+            this.value = value;
+            this.weight = weight;
+            this.align = align;
+            this.width = width;
         }
 
         public String getValue() {
@@ -190,6 +208,17 @@ public class Table extends Element {
 
         public void setWidth(int width) {
             this.width = width;
+        }
+
+        @Override
+        public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+            this.value = attrs.getAttributeValue("value", this.value);
+            this.weight = attrs.getIntValue("weight", this.weight);
+            this.align = Align.parserAlign(attrs.getAttributeValue("align"), this.align);
+            String expression = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, this.value);
+            if (!StringUtils.isEmpty(expression)) {
+                this.value = ConvertUtils.toString(data.getExpressionValue(expression));
+            }
         }
     }
 
