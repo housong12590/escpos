@@ -10,7 +10,7 @@ import com.cin.pos.element.Element;
 import com.cin.pos.exception.ConnectException;
 import com.cin.pos.exception.TimeoutException;
 import com.cin.pos.orderset.OrderSet;
-import com.cin.pos.parser.TemplateParse;
+import com.cin.pos.parser.PrintTemplate;
 import com.cin.pos.util.LoggerUtil;
 
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class PrintTaskRunnable implements Runnable {
 
     private Document document;
-    private TemplateParse templateParse;
+    private PrintTemplate printTemplate;
     private Object tag;
     private Printer printer;
     private long startTime;
@@ -58,8 +58,8 @@ public class PrintTaskRunnable implements Runnable {
         this.interval = interval;
     }
 
-    void setTemplateParse(TemplateParse templateParse, String templateContent, Map templateData) {
-        this.templateParse = templateParse;
+    void setTemplateParse(PrintTemplate printTemplate, String templateContent, Map templateData) {
+        this.printTemplate = printTemplate;
         this.templateContent = templateContent;
         this.templateData = templateData;
     }
@@ -67,10 +67,10 @@ public class PrintTaskRunnable implements Runnable {
     @Override
     public void run() {
         startTime = System.currentTimeMillis();
-        if (templateParse != null) {
+        if (printTemplate != null) {
             try {
                 LoggerUtil.debug(String.format("%s %s 开始解析模版...", printer.getConnection(), tag));
-                document = templateParse.parser(templateContent, templateData);
+                document = printTemplate.parser(templateContent, templateData);
             } catch (Exception e) {
                 printError(e);
                 return;

@@ -1,12 +1,12 @@
 package com.cin.pos.parser;
 
 
-import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.Constants;
 import com.cin.pos.LocalVariable;
 import com.cin.pos.convert.ConverterKit;
 import com.cin.pos.element.Document;
 import com.cin.pos.element.Element;
+import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.LoggerUtil;
 import com.cin.pos.util.StringUtil;
@@ -19,19 +19,14 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 
-public class TemplateParse {
+public class PrintTemplate {
 
     private SAXParser saxParser;
 
-    public TemplateParse() {
-        try {
-            saxParser = XmlParseManager.getParserFactory().newSAXParser();
-        } catch (ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
-        }
+    public PrintTemplate() {
+        saxParser = XmlParseFactory.newParser();
     }
 
     public Document parser(String templateStr, Map data) {
