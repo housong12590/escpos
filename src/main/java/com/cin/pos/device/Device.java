@@ -1,14 +1,17 @@
 package com.cin.pos.device;
 
 
-import com.cin.pos.Constants;
-import com.cin.pos.orderset.OrderSetFactory;
 import com.cin.pos.orderset.OrderSet;
+import com.cin.pos.orderset.OrderSetFactory;
+
+import java.nio.charset.Charset;
 
 public class Device {
 
 
-    private String charset = Constants.CHARSET_GBK;
+//    private String charset = Constants.CHARSET_GBK;
+
+    private Charset charset = Charset.forName("GBK");
 
     private Paper paper;
 
@@ -19,11 +22,20 @@ public class Device {
         this.paper = paper;
     }
 
-    public String getCharset() {
+//    public String getCharset() {
+//        return charset;
+//    }
+//
+//    public void setCharset(String charset) {
+//        this.charset = charset;
+//    }
+
+
+    public Charset getCharset() {
         return charset;
     }
 
-    public void setCharset(String charset) {
+    public void setCharset(Charset charset) {
         this.charset = charset;
     }
 

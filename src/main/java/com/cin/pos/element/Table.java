@@ -5,7 +5,6 @@ import com.cin.pos.Constants;
 import com.cin.pos.common.Dict;
 import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
-import com.cin.pos.util.ConvertUtils;
 import com.cin.pos.util.ExpressionUtils;
 import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.StringUtils;
@@ -40,12 +39,12 @@ public class Table extends Element {
         List<AttributeSet> attributeSets = attrs.getAttributeSets();
         for (AttributeSet trAttrs : attributeSets) {
             TR tr = new TR();
-            tr.parser(trAttrs, data);
+            tr.parser(trAttrs);
         }
     }
 
 
-    public class TR extends Element {
+    public class TR {
 
         private List<TD> tds = new ArrayList<>();
         private boolean bold = false;
@@ -92,35 +91,17 @@ public class Table extends Element {
             this.repeatKey = repeatKey;
         }
 
-        @Override
-        public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+        public void parser(AttributeSet attrs) throws TemplateParseException {
             this.bold = attrs.getBooleanValue("bold", false);
             this.repeat = attrs.getBooleanValue("repeat", false);
             this.repeatKey = attrs.getAttributeValue("repeatKey");
-
-            if (!this.repeat) {
-                for (AttributeSet attributeSet : attrs.getAttributeSets()) {
-                    TD td = new TD();
-                    td.parser(attributeSet, null);
-                    tds.add(td);
-                }
-            } else {
-
-            }
-
             for (AttributeSet attributeSet : attrs.getAttributeSets()) {
-                TD td = new TD();
-                td.parser(attributeSet, this.repeat ? null : null);
+                TD td = new TD(attributeSet);
                 tds.add(td);
             }
-
-            List<AttributeSet> attributeSets = attrs.getAttributeSets();
-            for (AttributeSet attributeSet : attributeSets) {
-                TD td = new TD();
-                td.parser(attributeSet, data);
-                tds.add(td);
-            }
-            if (this.repeat) {
+            if (!this.repeat) {
+                trs.add(this);
+            } else {
                 repeatTr(this);
             }
         }
@@ -147,8 +128,8 @@ public class Table extends Element {
                     TR tr1 = new TR();
                     tr.setBold(isBold());
                     for (TD td : tr.getTds()) {
-
-                        TD td1 = new TD(null, td.weight, td.align, td.width);
+                        String text = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, td.getValue(), item);
+                        TD td1 = new TD(text, td.weight, td.align, td.width);
                         tr1.addTd(td1);
                         tr1.setBold(bold);
                     }
@@ -160,7 +141,7 @@ public class Table extends Element {
         }
     }
 
-    public class TD extends Element {
+    public class TD {
 
         private String value = "";
         private int weight = 1;
@@ -169,6 +150,12 @@ public class Table extends Element {
 
         public TD() {
 
+        }
+
+        public TD(AttributeSet attr) {
+            this.value = attr.getAttributeValue("value", this.value);
+            this.weight = attr.getIntValue("weight", this.weight);
+            this.align = Align.parserAlign(attr.getAttributeValue("align"), this.align);
         }
 
         public TD(String value, int weight, Align align, int width) {
@@ -208,17 +195,6 @@ public class Table extends Element {
 
         public void setWidth(int width) {
             this.width = width;
-        }
-
-        @Override
-        public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
-            this.value = attrs.getAttributeValue("value", this.value);
-            this.weight = attrs.getIntValue("weight", this.weight);
-            this.align = Align.parserAlign(attrs.getAttributeValue("align"), this.align);
-            String expression = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, this.value);
-            if (!StringUtils.isEmpty(expression)) {
-                this.value = ConvertUtils.toString(data.getExpressionValue(expression));
-            }
         }
     }
 

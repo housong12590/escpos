@@ -13,8 +13,8 @@ public class ByteBuffer {
         length += bytes.length;
     }
 
-    public void write(byte byte1) {
-        write(new byte[]{byte1});
+    public void write(byte b) {
+        write(new byte[]{b});
     }
 
     public byte[] toByteArray() {

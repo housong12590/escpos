@@ -1,6 +1,8 @@
 package com.cin.pos.util;
 
 
+import com.cin.pos.element.Align;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,79 +10,69 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class StringUtils {
 
     public static int lengthOfGBK(String value) {
-        if (value == null)
+        if (StringUtils.isEmpty(value)) {
             return 0;
-        StringBuilder buff = new StringBuilder(value);
+        }
         int length = 0;
-        String stmp;
-        for (int i = 0; i < buff.length(); i++) {
-            stmp = buff.substring(i, i + 1);
-            try {
-                stmp = new String(stmp.getBytes("utf8"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (stmp.getBytes().length > 1) {
-                length += 2;
-            } else {
-                length += 1;
-            }
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            length += lengthOfGBK(c);
         }
         return length;
     }
 
-    public static List<String> splitStringLenOfGBK(String text, int len) {
-        List<String> list = new ArrayList<>();
-        int index = 0;
-        do {
-            String str = subStringOfGBK(text, index, len);
-            list.add(str);
-            index += str.length();
-        } while (index < text.length());
-        return list;
+    public static int lengthOfGBK(char c) {
+        return c > 0xff ? 2 : 1;
     }
 
-    private static String subStringOfGBK(String text, int start, int len) {
-        int end = start + len / 2;
-        if (end >= text.length()) {
-            return text.substring(start);
-        }
-        String s1 = text.substring(start, end);
-        int s1Len = lengthOfGBK(s1);
-        int diffLen = len - s1Len;
-        if (diffLen == 0) {
-            return s1;
-        } else if (diffLen <= 2) {
-            String s2 = text.substring(end, end + 1);
-            int s2Len = lengthOfGBK(s2);
-            if (s2Len < diffLen) {
-                String s3 = text.substring(end + 1, end + 2);
-                int s3Len = lengthOfGBK(s3);
-                if (s3Len + s2Len == diffLen) {
-                    return s1 + s2 + s3;
-                } else {
-                    return s1 + s2;
-                }
-            } else if (s2Len == diffLen) {
-                return s1 + s2;
+    public static List<String> splitOfGBKLength(String text, int len) {
+        return splitOfGBKLength(text, len, null);
+    }
+
+    public static List<String> splitOfGBKLength(String text, int len, Align align) {
+        char[] chars = text.toCharArray();
+        int subLen = 0;
+        List<String> _list = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        for (char c : chars) {
+            int charLen = lengthOfGBK(c);
+            if (subLen + charLen >= len) {
+                subLen = charLen;
+                _list.add(sb.toString());
+                sb.delete(0, sb.length());
+                sb.append(c);
             } else {
-                return s1;
+                sb.append(c);
+                subLen += charLen;
             }
-        } else {
-            return s1 + subStringOfGBK(text, end, diffLen);
         }
+        if (sb.length() != 0) {
+            String value = "";
+            if (align != null) {
+                switch (align) {
+                    case left:
+                        value = fillBlankRight2GBKLength(sb.toString(), len);
+                        break;
+                    case right:
+                        value = fillBlankLeft2GBKLength(sb.toString(), len);
+                        break;
+                    case center:
+                        value = fillBlankBoth2GBKLength(sb.toString(), len);
+                        break;
+                }
+            } else {
+                value = sb.toString();
+            }
+            _list.add(value);
+        }
+        return _list;
     }
 
     public static String fillBlankLeft2GBKLength(String src, int dstLen) {
@@ -113,6 +105,14 @@ public class StringUtils {
             } else {
                 sb.append(" ");
             }
+        }
+        return sb.toString();
+    }
+
+    public static String emptyLine(int len) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            sb.append(" ");
         }
         return sb.toString();
     }
@@ -160,14 +160,6 @@ public class StringUtils {
         return subs;
     }
 
-    public static String getPlaceholderKey(Pattern pattern, String expression) {
-        Matcher matcher = pattern.matcher(expression);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
     public static String toString(Object obj) {
         Class<?> aClass = obj.getClass();
         Field[] fields = aClass.getDeclaredFields();
@@ -191,29 +183,6 @@ public class StringUtils {
         return obj.getClass().getSimpleName() + " [" + sb.toString() + "]";
     }
 
-
-    public static Object getValue(Map map, String key) {
-        if (map == null || isEmpty(key)) {
-            return null;
-        }
-        String[] split = key.split("\\.");
-        LinkedList<String> keys = new LinkedList<>(Arrays.asList(split));
-        if (!keys.isEmpty()) {
-            key = keys.pop();
-            key = key.trim();
-        }
-        Object obj = map.get(key);
-        if (keys.isEmpty()) {
-            return obj;
-        }
-        key = StringUtils.arrayToString(keys, ".");
-        try {
-            map = (Map) obj;
-        } catch (Exception e) {
-            return null;
-        }
-        return getValue(map, key);
-    }
 
     public static String arrayToString(Collection collection, String separator) {
         Iterator it = collection.iterator();

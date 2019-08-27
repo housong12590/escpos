@@ -4,11 +4,10 @@ package com.cin.pos.convert;
 import com.cin.pos.device.Device;
 import com.cin.pos.element.Align;
 import com.cin.pos.element.Text;
+import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.util.ByteBuffer;
 import com.cin.pos.util.StringUtils;
-import com.cin.pos.orderset.OrderSet;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
@@ -74,11 +73,7 @@ public class TextConverter implements Converter<Text> {
         }
 
         // 写入文字
-        try {
-            buffer.write(value.getBytes(device.getCharset()));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        buffer.write(value.getBytes(device.getCharset()));
 
         // 是否需要换行
         boolean newLine = text.isNewLine();
@@ -137,7 +132,7 @@ public class TextConverter implements Converter<Text> {
         // 一行实际内容的长度
         int lineMaxLen = charLen - leftBlankLen - rightBlankLen;
 
-        List<String> stringList = StringUtils.splitStringLenOfGBK(sb.toString(), lineMaxLen);
+        List<String> stringList = StringUtils.splitOfGBKLength(sb.toString(), lineMaxLen);
         sb.delete(0, sb.length());
         for (String str : stringList) {
             sb.append(leftBlank).append(str).append(rightBlank);

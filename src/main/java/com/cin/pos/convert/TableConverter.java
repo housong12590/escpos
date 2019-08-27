@@ -2,16 +2,14 @@ package com.cin.pos.convert;
 
 
 import com.cin.pos.device.Device;
-import com.cin.pos.element.Align;
 import com.cin.pos.element.Table;
+import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.util.ByteBuffer;
 import com.cin.pos.util.StringUtils;
-import com.cin.pos.orderset.OrderSet;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TableConverter implements Converter<Table> {
     @Override
@@ -31,21 +29,28 @@ public class TableConverter implements Converter<Table> {
             } else {
                 buffer.write(orderSet.cancelEmphasize());
             }
-            List<List<String>> rows = toRows(tr);
+            String[][] rows = toRows(tr);
+//            List<List<String>> rows = toRows(tr);
             outRows(rows, buffer, device);
         }
         return buffer.toByteArray();
     }
 
-    private void outRows(List<List<String>> rows, ByteBuffer buffer, Device device) {
+//    private void outRows(List<List<String>> rows, ByteBuffer buffer, Device device) {
+//        OrderSet orderSet = device.getOrderSet();
+//        for (List<String> row : rows) {
+//            for (String s : row) {
+//                buffer.write(s.getBytes(device.getCharset()));
+//            }
+//            buffer.write(orderSet.newLine());
+//        }
+//    }
+
+    private void outRows(String[][] rows, ByteBuffer buffer, Device device) {
         OrderSet orderSet = device.getOrderSet();
-        for (List<String> row : rows) {
+        for (String[] row : rows) {
             for (String s : row) {
-                try {
-                    buffer.write(s.getBytes(device.getCharset()));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                buffer.write(s.getBytes(device.getCharset()));
             }
             buffer.write(orderSet.newLine());
         }
@@ -53,90 +58,104 @@ public class TableConverter implements Converter<Table> {
 
 
     private void calculateTdWidth(Table.TR tr, int charLen) {
-        float allWeight = 0;
+        int weightSum = 0;
         for (Table.TD td : tr.getTds()) {
-            allWeight += td.getWeight();
+            weightSum += td.getWeight();
         }
-//        float each = charLen / allWeight;
-//        List<Table.TD> tds = tr.getTds();
-//        int sumWidth = 0;
-//        for (Table.TD td : tds) {
-//            int width = (int) (td.getWeight() * each);
-//            td.setWidth(width);
-//            sumWidth += width;
-//        }
-//        out:
-//        while (true) {
-//            for (Table.TD td : tds) {
-//                if (sumWidth < charLen) {
-//                    int width = td.getWidth();
-//                    td.setWidth(width + 1);
-//                    sumWidth++;
-//                } else {
-//                    break out;
-//                }
-//            }
-//        }
-
-        float remainder = charLen % allWeight;
-        float each = charLen / (allWeight + remainder);
-        int wholeLength = 0;
-        for (int i = 0; i < tr.getTds().size(); i++) {
-            Table.TD td = tr.getTds().get(i);
-            float width = (td.getWeight() + remainder / tr.getTds().size()) * each;
-            td.setWidth((int) width);
-            wholeLength += width;
-        }
-        if (wholeLength > charLen) {
-            throw new RuntimeException("The whole length of the headers is longer than the width of this getPrinter device!");
+        int remainder = charLen % weightSum;
+        int each = charLen / weightSum;
+        int tdCount = tr.getTds().size();
+        int y = remainder / tdCount;
+        int x = remainder % tdCount;
+        for (Table.TD td : tr.getTds()) {
+            int width = each * td.getWeight() + y;
+            if (x != 0) {
+                width++;
+                x--;
+            }
+            td.setWidth(width);
         }
     }
 
-    private List<List<String>> toRows(Table.TR tr) {
+    private String[][] toRows(Table.TR tr) {
         List<Table.TD> tds = tr.getTds();
-        List<List<String>> cells = new LinkedList<>();
-        List<List<String>> rows = new LinkedList<>();
+        int tdCount = tds.size();
+        Map<Table.TD, List<String>> temp = new HashMap<>();
         int maxLine = 0;
         for (Table.TD td : tds) {
             String value = td.getValue();
             int width = td.getWidth();
-            List<String> splitValue = StringUtils.splitStringLenOfGBK(value, width);
-            for (int j = 0; j < splitValue.size(); j++) {
-                String rowStr = splitValue.get(j);
-                if (td.getAlign() == Align.center) {
-                    rowStr = StringUtils.fillBlankBoth2GBKLength(rowStr, width);
-                } else if (td.getAlign() == Align.right) {
-                    rowStr = StringUtils.fillBlankLeft2GBKLength(rowStr, width);
-                } else if (td.getAlign() == Align.left) {
-                    rowStr = StringUtils.fillBlankRight2GBKLength(rowStr, width);
-                }
-                splitValue.set(j, rowStr);
-                if (splitValue.size() > maxLine) {
-                    maxLine = splitValue.size();
-                }
-            }
-            cells.add(splitValue);
-        }
-        for (List<String> cell : cells) {
-            int diffLine = maxLine - cell.size();
-            if (diffLine > 0) {
-                for (int j = 0; j < diffLine; j++) {
-                    StringBuilder sb = new StringBuilder();
-                    String s = cell.get(0);
-                    for (int k = 0; k < s.length(); k++) {
-                        sb.append(" ");
-                    }
-                    cell.add(sb.toString());
-                }
+            List<String> valueList = StringUtils.splitOfGBKLength(value, width, td.getAlign());
+            temp.put(td, valueList);
+            if (valueList.size() > maxLine) {
+                maxLine = valueList.size();
             }
         }
+        String[][] result = new String[maxLine][tdCount];
         for (int i = 0; i < maxLine; i++) {
-            List<String> row = new ArrayList<>();
-            for (List<String> cell : cells) {
-                row.add(cell.get(i));
+            String[] row = new String[tdCount];
+            for (int j = 0; j < tdCount; j++) {
+                Table.TD td = tds.get(j);
+                List<String> valueList = temp.get(td);
+                String cell;
+                if (i < valueList.size()) {
+                    cell = valueList.get(i);
+                } else {
+                    cell = StringUtils.emptyLine(td.getWidth());
+                }
+                row[j] = cell;
             }
-            rows.add(row);
+            result[i] = row;
         }
-        return rows;
+        return result;
     }
+
+
+//    private List<List<String>> toRows(Table.TR tr) {
+//        List<Table.TD> tds = tr.getTds();
+//        List<List<String>> cells = new LinkedList<>();
+//        List<List<String>> rows = new LinkedList<>();
+//        int maxLine = 0;
+//        for (Table.TD td : tds) {
+//            String value = td.getValue();
+//            int width = td.getWidth();
+//            List<String> splitValue = StringUtils.splitOfGBKLength(value, width);
+//            for (int j = 0; j < splitValue.size(); j++) {
+//                String rowStr = splitValue.get(j);
+//                if (td.getAlign() == Align.center) {
+//                    rowStr = StringUtils.fillBlankBoth2GBKLength(rowStr, width);
+//                } else if (td.getAlign() == Align.right) {
+//                    rowStr = StringUtils.fillBlankLeft2GBKLength(rowStr, width);
+//                } else if (td.getAlign() == Align.left) {
+//                    rowStr = StringUtils.fillBlankRight2GBKLength(rowStr, width);
+//                }
+//                splitValue.set(j, rowStr);
+//                if (splitValue.size() > maxLine) {
+//                    maxLine = splitValue.size();
+//                }
+//            }
+//            cells.add(splitValue);
+//        }
+//        for (List<String> cell : cells) {
+//            int diffLine = maxLine - cell.size();
+//            if (diffLine > 0) {
+//                for (int j = 0; j < diffLine; j++) {
+//                    StringBuilder sb = new StringBuilder();
+//                    String s = cell.get(0);
+//                    for (int k = 0; k < s.length(); k++) {
+//                        sb.append(" ");
+//                    }
+//                    cell.add(sb.toString());
+//                }
+//            }
+//        }
+//        for (int i = 0; i < maxLine; i++) {
+//            List<String> row = new ArrayList<>();
+//            for (List<String> cell : cells) {
+//                row.add(cell.get(i));
+//            }
+//            rows.add(row);
+//        }
+//        return rows;
+//    }
 }
