@@ -43,7 +43,7 @@ public class StringUtils {
         StringBuilder sb = new StringBuilder();
         for (char c : chars) {
             int charLen = lengthOfGBK(c);
-            if (subLen + charLen >= len) {
+            if (subLen + charLen > len) {
                 subLen = charLen;
                 _list.add(sb.toString());
                 sb.delete(0, sb.length());

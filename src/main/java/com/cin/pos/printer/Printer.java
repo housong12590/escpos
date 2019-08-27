@@ -10,6 +10,7 @@ import com.cin.pos.element.Document;
 import com.cin.pos.parser.PrintTemplate;
 import com.cin.pos.util.FileUtils;
 import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.Utils;
 
 import java.io.File;
 import java.util.Queue;
@@ -122,6 +123,7 @@ public class Printer {
         return (String) print(templateContent, data, printId, interval);
     }
 
+
     public Object print(String templateContent, Dict data, Object tag, int interval) {
         PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
         PrintTemplate printTemplate = new PrintTemplate(templateContent, data);
@@ -194,11 +196,7 @@ public class Printer {
                         // 记录最后一次打印的时间
                         lastPrintTime = System.currentTimeMillis();
                         // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
-                        try {
-                            Thread.sleep(runnable.getInterval());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        Utils.sleep(runnable.getInterval());
                     }
                 } else if (connectKeepTime > 0) {
                     long nowTime = System.currentTimeMillis();

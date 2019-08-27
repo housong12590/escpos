@@ -3,15 +3,14 @@ package com.cin.pos.printer;
 import com.cin.pos.callback.OnConnectionErrorCallback;
 import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
-import com.cin.pos.convert.ConverterKit;
 import com.cin.pos.device.Device;
 import com.cin.pos.element.Document;
-import com.cin.pos.element.Element;
 import com.cin.pos.exception.ConnectException;
 import com.cin.pos.exception.TimeoutException;
 import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.parser.PrintTemplate;
 import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.Utils;
 
 import java.util.Map;
 
@@ -96,11 +95,7 @@ public class PrintTaskRunnable implements Runnable {
                     printError(new TimeoutException("打印机连接超时, 任务自动取消"));
                     return;
                 }
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+                Utils.sleep(5000);
                 execPrint();
             }
         }
@@ -119,7 +114,6 @@ public class PrintTaskRunnable implements Runnable {
             throw new NullPointerException("printer connection can not null...");
         }
         if (!connection.isConnect()) {
-//            LoggerUtils.debug(String.format("%s 正在连接打印机...", printer.getConnection()));
             connection.doConnect();
         }
         LoggerUtils.debug(String.format("%s %s 开始打印", printer.getConnection(), this.tag));
@@ -130,16 +124,12 @@ public class PrintTaskRunnable implements Runnable {
     private void printDocument() throws ConnectException {
         Device device = printer.getDevice();
         Connection connection = printer.getConnection();
-        int len = 0;
-        for (Element element : document.getElements()) {
-            byte[] bytes = ConverterKit.matchConverterToBytes(element, device);
-            len += bytes.length;
-            connection.write(bytes);
-        }
+        byte[] data = document.toBytes(device);
+        connection.write(data);
         OrderSet orderSet = device.getOrderSet();
         connection.write(orderSet.paperFeed(5));
         connection.write(orderSet.cutPaper());
-        LoggerUtils.debug(String.format("%s %s 发送打印指令长度为%s字节", printer.getConnection(), tag, len));
+        LoggerUtils.debug(String.format("%s %s 发送打印指令长度为%s字节", printer.getConnection(), tag, data.length));
     }
 
     private void afterPrint() throws ConnectException {

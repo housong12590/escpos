@@ -116,6 +116,7 @@ public class TextConverter implements Converter<Text> {
         } else if (repeat == Text.Repeat.none) {
             // 不重复什么都不做
         }
+        // 处理左右边距
         if (marginLeft == 0 && marginRight == 0) {
             return sb.toString();
         }

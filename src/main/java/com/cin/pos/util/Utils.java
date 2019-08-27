@@ -1,13 +1,7 @@
 package com.cin.pos.util;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -31,26 +25,12 @@ public class Utils {
         }
     }
 
-    public static InputStream stringToInputStream(String text) {
-        return new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public static String fileRead(File file) {
-        BufferedReader reader = null;
+    public static void sleep(long millis) {
         try {
-            reader = new BufferedReader(new FileReader(file));
-            StringBuilder sb = new StringBuilder();
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            return sb.toString();
-        } catch (IOException e) {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            safeClose(reader);
         }
-        return null;
     }
 
 

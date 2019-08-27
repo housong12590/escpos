@@ -29,29 +29,17 @@ public class TableConverter implements Converter<Table> {
             } else {
                 buffer.write(orderSet.cancelEmphasize());
             }
-            String[][] rows = toRows(tr);
-//            List<List<String>> rows = toRows(tr);
+            String[] rows = toRows(tr);
             outRows(rows, buffer, device);
         }
         return buffer.toByteArray();
     }
 
-//    private void outRows(List<List<String>> rows, ByteBuffer buffer, Device device) {
-//        OrderSet orderSet = device.getOrderSet();
-//        for (List<String> row : rows) {
-//            for (String s : row) {
-//                buffer.write(s.getBytes(device.getCharset()));
-//            }
-//            buffer.write(orderSet.newLine());
-//        }
-//    }
-
-    private void outRows(String[][] rows, ByteBuffer buffer, Device device) {
+    private void outRows(String[] rows, ByteBuffer buffer, Device device) {
         OrderSet orderSet = device.getOrderSet();
-        for (String[] row : rows) {
-            for (String s : row) {
-                buffer.write(s.getBytes(device.getCharset()));
-            }
+        for (String row : rows) {
+            System.out.println(row);
+            buffer.write(row.getBytes(device.getCharset()));
             buffer.write(orderSet.newLine());
         }
     }
@@ -77,9 +65,8 @@ public class TableConverter implements Converter<Table> {
         }
     }
 
-    private String[][] toRows(Table.TR tr) {
+    private String[] toRows(Table.TR tr) {
         List<Table.TD> tds = tr.getTds();
-        int tdCount = tds.size();
         Map<Table.TD, List<String>> temp = new HashMap<>();
         int maxLine = 0;
         for (Table.TD td : tds) {
@@ -91,71 +78,19 @@ public class TableConverter implements Converter<Table> {
                 maxLine = valueList.size();
             }
         }
-        String[][] result = new String[maxLine][tdCount];
+        String[] result = new String[maxLine];
         for (int i = 0; i < maxLine; i++) {
-            String[] row = new String[tdCount];
-            for (int j = 0; j < tdCount; j++) {
-                Table.TD td = tds.get(j);
+            StringBuilder row = new StringBuilder();
+            for (Table.TD td : tds) {
                 List<String> valueList = temp.get(td);
-                String cell;
                 if (i < valueList.size()) {
-                    cell = valueList.get(i);
+                    row.append(valueList.get(i));
                 } else {
-                    cell = StringUtils.emptyLine(td.getWidth());
+                    row.append(StringUtils.emptyLine(td.getWidth()));
                 }
-                row[j] = cell;
             }
-            result[i] = row;
+            result[i] = row.toString();
         }
         return result;
     }
-
-
-//    private List<List<String>> toRows(Table.TR tr) {
-//        List<Table.TD> tds = tr.getTds();
-//        List<List<String>> cells = new LinkedList<>();
-//        List<List<String>> rows = new LinkedList<>();
-//        int maxLine = 0;
-//        for (Table.TD td : tds) {
-//            String value = td.getValue();
-//            int width = td.getWidth();
-//            List<String> splitValue = StringUtils.splitOfGBKLength(value, width);
-//            for (int j = 0; j < splitValue.size(); j++) {
-//                String rowStr = splitValue.get(j);
-//                if (td.getAlign() == Align.center) {
-//                    rowStr = StringUtils.fillBlankBoth2GBKLength(rowStr, width);
-//                } else if (td.getAlign() == Align.right) {
-//                    rowStr = StringUtils.fillBlankLeft2GBKLength(rowStr, width);
-//                } else if (td.getAlign() == Align.left) {
-//                    rowStr = StringUtils.fillBlankRight2GBKLength(rowStr, width);
-//                }
-//                splitValue.set(j, rowStr);
-//                if (splitValue.size() > maxLine) {
-//                    maxLine = splitValue.size();
-//                }
-//            }
-//            cells.add(splitValue);
-//        }
-//        for (List<String> cell : cells) {
-//            int diffLine = maxLine - cell.size();
-//            if (diffLine > 0) {
-//                for (int j = 0; j < diffLine; j++) {
-//                    StringBuilder sb = new StringBuilder();
-//                    String s = cell.get(0);
-//                    for (int k = 0; k < s.length(); k++) {
-//                        sb.append(" ");
-//                    }
-//                    cell.add(sb.toString());
-//                }
-//            }
-//        }
-//        for (int i = 0; i < maxLine; i++) {
-//            List<String> row = new ArrayList<>();
-//            for (List<String> cell : cells) {
-//                row.add(cell.get(i));
-//            }
-//            rows.add(row);
-//        }
-//        return rows;
-//    }
 }
