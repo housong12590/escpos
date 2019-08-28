@@ -5,7 +5,6 @@ import com.cin.pos.platform.image.ImageProcess;
 import com.cin.pos.platform.image.JavaImageProcess;
 import com.cin.pos.platform.log.DefaultLoggerImpl;
 import com.cin.pos.platform.log.Logger;
-import com.cin.pos.platform.log.Slf4jLoggerImpl;
 
 public class JavaPlatform extends Platform {
 
@@ -20,13 +19,14 @@ public class JavaPlatform extends Platform {
 
     @Override
     public Logger getLogger() {
-        try {
-            Class.forName("org.slf4j.Logger");
-            return new Slf4jLoggerImpl();
-        } catch (ClassNotFoundException ignored) {
-
-        }
         return new DefaultLoggerImpl();
+//        try {
+//            Class.forName("org.slf4j.Logger");
+//            return new Slf4jLoggerImpl();
+//        } catch (ClassNotFoundException ignored) {
+//
+//        }
+//        return new DefaultLoggerImpl();
     }
 
     @Override

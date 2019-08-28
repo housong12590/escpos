@@ -104,4 +104,8 @@ public interface OrderSet {
      */
     byte[] cutPaper();
 
+    /**
+     * 打印机信息
+     */
+    byte[] printerInfo();
 }

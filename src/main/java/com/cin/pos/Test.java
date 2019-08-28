@@ -12,18 +12,14 @@ import java.util.List;
 public class Test {
 
     public static void main(String[] args) {
-        String templateStr = FileUtils.fileRead("E:\\code\\java\\printer\\printer_client\\src\\main\\resources\\template\\品项核算单.xml");
-        String dataStr = FileUtils.fileRead("E:\\code\\java\\printer\\printer_client\\src\\main\\resources\\template\\data.json");
+        String templateStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\结帐单.xml");
+        String dataStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\data.json");
         Dict data = Dict.create(dataStr);
         PrintTemplate template = new PrintTemplate(templateStr, data);
         Document document = template.toDocument();
         NetworkPrinter printer = new NetworkPrinter("192.168.10.60");
         printer.print(document);
-//        String text = "他走后，每次看他朋友圈发西港的海景房别墅、菲佣、中国大厨做的饭菜，几个程序员同行们都非常羡慕，在微信群里各种讨论@他出来，吵着闹着要去柬埔寨工作，但这小子从没回复过。";
-//        List<String> strings = StringUtils.splitOfGBKLength(text, 32, Align.left);
-//        for (String string : strings) {
-//            System.out.println(string);
-//        }
+
     }
 
 

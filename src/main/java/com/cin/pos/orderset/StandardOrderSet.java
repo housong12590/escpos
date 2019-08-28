@@ -38,6 +38,8 @@ public class StandardOrderSet implements OrderSet {
     private static final byte[] ESC_NEW_LINE = new byte[]{LF};
     /* 切纸 */
     private static final byte[] ESC_CUTPAPER = new byte[]{ESC, 0x6D};
+    /* 打印机信息 */
+    private static final byte[] PRINTER_BRAND = new byte[]{GS, 0x49, 0x42, GS, 0x49, 0x43};
 
     /* 查询打印机状态 */
     private static byte[] ESC_STATUS(int n) {
@@ -142,4 +144,10 @@ public class StandardOrderSet implements OrderSet {
     public byte[] cutPaper() {
         return ESC_CUTPAPER;
     }
+
+    @Override
+    public byte[] printerInfo() {
+        return PRINTER_BRAND;
+    }
+
 }
