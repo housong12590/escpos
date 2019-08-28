@@ -5,10 +5,10 @@ import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
 import com.cin.pos.device.Device;
 import com.cin.pos.element.Document;
-import com.cin.pos.exception.ConnectException;
+import com.cin.pos.exception.ConnectionException;
 import com.cin.pos.exception.TimeoutException;
 import com.cin.pos.orderset.OrderSet;
-import com.cin.pos.parser.PrintTemplate;
+import com.cin.pos.parser.Template;
 import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.Utils;
 
@@ -17,7 +17,7 @@ import java.util.Map;
 public class PrintTaskRunnable implements Runnable {
 
     private Document document;
-    private PrintTemplate printTemplate;
+    private Template template;
     private Object tag;
     private Printer printer;
     private long startTime;
@@ -55,17 +55,17 @@ public class PrintTaskRunnable implements Runnable {
         this.interval = interval;
     }
 
-    void setTemplateParse(PrintTemplate printTemplate, String templateContent, Map templateData) {
-        this.printTemplate = printTemplate;
+    void setTemplateParse(Template template, String templateContent, Map templateData) {
+        this.template = template;
     }
 
     @Override
     public void run() {
         startTime = System.currentTimeMillis();
-        if (printTemplate != null) {
+        if (template != null) {
             try {
                 LoggerUtils.debug(String.format("%s %s 开始解析模版...", printer.getConnection(), tag));
-                this.document = printTemplate.toDocument();
+                this.document = template.toDocument();
             } catch (Exception e) {
                 printError(e);
                 return;
@@ -84,7 +84,7 @@ public class PrintTaskRunnable implements Runnable {
             beforePrint();
             printDocument();
             afterPrint();
-        } catch (ConnectException e) {
+        } catch (ConnectionException e) {
             if (!this.printer.isBlocking()) {
                 printError(e);
             } else {
@@ -108,7 +108,7 @@ public class PrintTaskRunnable implements Runnable {
         }
     }
 
-    private void beforePrint() throws ConnectException {
+    private void beforePrint() throws ConnectionException {
         Connection connection = printer.getConnection();
         if (connection == null) {
             throw new NullPointerException("printer connection can not null...");
@@ -121,7 +121,7 @@ public class PrintTaskRunnable implements Runnable {
         connection.write(orderSet.reset());
     }
 
-    private void printDocument() throws ConnectException {
+    private void printDocument() throws ConnectionException {
         Device device = printer.getDevice();
         Connection connection = printer.getConnection();
         byte[] data = document.toBytes(device);
@@ -132,7 +132,7 @@ public class PrintTaskRunnable implements Runnable {
         LoggerUtils.debug(String.format("%s %s 发送打印指令长度为%s字节", printer.getConnection(), tag, data.length));
     }
 
-    private void afterPrint() throws ConnectException {
+    private void afterPrint() throws ConnectionException {
         Connection connection = printer.getConnection();
         OrderSet orderSet = printer.getDevice().getOrderSet();
         if (printer.isBel()) {

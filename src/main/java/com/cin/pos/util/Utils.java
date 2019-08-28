@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 
 public class Utils {
 
@@ -13,6 +14,10 @@ public class Utils {
         return DEFAULT_FORMAT;
     }
 
+
+    public static String generateId() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
 
     public static void safeClose(Closeable... closeable) {
         for (Closeable c : closeable) {

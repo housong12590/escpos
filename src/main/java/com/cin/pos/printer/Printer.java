@@ -7,7 +7,7 @@ import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
 import com.cin.pos.device.Device;
 import com.cin.pos.element.Document;
-import com.cin.pos.parser.PrintTemplate;
+import com.cin.pos.parser.Template;
 import com.cin.pos.util.FileUtils;
 import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.Utils;
@@ -126,8 +126,8 @@ public class Printer {
 
     public Object print(String templateContent, Dict data, Object tag, int interval) {
         PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
-        PrintTemplate printTemplate = new PrintTemplate(templateContent, data);
-        runnable.setTemplateParse(printTemplate, templateContent, data);
+        Template template = new Template(templateContent, data);
+        runnable.setTemplateParse(template, templateContent, data);
         addToPrintQueue(runnable, tag);
         return tag;
     }

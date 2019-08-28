@@ -1,10 +1,5 @@
 package com.cin.pos;
 
-import com.cin.pos.common.Dict;
-import com.cin.pos.element.Document;
-import com.cin.pos.parser.PrintTemplate;
-import com.cin.pos.printer.NetworkPrinter;
-import com.cin.pos.util.FileUtils;
 import com.cin.pos.util.StringUtils;
 
 import java.util.List;
@@ -12,16 +7,40 @@ import java.util.List;
 public class Test {
 
     public static void main(String[] args) {
-        String templateStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\结帐单.xml");
-        String dataStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\data.json");
-        Dict data = Dict.create(dataStr);
-        PrintTemplate template = new PrintTemplate(templateStr, data);
-        Document document = template.toDocument();
-        NetworkPrinter printer = new NetworkPrinter("192.168.10.60");
-        printer.print(document);
-
+//        String templateStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\结帐单.xml");
+//        String dataStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\data.json");
+//        Dict data = Dict.create(dataStr);
+//        Template template = new Template(templateStr, data);
+//        Document document = template.toDocument();
+//        NetworkPrinter printer = new NetworkPrinter("192.168.10.60");
+//        printer.print(document);
+        test03();
+        test04();
     }
 
+    private static void test04() {
+        long sTime = System.currentTimeMillis();
+        long temp = 0;
+        for (long i = 0; i < 10_000_000_000L; i++) {
+            try {
+                temp = i;
+            } catch (Exception e) {
+
+            }
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println(String.format("耗时: %sms", endTime - sTime));
+    }
+
+    private static void test03() {
+        long sTime = System.currentTimeMillis();
+        long temp = 0;
+        for (long i = 0; i < 10_000_000_000L; i++) {
+            temp = i;
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println(String.format("耗时: %sms", endTime - sTime));
+    }
 
     private static Integer getxx(List<Integer> list, int number) {
         if (list.isEmpty()) {

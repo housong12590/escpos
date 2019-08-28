@@ -1,7 +1,7 @@
 package com.cin.pos.connect;
 
 
-import com.cin.pos.exception.ConnectException;
+import com.cin.pos.exception.ConnectionException;
 import com.cin.pos.util.Utils;
 
 import java.io.BufferedOutputStream;
@@ -17,6 +17,7 @@ public class SocketConnection implements Connection {
     private String hostname;
     private int port;
     private int timeout;
+    private boolean isConnect;
     private Socket socket;
     private OutputStream os;
     private InputStream is;
@@ -30,7 +31,7 @@ public class SocketConnection implements Connection {
 
 
     @Override
-    public void doConnect() throws ConnectException {
+    public void doConnect() throws ConnectionException {
         this.close();
         try {
             socket = new Socket();
@@ -39,38 +40,34 @@ public class SocketConnection implements Connection {
             os = socket.getOutputStream();
             is = socket.getInputStream();
             bufferOs = new BufferedOutputStream(os, bufferSize);
+            isConnect = true;
         } catch (IOException e) {
-            throw new ConnectException();
+            isConnect = false;
+            throw new ConnectionException();
         }
     }
 
 
     @Override
     public boolean isConnect() {
-        if (socket != null) {
-            try {
-                socket.sendUrgentData(0xFF);
-                return true;
-            } catch (IOException ignored) {
-            }
-        }
-        return false;
+        return isConnect;
     }
 
 
     @Override
-    public void write(byte[] bytes) throws ConnectException {
+    public void write(byte[] bytes) throws ConnectionException {
         if (bufferOs != null) {
             try {
                 bufferOs.write(bytes);
             } catch (IOException e) {
-                throw new ConnectException();
+                isConnect = false;
+                throw new ConnectionException();
             }
         }
     }
 
     @Override
-    public void flush() throws ConnectException {
+    public void flush() throws ConnectionException {
         try {
             if (bufferOs != null) {
                 bufferOs.flush();
@@ -79,20 +76,22 @@ public class SocketConnection implements Connection {
                 os.flush();
             }
         } catch (IOException e) {
-            throw new ConnectException();
+            isConnect = false;
+            throw new ConnectionException();
         }
 
     }
 
     @Override
-    public int read(byte[] bytes) throws ConnectException {
+    public int read(byte[] bytes) throws ConnectionException {
         if (is != null) {
             try {
                 return is.read(bytes);
             } catch (IOException ignored) {
             }
         }
-        throw new ConnectException();
+        isConnect = false;
+        throw new ConnectionException();
     }
 
     @Override

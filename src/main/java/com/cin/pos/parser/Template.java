@@ -2,8 +2,8 @@ package com.cin.pos.parser;
 
 
 import com.cin.pos.Constants;
-import com.cin.pos.common.Dict;
 import com.cin.pos.LocalVariable;
+import com.cin.pos.common.Dict;
 import com.cin.pos.convert.ConverterKit;
 import com.cin.pos.element.Document;
 import com.cin.pos.element.Element;
@@ -19,31 +19,30 @@ import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-public class PrintTemplate {
+public class Template {
 
     private SAXParser saxParser;
     private String templateStr;
     private Dict data;
 
 
-    public PrintTemplate(String templateStr) {
+    public Template(String templateStr) {
         this(templateStr, null);
     }
 
-    public PrintTemplate(String templateStr, Dict data) {
+    public Template(String templateStr, Dict data) {
         this.templateStr = templateStr;
         this.data = data;
         this.saxParser = XmlParseFactory.newParser();
     }
 
-    public Document toDocument() {
+    public Document toDocument() throws TemplateParseException {
         if (StringUtils.isEmpty(templateStr)) {
             LoggerUtils.debug("模版内容为空");
-            throw new NullPointerException("模版内容为空");
+            throw new TemplateParseException("模版内容为空");
         }
         // 模版预处理,替换模版里的占位符 如 : ${keys}  注: #{keys}在这里暂不处理
         templateStr = pretreatment(templateStr, data);
@@ -56,22 +55,12 @@ public class PrintTemplate {
                 try {
                     element.parser(set, data);
                     document.addElement(element);
-                } catch (ConditionNotExistException|TemplateParseException e) {
-                    LoggerUtils.info(e.getMessage());
+                } catch (ConditionNotExistException e) {
+//                    LoggerUtils.info(e.getMessage());
                 }
             }
         }
         return document;
-    }
-
-    public String preview() {
-        Document document = toDocument();
-        List<Element> elements = document.getElements();
-        StringBuilder sb = new StringBuilder();
-        for (Element element : elements) {
-            sb.append(element.toString());
-        }
-        return sb.toString();
     }
 
 
