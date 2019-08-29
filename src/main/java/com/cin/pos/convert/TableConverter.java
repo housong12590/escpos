@@ -2,6 +2,8 @@ package com.cin.pos.convert;
 
 
 import com.cin.pos.device.Device;
+import com.cin.pos.element.Align;
+import com.cin.pos.element.Size;
 import com.cin.pos.element.Table;
 import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.util.ByteBuffer;
@@ -18,17 +20,13 @@ public class TableConverter implements Converter<Table> {
         ByteBuffer buffer = new ByteBuffer();
         int charLen = device.getPaper().getCharLen();
         List<Table.TR> trs = table.getTrs();
-        buffer.write(orderSet.alignLeft());
-        buffer.write(orderSet.cancelEmphasize());
-        buffer.write(orderSet.cancelUnderline());
-        buffer.write(orderSet.textSizeX1());
+        buffer.write(orderSet.align(Align.left));
+        buffer.write(orderSet.bold(false));
+        buffer.write(orderSet.underline(false));
+        buffer.write(orderSet.textSize(Size.normal));
         for (Table.TR tr : trs) {
             calculateTdWidth(tr, charLen);
-            if (tr.isBold()) {
-                buffer.write(orderSet.emphasize());
-            } else {
-                buffer.write(orderSet.cancelEmphasize());
-            }
+            buffer.write(orderSet.bold(tr.isBold()));
             String[] rows = toRows(tr);
             outRows(rows, buffer, device);
         }

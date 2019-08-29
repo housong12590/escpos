@@ -94,14 +94,11 @@ public class Printer implements Runnable {
         return connection.read(bytes);
     }
 
-    private void checkOnline() throws ConnectionException {
+    private void printStatus() throws ConnectionException {
         OrderSet orderSet = device.getOrderSet();
-        writeAndFlush(orderSet.status(1));
+        writeAndFlush(orderSet.status());
         byte[] bytes = new byte[50];
-        int read = read(bytes);
-        if (read != -1) {
-
-        }
+        read(bytes);
     }
 
     public void print(PrintTask printTask) {
@@ -112,56 +109,60 @@ public class Printer implements Runnable {
         }
     }
 
+
     @Override
     public void run() {
         while (printerThread != null && !printerThread.isInterrupted()) {
-            try {
+            if (connection.isConnect()) {
                 if (!printTaskQueue.isEmpty()) {
                     PrintTask printTask = printTaskQueue.peek();
                     if (printTask != null) {
-                        // 打印间隔时间
-                        Utils.sleep(printTask.getIntervalTime());
                         String taskId = printTask.getTaskId();
-                        if (!printTask.isTimeOut()) {
+                        if (printTask.isTimeOut()) {
                             printTaskQueue.poll();
                             LoggerUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", taskId));
                             if (mPrintCallback != null) {
                                 mPrintCallback.onError(Printer.this, printTask, "打印任务超时");
                             }
-                            continue;
-                        }
-                        try {
-                            checkOnline();
-                            printTask.call();
-                            activeTime = System.currentTimeMillis();
-                            printTaskQueue.poll();
-                            LoggerUtils.debug(String.format("%s 打印完成", taskId));
-                            if (mPrintCallback != null) {
-                                mPrintCallback.onSuccess(Printer.this, printTask);
-                            }
-                        } catch (Exception ex) {
-                            if (ex instanceof ConnectionException) {
-                                throw (ConnectionException) ex;
-                            }
-                            printTaskQueue.poll();
-                            String errorMsg = String.format("打印失败, 错误原因: %s", ex.getMessage());
-                            LoggerUtils.error(taskId + " " + errorMsg);
-                            if (mPrintCallback != null) {
-                                mPrintCallback.onError(Printer.this, printTask, errorMsg);
+                        } else {
+                            try {
+                                printStatus();
+                                printTask.call();
+                                activeTime = System.currentTimeMillis();
+                                printTaskQueue.poll();
+                                LoggerUtils.debug(String.format("%s 打印完成", taskId));
+                                if (mPrintCallback != null) {
+                                    mPrintCallback.onSuccess(Printer.this, printTask);
+                                }
+                                // 打印间隔时间
+                                Utils.sleep(printTask.getIntervalTime());
+                            } catch (ConnectionException e) {
+                                LoggerUtils.error("打印机连接失败, 正在尝试重连  " + e.getMessage());
+                                retryConnection();
+                            } catch (Exception e) {
+                                String errorMsg = String.format("打印失败, 错误原因: %s", e.getMessage());
+                                LoggerUtils.error(taskId + " " + errorMsg);
+                                if (mPrintCallback != null) {
+                                    mPrintCallback.onError(Printer.this, printTask, errorMsg);
+                                }
                             }
                         }
                     }
                 } else if (System.currentTimeMillis() - activeTime > 10000) {
                     activeTime = System.currentTimeMillis();
-                    writeAndFlush(device.getOrderSet().status(1));
+                    try {
+                        writeAndFlush(device.getOrderSet().heartbeat());
+                    } catch (ConnectionException e) {
+                        LoggerUtils.error("打印机连接失败, 正在尝试重连  " + e.getMessage());
+                        retryConnection();
+                    }
                 } else {
                     Utils.sleep(200);
                 }
-            } catch (ConnectionException e) {
-                LoggerUtils.error("打印机连接失败, 正在尝试重连");
+            } else {
+                LoggerUtils.debug("开始连接打印机....");
                 retryConnection();
             }
-
         }
     }
 

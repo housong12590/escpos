@@ -103,7 +103,7 @@ public class PrintTask implements Callable<Void> {
         printer.write(orderSet.paperFeed(5));
         printer.write(orderSet.cutPaper());
         if (printer.isBuzzer()) {
-            printer.write(orderSet.printEnd());
+            printer.write(orderSet.buzzer(2));
         }
         printer.flush();
         return null;

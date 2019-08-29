@@ -1,5 +1,8 @@
 package com.cin.pos.orderset;
 
+import com.cin.pos.element.Align;
+import com.cin.pos.element.Size;
+
 /**
  * 打印指令集
  */
@@ -11,69 +14,44 @@ public interface OrderSet {
     byte[] reset();
 
     /**
-     * 打印结束
+     * 打印结束, 打印机的蜂鸣声
      */
-    byte[] printEnd();
+    byte[] buzzer(int count);
 
     /**
-     * 查询状态
+     * 换行
      */
-    byte[] status(int n);
+    byte[] newLine();
 
     /**
-     * 左对齐
+     * 剪纸
      */
-    byte[] alignLeft();
+    byte[] cutPaper();
 
     /**
-     * 右对齐
+     * 打印机状态,等待打印缓存区打印完成后才处理此命令
      */
-    byte[] alignRight();
+    byte[] status();
 
     /**
-     * 居中对齐
+     * 文字对齐方式
      */
-    byte[] alignCenter();
+    byte[] align(Align align);
 
     /**
-     * 文字加粗
+     * 文字是否加粗
      */
-    byte[] emphasize();
-
-    /**
-     * 取消加粗
-     */
-    byte[] cancelEmphasize();
+    byte[] bold(boolean bold);
 
     /**
      * 添加下划线
      */
-    byte[] underline();
+    byte[] underline(boolean underline);
 
     /**
-     * 取消下划线
+     * 文字字体大小
      */
-    byte[] cancelUnderline();
-
-    /**
-     * 正常字体大小
-     */
-    byte[] textSizeX1();
-
-    /**
-     * 大号字体
-     */
-    byte[] textSizeX2();
-
-    /**
-     * 超大字体
-     */
-    byte[] textSizeX3();
-
-    /**
-     * 设置字体大小
-     */
-    byte[] testSize(int w, int h);
+    byte[] textSize(Size size);
 
     /**
      * 走纸
@@ -94,18 +72,15 @@ public interface OrderSet {
      */
     byte[] printImage(byte module, byte xL, byte xH, byte yL, byte yH, byte[] imageData);
 
-    /**
-     * 换行
-     */
-    byte[] newLine();
-
-    /**
-     * 剪纸
-     */
-    byte[] cutPaper();
 
     /**
      * 打印机信息
      */
     byte[] printerInfo();
+
+    /**
+     * 打印机连接心跳
+     */
+    byte[] heartbeat();
+
 }

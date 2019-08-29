@@ -43,7 +43,7 @@ public class SocketConnection implements Connection {
             isConnect = true;
         } catch (IOException e) {
             isConnect = false;
-            throw new ConnectionException();
+            throw new ConnectionException(e.getMessage());
         }
     }
 
@@ -61,7 +61,7 @@ public class SocketConnection implements Connection {
                 bufferOs.write(bytes);
             } catch (IOException e) {
                 isConnect = false;
-                throw new ConnectionException();
+                throw new ConnectionException(e.getMessage());
             }
         }
     }
@@ -77,7 +77,7 @@ public class SocketConnection implements Connection {
             }
         } catch (IOException e) {
             isConnect = false;
-            throw new ConnectionException();
+            throw new ConnectionException(e.getMessage());
         }
     }
 
@@ -86,15 +86,18 @@ public class SocketConnection implements Connection {
         if (is != null) {
             try {
                 return is.read(bytes);
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+
+                isConnect = false;
+                throw new ConnectionException(e.getMessage());
             }
         }
-        isConnect = false;
-        throw new ConnectionException();
+        return -1;
     }
 
     @Override
     public void close() {
+        isConnect = false;
         Utils.safeClose(is, bufferOs, os, socket);
     }
 

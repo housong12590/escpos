@@ -29,13 +29,7 @@ public class ImageConverter implements Converter<Image> {
         }
 
         Align align = image.getAlign();
-        if (align == Align.left) {
-            buffer.write(orderSet.alignLeft());
-        } else if (align == Align.right) {
-            buffer.write(orderSet.alignRight());
-        } else if (align == Align.center) {
-            buffer.write(orderSet.alignCenter());
-        }
+        buffer.write(orderSet.align(align));
 
         int bytesNumberOfWidth = width % 8 == 0 ? width / 8 : width / 8 + 1;
         byte xL = (byte) (bytesNumberOfWidth % 256);

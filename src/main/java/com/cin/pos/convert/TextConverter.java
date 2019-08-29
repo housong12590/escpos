@@ -3,6 +3,7 @@ package com.cin.pos.convert;
 
 import com.cin.pos.device.Device;
 import com.cin.pos.element.Align;
+import com.cin.pos.element.Size;
 import com.cin.pos.element.Text;
 import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.util.ByteBuffer;
@@ -27,42 +28,19 @@ public class TextConverter implements Converter<Text> {
         }
 
         // 文字加粗
-        boolean bold = text.isBold();
-        if (bold) {
-            buffer.write(orderSet.emphasize());
-        } else {
-            buffer.write(orderSet.cancelEmphasize());
-        }
+        buffer.write(orderSet.bold(text.isBold()));
 
         // 文字下划线
         boolean underline = text.isUnderline();
-        if (underline) {
-            buffer.write(orderSet.underline());
-        } else {
-            buffer.write(orderSet.cancelUnderline());
-        }
+        buffer.write(orderSet.underline(underline));
 
         // 文字大小
-        Text.Size size = text.getSize();
-        if (size == Text.Size.normal) {
-            buffer.write(orderSet.textSizeX1());
-        } else if (size == Text.Size.big) {
-            buffer.write(orderSet.textSizeX2());
-        } else if (size == Text.Size.oversized) {
-            buffer.write(orderSet.textSizeX3());
-        } else {
-            buffer.write(orderSet.testSize(size.w, size.h));
-        }
+        Size size = text.getSize();
+        buffer.write(orderSet.textSize(size));
 
         // 文字对齐方向
         Align align = text.getAlign();
-        if (align == Align.left) {
-            buffer.write(orderSet.alignLeft());
-        } else if (align == Align.center) {
-            buffer.write(orderSet.alignCenter());
-        } else if (align == Align.right) {
-            buffer.write(orderSet.alignRight());
-        }
+        buffer.write(orderSet.align(align));
 
         // 处理文字
         String value = handleString(device, text);
@@ -102,7 +80,7 @@ public class TextConverter implements Converter<Text> {
             sb.append(str);
         } else if (repeat == Text.Repeat.fill) {
             // 把一行填充满
-            Text.Size size = text.getSize();
+            Size size = text.getSize();
             int length = StringUtils.lengthOfGBK(value) * size.w;
             int dstLen = (charLen - length - marginLeft - marginRight) / length;
             for (int i = 0; i < dstLen; i++) {
@@ -160,7 +138,7 @@ public class TextConverter implements Converter<Text> {
                         repeatElementNum++;
                     }
                     String value = t1.getValue();
-                    Text.Size size = t1.getSize();
+                    Size size = t1.getSize();
                     brotherLen += StringUtils.lengthOfGBK(value) * size.w;
                     brotherLen += t1.getMarginLeft();
                     brotherLen += t1.getMarginRight();
