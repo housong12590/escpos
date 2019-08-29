@@ -79,7 +79,6 @@ public class SocketConnection implements Connection {
             isConnect = false;
             throw new ConnectionException();
         }
-
     }
 
     @Override

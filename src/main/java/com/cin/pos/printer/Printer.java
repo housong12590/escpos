@@ -1,217 +1,187 @@
 package com.cin.pos.printer;
 
-import com.cin.pos.common.Dict;
-import com.cin.pos.callback.OnCloseCallback;
-import com.cin.pos.callback.OnConnectionErrorCallback;
 import com.cin.pos.callback.OnPrintCallback;
 import com.cin.pos.connect.Connection;
 import com.cin.pos.device.Device;
-import com.cin.pos.element.Document;
-import com.cin.pos.parser.Template;
-import com.cin.pos.util.FileUtils;
+import com.cin.pos.exception.ConnectionException;
+import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.Utils;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class Printer {
+public class Printer implements Runnable {
 
-    private Queue<PrintTaskRunnable> printTaskQueue;
+    private Queue<PrintTask> printTaskQueue = new ConcurrentLinkedQueue<>();
     private Connection connection;
-    private long lastPrintTime;
-    private long connectKeepTime;
     private Device device;
     private Thread printerThread;
-    private boolean bel;
-    private boolean blocking;
-    private int printerTimeOut;
+    private boolean buzzer;
+    private long activeTime;
+
+    private final Object lock = new Object();
     private OnPrintCallback mPrintCallback;
-    private OnCloseCallback mCloseCallback;
-    private OnConnectionErrorCallback mConnectionErrorCallback;
 
     public Printer(Connection connection, Device device) {
         this.connection = connection;
         this.device = device;
-        printTaskQueue = new ConcurrentLinkedQueue<>();
+        // 开启打印机线程
+        this.printerThread = new Thread(this);
+        this.printerThread.setName(this.connection.toString());
+        this.printerThread.start();
     }
 
-    public Device getDevice() {
-        return device;
+    public List<PrintTask> getPrintTasks() {
+        return new ArrayList<>(printTaskQueue);
     }
 
-    public int getPrintTaskSize() {
-        return printTaskQueue.size();
-    }
-
-    public void cancelPrintTask() {
-        printTaskQueue.clear();
-    }
-
-    public long getLastPrintTime() {
-        return lastPrintTime;
-    }
-
-    public long getConnectKeepTime() {
-        return connectKeepTime;
-    }
-
-    public void setConnectKeepTime(long millis) {
-        this.connectKeepTime = millis;
-    }
-
-    public void setBel(boolean bel) {
-        this.bel = bel;
-    }
-
-    public boolean isBel() {
-        return bel;
-    }
-
-    public boolean isBlocking() {
-        return blocking;
-    }
-
-    public void setBlocking(boolean blocking, int timeOut) {
-        this.blocking = blocking;
-        this.printerTimeOut = timeOut;
-    }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public int getPrinterTimeOut() {
-        return printerTimeOut;
-    }
-
-    public void setPrinterTimeOut(int printerTimeOut) {
-        this.printerTimeOut = printerTimeOut;
-    }
-
-    public String print(Document document) {
-        String printId = generatePrintId();
-        return (String) print(document, printId, 0);
-    }
-
-    public Object print(Document document, Object tag, int interval) {
-        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
-        runnable.setDocument(document);
-        addToPrintQueue(runnable, tag);
-        return tag;
-    }
-
-    public String print(String templateContent, int interval) {
-        String printId = generatePrintId();
-        return (String) print(templateContent, null, printId, interval);
-    }
-
-    public String print(File templateFile, int interval) {
-        String printId = generatePrintId();
-        if (!templateFile.exists()) {
-            LoggerUtils.error(templateFile.getAbsolutePath() + " not found...");
-            return printId;
-        }
-        String readString = FileUtils.fileRead(templateFile);
-        return (String) print(readString, null, printId, interval);
-    }
-
-    public String print(String templateContent, Dict data, int interval) {
-        String printId = generatePrintId();
-        return (String) print(templateContent, data, printId, interval);
-    }
-
-
-    public Object print(String templateContent, Dict data, Object tag, int interval) {
-        PrintTaskRunnable runnable = new PrintTaskRunnable(tag, this, interval);
-        Template template = new Template(templateContent, data);
-        runnable.setTemplateParse(template, templateContent, data);
-        addToPrintQueue(runnable, tag);
-        return tag;
-    }
-
-    private synchronized void addToPrintQueue(PrintTaskRunnable runnable, Object tag) {
-        printTaskQueue.add(runnable);
-        LoggerUtils.debug(String.format("%s %s 添加到打印队列", this.connection, tag));
-        refreshPrintTask();
-    }
-
-
-    private void refreshPrintTask() {
-        if (printerThread == null) {
-            LoggerUtils.debug(String.format("%s 创建新的打印线程", this.connection));
-            printerThread = new Thread(new PrinterRunnable());
-            printerThread.setName(this.connection.toString());
-            printerThread.start();
-        }
-    }
-
-    public void close() {
-        printerThread.interrupt();
-        printerThread = null;
-        connection.close();
-        if (mCloseCallback != null) {
-            mCloseCallback.onClose(this);
-        }
-        LoggerUtils.debug(String.format("%s 打印机连接已销毁", this.connection));
-    }
-
-    public void setOnCloseCallback(OnCloseCallback callback) {
-        this.mCloseCallback = callback;
-    }
-
-    public void setOnPrintCallback(OnPrintCallback printCallback) {
-        this.mPrintCallback = printCallback;
-    }
-
-    OnPrintCallback getOnPrintCallback() {
-        return this.mPrintCallback;
-    }
-
-    public void setOnConnectionErrorCallback(OnConnectionErrorCallback callback) {
-        this.mConnectionErrorCallback = callback;
-    }
-
-    public OnConnectionErrorCallback getConnectionErrorCallback() {
-        return mConnectionErrorCallback;
-    }
-
-    private String generatePrintId() {
-        return UUID.randomUUID().toString().replace("-", "");
-    }
-
-    class PrinterRunnable implements Runnable {
-
-        @Override
-        public void run() {
-            while (printerThread != null && !printerThread.isInterrupted()) {
-                if (!printTaskQueue.isEmpty()) {
-                    // 从队列获取第一个任务进行打印
-                    PrintTaskRunnable runnable = printTaskQueue.poll();
-                    if (runnable != null) {
-                        // 执行打印任务
-                        runnable.run();
-                        // 记录最后一次打印的时间
-                        lastPrintTime = System.currentTimeMillis();
-                        // 兼容部分打印机, 如果性能差的,延迟一定的时间再发送打印指令
-                        Utils.sleep(runnable.getInterval());
+    public void cancel(String taskId) {
+        synchronized (lock) {
+            Iterator<PrintTask> it = printTaskQueue.iterator();
+            while (it.hasNext()) {
+                PrintTask printTask = it.next();
+                if (taskId.equals(printTask.getTaskId())) {
+                    if (mPrintCallback != null) {
+                        mPrintCallback.onCancel(this, printTask);
                     }
-                } else if (connectKeepTime > 0) {
-                    long nowTime = System.currentTimeMillis();
-                    if (nowTime - lastPrintTime > connectKeepTime) {
-                        close();
-                    } else {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException ignored) {
-                        }
-                    }
-                } else {
-                    close();
+                    it.remove();
                 }
             }
         }
+    }
+
+    public void clear() {
+        synchronized (lock) {
+            printTaskQueue.clear();
+        }
+    }
+
+    public Device getDevice() {
+        return this.device;
+    }
+
+    public boolean isBuzzer() {
+        return buzzer;
+    }
+
+    public void setBuzzer(boolean buzzer) {
+        this.buzzer = buzzer;
+    }
+
+    public void setPrintCallback(OnPrintCallback printCallback) {
+        this.mPrintCallback = printCallback;
+    }
+
+    public void write(byte[] bytes) throws ConnectionException {
+        this.connection.write(bytes);
+        this.connection.flush();
+    }
+
+    public void writeAndFlush(byte[] bytes) throws ConnectionException {
+        this.connection.write(bytes);
+        this.connection.flush();
+    }
+
+    public void flush() throws ConnectionException {
+        this.connection.flush();
+    }
+
+    public int read(byte[] bytes) throws ConnectionException {
+        return connection.read(bytes);
+    }
+
+    private void checkOnline() throws ConnectionException {
+        OrderSet orderSet = device.getOrderSet();
+        writeAndFlush(orderSet.status(1));
+        byte[] bytes = new byte[50];
+        int read = read(bytes);
+        if (read != -1) {
+
+        }
+    }
+
+    public void print(PrintTask printTask) {
+        printTask.setPrinter(this);
+        synchronized (lock) {
+            printTaskQueue.offer(printTask);
+            LoggerUtils.debug(String.format("%s 添加到打印队列", printTask.getTaskId()));
+        }
+    }
+
+    @Override
+    public void run() {
+        while (printerThread != null && !printerThread.isInterrupted()) {
+            try {
+                if (!printTaskQueue.isEmpty()) {
+                    PrintTask printTask = printTaskQueue.peek();
+                    if (printTask != null) {
+                        // 打印间隔时间
+                        Utils.sleep(printTask.getIntervalTime());
+                        String taskId = printTask.getTaskId();
+                        if (!printTask.isTimeOut()) {
+                            printTaskQueue.poll();
+                            LoggerUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", taskId));
+                            if (mPrintCallback != null) {
+                                mPrintCallback.onError(Printer.this, printTask, "打印任务超时");
+                            }
+                            continue;
+                        }
+                        try {
+                            checkOnline();
+                            printTask.call();
+                            activeTime = System.currentTimeMillis();
+                            printTaskQueue.poll();
+                            LoggerUtils.debug(String.format("%s 打印完成", taskId));
+                            if (mPrintCallback != null) {
+                                mPrintCallback.onSuccess(Printer.this, printTask);
+                            }
+                        } catch (Exception ex) {
+                            if (ex instanceof ConnectionException) {
+                                throw (ConnectionException) ex;
+                            }
+                            printTaskQueue.poll();
+                            String errorMsg = String.format("打印失败, 错误原因: %s", ex.getMessage());
+                            LoggerUtils.error(taskId + " " + errorMsg);
+                            if (mPrintCallback != null) {
+                                mPrintCallback.onError(Printer.this, printTask, errorMsg);
+                            }
+                        }
+                    }
+                } else if (System.currentTimeMillis() - activeTime > 10000) {
+                    activeTime = System.currentTimeMillis();
+                    writeAndFlush(device.getOrderSet().status(1));
+                } else {
+                    Utils.sleep(200);
+                }
+            } catch (ConnectionException e) {
+                LoggerUtils.error("打印机连接失败, 正在尝试重连");
+                retryConnection();
+            }
+
+        }
+    }
+
+
+    private void retryConnection() {
+        while (!connection.isConnect()) {
+            try {
+                this.connection.doConnect();
+                LoggerUtils.debug(" 连接成功");
+            } catch (ConnectionException ignored) {
+                if (mPrintCallback != null) {
+                    mPrintCallback.onConnectError(this);
+                }
+                Utils.sleep(5000);
+            }
+        }
+    }
+
+    public void release() {
+        this.connection.close();
+        this.printerThread.interrupt();
     }
 }

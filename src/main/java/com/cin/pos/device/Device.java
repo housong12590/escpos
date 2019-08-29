@@ -8,28 +8,15 @@ import java.nio.charset.Charset;
 
 public class Device {
 
-
-//    private String charset = Constants.CHARSET_GBK;
-
     private Charset charset = Charset.forName("GBK");
 
     private Paper paper;
 
     private OrderSet orderSet = OrderSetFactory.getDefault();
 
-
     public Device(Paper paper) {
         this.paper = paper;
     }
-
-//    public String getCharset() {
-//        return charset;
-//    }
-//
-//    public void setCharset(String charset) {
-//        this.charset = charset;
-//    }
-
 
     public Charset getCharset() {
         return charset;

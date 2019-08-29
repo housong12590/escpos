@@ -38,7 +38,6 @@ public class TableConverter implements Converter<Table> {
     private void outRows(String[] rows, ByteBuffer buffer, Device device) {
         OrderSet orderSet = device.getOrderSet();
         for (String row : rows) {
-            System.out.println(row + "->" + StringUtils.lengthOfGBK(row));
             buffer.write(row.getBytes(device.getCharset()));
             buffer.write(orderSet.newLine());
         }

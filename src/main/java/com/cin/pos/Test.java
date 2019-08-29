@@ -1,21 +1,52 @@
 package com.cin.pos;
 
+import com.cin.pos.callback.OnPrintCallback;
+import com.cin.pos.common.Dict;
+import com.cin.pos.parser.Template;
+import com.cin.pos.printer.NetworkPrinter;
+import com.cin.pos.printer.PrintTask;
+import com.cin.pos.printer.Printer;
+import com.cin.pos.util.FileUtils;
 import com.cin.pos.util.StringUtils;
+import com.cin.pos.util.Utils;
 
 import java.util.List;
 
 public class Test {
 
-    public static void main(String[] args) {
-//        String templateStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\结帐单.xml");
-//        String dataStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\data.json");
-//        Dict data = Dict.create(dataStr);
-//        Template template = new Template(templateStr, data);
-//        Document document = template.toDocument();
-//        NetworkPrinter printer = new NetworkPrinter("192.168.10.60");
-//        printer.print(document);
-        test03();
-        test04();
+    public static void main(String[] args) throws Exception {
+        String templateStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\结帐单.xml");
+        String dataStr = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\data.json");
+        Dict data = Dict.create(dataStr);
+        Template template = new Template(templateStr, data);
+        NetworkPrinter printer = new NetworkPrinter("192.168.10.60");
+        printer.setPrintCallback(new OnPrintCallback() {
+            @Override
+            public void onSuccess(Printer printer, PrintTask printTask) {
+
+            }
+
+            @Override
+            public void onError(Printer printer, PrintTask printTask, String errorMsg) {
+
+            }
+
+            @Override
+            public void onCancel(Printer printer, PrintTask printTask) {
+
+            }
+
+            @Override
+            public void onConnectError(Printer printer) {
+                System.out.println("打印连接失败");
+            }
+        });
+        for (int i = 0; i < 10; i++) {
+            PrintTask printTask = new PrintTask(template);
+            printer.print(printTask);
+            Utils.sleep(10 * 60 * 1000);
+        }
+        printer.release();
     }
 
     private static void test04() {

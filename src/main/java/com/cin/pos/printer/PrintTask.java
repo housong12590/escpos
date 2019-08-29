@@ -13,7 +13,9 @@ public class PrintTask implements Callable<Void> {
     private String taskId;
     private Template template;
     private Object tag;
-    private Printer1 printer;
+    private Printer printer;
+    private long intervalTime;
+    private long printTimeOut = 60 * 60 * 1000;
     private long createTime;
 
 
@@ -35,11 +37,11 @@ public class PrintTask implements Callable<Void> {
         this.template = template;
     }
 
-    public Printer1 getPrinter() {
+    public Printer getPrinter() {
         return printer;
     }
 
-    public void setPrinter(Printer1 printer) {
+    public void setPrinter(Printer printer) {
         this.printer = printer;
     }
 
@@ -59,6 +61,31 @@ public class PrintTask implements Callable<Void> {
         return createTime;
     }
 
+    public long getIntervalTime() {
+        return intervalTime;
+    }
+
+    public long getPrintTimeOut() {
+        return printTimeOut;
+    }
+
+    public void setPrintTimeOut(long printTimeOut) {
+        this.printTimeOut = printTimeOut;
+    }
+
+    public void setIntervalTime(long intervalTime) {
+        this.intervalTime = intervalTime;
+    }
+
+    public boolean isTimeOut() {
+        long nowTime = System.currentTimeMillis();
+        if (nowTime - createTime < printTimeOut) {
+            return true;
+        }
+        return false;
+    }
+
+
     @Override
     public String toString() {
         return this.taskId;
@@ -71,8 +98,10 @@ public class PrintTask implements Callable<Void> {
         LoggerUtils.debug(String.format("%s 开始解析模版 ", taskId));
         Document document = template.toDocument();
         byte[] data = document.toBytes(printer.getDevice());
-        LoggerUtils.debug(String.format("%s 发送打印数据%s字节 ", taskId, data.length));
+        LoggerUtils.debug(String.format("%s 发送打印数据 %s 字节 ", taskId, data.length));
         printer.write(data);
+        printer.write(orderSet.paperFeed(5));
+        printer.write(orderSet.cutPaper());
         if (printer.isBuzzer()) {
             printer.write(orderSet.printEnd());
         }
