@@ -79,10 +79,7 @@ public class PrintTask implements Callable<Void> {
 
     public boolean isTimeOut() {
         long nowTime = System.currentTimeMillis();
-        if (nowTime - createTime < printTimeOut) {
-            return true;
-        }
-        return false;
+        return nowTime - createTime > printTimeOut;
     }
 
 

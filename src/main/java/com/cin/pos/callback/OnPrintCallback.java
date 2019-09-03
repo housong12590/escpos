@@ -9,8 +9,7 @@ public interface OnPrintCallback {
 
     void onError(Printer printer, PrintTask printTask, String errorMsg);
 
-    void onCancel(Printer printer, PrintTask printTask);
-
     void onConnectError(Printer printer);
 
+    void onPrinterError(Printer printer);
 }

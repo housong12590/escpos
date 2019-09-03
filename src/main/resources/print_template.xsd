@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.w3school.com.cn"
-           xmlns="http://www.w3school.com.cn">
+           targetNamespace="print_template"
+           xmlns="print_template">
 
     <xs:simpleType name="subexpression">
         <xs:restriction base="xs:string">
@@ -13,6 +13,15 @@
             <xs:enumeration value="normal"/>
             <xs:enumeration value="big"/>
             <xs:enumeration value="oversized"/>
+            <xs:enumeration value="w1h1"/>
+            <xs:enumeration value="w1h2"/>
+            <xs:enumeration value="w1h3"/>
+            <xs:enumeration value="w2h1"/>
+            <xs:enumeration value="w3h1"/>
+            <xs:enumeration value="w2h3"/>
+            <xs:enumeration value="w3h2"/>
+            <xs:enumeration value="w2h2"/>
+            <xs:enumeration value="w3h3"/>
         </xs:restriction>
     </xs:simpleType>
 

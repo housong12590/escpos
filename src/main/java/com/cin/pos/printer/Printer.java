@@ -9,7 +9,6 @@ import com.cin.pos.util.LoggerUtils;
 import com.cin.pos.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -22,9 +21,10 @@ public class Printer implements Runnable {
     private Thread printerThread;
     private boolean buzzer;
     private long activeTime;
+    private OnPrintCallback mPrintCallback;
+    private boolean isStop;
 
     private final Object lock = new Object();
-    private OnPrintCallback mPrintCallback;
 
     public Printer(Connection connection, Device device) {
         this.connection = connection;
@@ -41,16 +41,7 @@ public class Printer implements Runnable {
 
     public void cancel(String taskId) {
         synchronized (lock) {
-            Iterator<PrintTask> it = printTaskQueue.iterator();
-            while (it.hasNext()) {
-                PrintTask printTask = it.next();
-                if (taskId.equals(printTask.getTaskId())) {
-                    if (mPrintCallback != null) {
-                        mPrintCallback.onCancel(this, printTask);
-                    }
-                    it.remove();
-                }
-            }
+            printTaskQueue.removeIf(printTask -> taskId.equals(printTask.getTaskId()));
         }
     }
 
@@ -78,7 +69,6 @@ public class Printer implements Runnable {
 
     public void write(byte[] bytes) throws ConnectionException {
         this.connection.write(bytes);
-        this.connection.flush();
     }
 
     public void writeAndFlush(byte[] bytes) throws ConnectionException {
@@ -112,7 +102,7 @@ public class Printer implements Runnable {
 
     @Override
     public void run() {
-        while (printerThread != null && !printerThread.isInterrupted()) {
+        while (printerThread != null && !isStop) {
             if (connection.isConnect()) {
                 if (!printTaskQueue.isEmpty()) {
                     PrintTask printTask = printTaskQueue.peek();
@@ -137,7 +127,6 @@ public class Printer implements Runnable {
                                 // 打印间隔时间
                                 Utils.sleep(printTask.getIntervalTime());
                             } catch (ConnectionException e) {
-                                LoggerUtils.error("打印机连接失败, 正在尝试重连  " + e.getMessage());
                                 retryConnection();
                             } catch (Exception e) {
                                 String errorMsg = String.format("打印失败, 错误原因: %s", e.getMessage());
@@ -153,7 +142,6 @@ public class Printer implements Runnable {
                     try {
                         writeAndFlush(device.getOrderSet().heartbeat());
                     } catch (ConnectionException e) {
-                        LoggerUtils.error("打印机连接失败, 正在尝试重连  " + e.getMessage());
                         retryConnection();
                     }
                 } else {
@@ -168,20 +156,35 @@ public class Printer implements Runnable {
 
 
     private void retryConnection() {
-        while (!connection.isConnect()) {
+        while (!connection.isConnect() && !isStop) {
             try {
-                this.connection.doConnect();
-                LoggerUtils.debug(" 连接成功");
-            } catch (ConnectionException ignored) {
-                if (mPrintCallback != null) {
-                    mPrintCallback.onConnectError(this);
+                try {
+                    this.connection.doConnect();
+                } catch (ConnectionException e) {
+                    if (mPrintCallback != null) {
+                        LoggerUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
+                        mPrintCallback.onConnectError(this);
+                    }
+                    throw e;
                 }
+                try {
+                    printStatus();
+                } catch (ConnectionException e) {
+                    if (mPrintCallback != null) {
+                        LoggerUtils.error("打印机异常, 请重启打印机  " + e.getMessage());
+                        mPrintCallback.onPrinterError(this);
+                    }
+                    throw e;
+                }
+                LoggerUtils.debug(" 连接成功");
+            } catch (Exception ignored) {
                 Utils.sleep(5000);
             }
         }
     }
 
     public void release() {
+        this.isStop = true;
         this.connection.close();
         this.printerThread.interrupt();
     }
