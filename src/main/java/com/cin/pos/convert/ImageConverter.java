@@ -6,7 +6,7 @@ import com.cin.pos.element.Align;
 import com.cin.pos.element.Image;
 import com.cin.pos.util.ByteBuffer;
 import com.cin.pos.util.ImageCreator;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.orderset.OrderSet;
 
 public class ImageConverter implements Converter<Image> {
@@ -16,7 +16,7 @@ public class ImageConverter implements Converter<Image> {
         OrderSet orderSet = device.getOrderSet();
         int[] pixels = image.getPixels();
         if (pixels == null || pixels.length == 0) {
-            LoggerUtils.error("图片数据为空!");
+            LogUtils.error("图片数据为空!");
             return new byte[0];
         }
         int width = image.getWidth();

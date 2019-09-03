@@ -6,7 +6,7 @@ import com.cin.pos.convert.ConverterKit;
 import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ExpressionUtils;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.StringUtils;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class Group extends Element {
                     generateChildElement(attributeSet, itemData);
                 }
             } else {
-                LoggerUtils.error(String.format("数据格式不满足遍历条件 %s", item));
+                LogUtils.error(String.format("数据格式不满足遍历条件 %s", item));
             }
         }
     }
@@ -61,7 +61,7 @@ public class Group extends Element {
             element.parser(attrs, data);
             children.add(element);
         } else {
-            LoggerUtils.error(String.format("%s 标签没有匹配到相应的元素 ", elementName));
+            LogUtils.error(String.format("%s 标签没有匹配到相应的元素 ", elementName));
         }
     }
 

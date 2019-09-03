@@ -5,7 +5,7 @@ import com.cin.pos.connect.Connection;
 import com.cin.pos.device.Device;
 import com.cin.pos.exception.ConnectionException;
 import com.cin.pos.orderset.OrderSet;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.Utils;
 
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public class Printer implements Runnable {
         printTask.setPrinter(this);
         synchronized (lock) {
             printTaskQueue.offer(printTask);
-            LoggerUtils.debug(String.format("%s 添加到打印队列", printTask.getTaskId()));
+            LogUtils.debug(String.format("%s 添加到打印队列", printTask.getTaskId()));
         }
     }
 
@@ -110,7 +110,7 @@ public class Printer implements Runnable {
                         String taskId = printTask.getTaskId();
                         if (printTask.isTimeOut()) {
                             printTaskQueue.poll();
-                            LoggerUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", taskId));
+                            LogUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", taskId));
                             if (mPrintCallback != null) {
                                 mPrintCallback.onError(Printer.this, printTask, "打印任务超时");
                             }
@@ -120,7 +120,7 @@ public class Printer implements Runnable {
                                 printTask.call();
                                 activeTime = System.currentTimeMillis();
                                 printTaskQueue.poll();
-                                LoggerUtils.debug(String.format("%s 打印完成", taskId));
+                                LogUtils.debug(String.format("%s 打印完成", taskId));
                                 if (mPrintCallback != null) {
                                     mPrintCallback.onSuccess(Printer.this, printTask);
                                 }
@@ -130,7 +130,7 @@ public class Printer implements Runnable {
                                 retryConnection();
                             } catch (Exception e) {
                                 String errorMsg = String.format("打印失败, 错误原因: %s", e.getMessage());
-                                LoggerUtils.error(taskId + " " + errorMsg);
+                                LogUtils.error(taskId + " " + errorMsg);
                                 if (mPrintCallback != null) {
                                     mPrintCallback.onError(Printer.this, printTask, errorMsg);
                                 }
@@ -148,7 +148,7 @@ public class Printer implements Runnable {
                     Utils.sleep(200);
                 }
             } else {
-                LoggerUtils.debug("开始连接打印机....");
+                LogUtils.debug("开始连接打印机....");
                 retryConnection();
             }
         }
@@ -162,7 +162,7 @@ public class Printer implements Runnable {
                     this.connection.doConnect();
                 } catch (ConnectionException e) {
                     if (mPrintCallback != null) {
-                        LoggerUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
+                        LogUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
                         mPrintCallback.onConnectError(this);
                     }
                     throw e;
@@ -171,12 +171,12 @@ public class Printer implements Runnable {
                     printStatus();
                 } catch (ConnectionException e) {
                     if (mPrintCallback != null) {
-                        LoggerUtils.error("打印机异常, 请重启打印机  " + e.getMessage());
+                        LogUtils.error("打印机异常, 请重启打印机  " + e.getMessage());
                         mPrintCallback.onPrinterError(this);
                     }
                     throw e;
                 }
-                LoggerUtils.debug(" 连接成功");
+                LogUtils.debug(" 连接成功");
             } catch (Exception ignored) {
                 Utils.sleep(5000);
             }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -13,14 +15,14 @@ public class JSONUtils {
 
     private static Converter converter = findSupportJsonLibrary();
 
-    public static List toList(String json) {
+    public static <T> List<T> toList(String json, Class<T> cls) {
         checkNull();
-        return converter.toBean(json, List.class);
+        return converter.toList(json, cls);
     }
 
-    public static Map toMap(String json) {
+    public static <T> Map<String, T> toMap(String json, Class<T> cls) {
         checkNull();
-        return converter.toBean(json, Map.class);
+        return converter.toMap(json, cls);
     }
 
     public static Map toMap(Object obj) {
@@ -47,19 +49,21 @@ public class JSONUtils {
 
 
     private static Converter findSupportJsonLibrary() {
+
+//        try {
+//            Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
+//            return new JacksonConverter();
+//        } catch (ClassNotFoundException ignored) {
+//        }
+//        try {
+//            Class.forName("com.alibaba.fastjson.JSON");
+//            return new FastjsonConverter();
+//        } catch (ClassNotFoundException ignored) {
+//        }
+//
         try {
             Class.forName("com.google.gson.Gson");
             return new GsonConverter();
-        } catch (ClassNotFoundException ignored) {
-        }
-        try {
-            Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
-            return new JacksonConverter();
-        } catch (ClassNotFoundException ignored) {
-        }
-        try {
-            Class.forName("com.alibaba.fastjson.JSON");
-            return new FastjsonConverter();
         } catch (ClassNotFoundException ignored) {
         }
         return null;
@@ -69,6 +73,10 @@ public class JSONUtils {
     interface Converter {
 
         <T> T toBean(String json, Class<T> cls);
+
+        <T> List<T> toList(String json, Class<T> cls);
+
+        <T> Map<String, T> toMap(String json, Class<T> cls);
 
         String toJson(Object obj);
     }
@@ -83,6 +91,18 @@ public class JSONUtils {
         }
 
         @Override
+        public <T> List<T> toList(String json, Class<T> cls) {
+            Type type = getType(List.class, cls);
+            return gson.fromJson(json, type);
+        }
+
+        @Override
+        public <T> Map<String, T> toMap(String json, Class<T> cls) {
+            ParameterizedTypeImpl type = new ParameterizedTypeImpl(Map.class, new Class[]{cls});
+            return gson.fromJson(json, type);
+        }
+
+        @Override
         public String toJson(Object obj) {
             return gson.toJson(obj);
         }
@@ -93,6 +113,17 @@ public class JSONUtils {
         @Override
         public <T> T toBean(String json, Class<T> cls) {
             return JSON.parseObject(json, cls);
+        }
+
+        @Override
+        public <T> List<T> toList(String json, Class<T> cls) {
+            return JSON.parseArray(json, cls);
+        }
+
+        @Override
+        public <T> Map<String, T> toMap(String json, Class<T> cls) {
+            ParameterizedTypeImpl type = new ParameterizedTypeImpl(Map.class, new Class[]{cls});
+            return JSON.parseObject(json, type);
         }
 
         @Override
@@ -115,12 +146,63 @@ public class JSONUtils {
         }
 
         @Override
+        public <T> List<T> toList(String json, Class<T> cls) {
+            try {
+                return mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<T>>() {
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public <T> Map<String, T> toMap(String json, Class<T> cls) {
+            try {
+                return mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<Map<String, T>>() {
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
         public String toJson(Object obj) {
             try {
                 return mapper.writeValueAsString(obj);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
+            return null;
+        }
+    }
+
+    public static Type getType(Class<?> raw, Class<?>... cls) {
+        return new ParameterizedTypeImpl(raw, cls);
+    }
+
+    public static class ParameterizedTypeImpl implements ParameterizedType {
+        private final Class raw;
+        private final Type[] args;
+
+        public ParameterizedTypeImpl(Class raw, Type[] args) {
+            this.raw = raw;
+            this.args = args != null ? args : new Type[0];
+        }
+
+        @Override
+        public Type[] getActualTypeArguments() {
+            return args;
+        }
+
+        @Override
+        public Type getRawType() {
+            return raw;
+        }
+
+        @Override
+        public Type getOwnerType() {
             return null;
         }
     }

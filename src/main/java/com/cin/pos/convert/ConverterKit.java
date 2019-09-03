@@ -2,7 +2,7 @@ package com.cin.pos.convert;
 
 import com.cin.pos.device.Device;
 import com.cin.pos.element.*;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.StringUtils;
 
 import java.util.HashMap;
@@ -55,11 +55,11 @@ public class ConverterKit {
         if (converter != null) {
             return converter.toBytes(device, element);
         }
-        LoggerUtils.error(String.format("没有匹配到%s元素的转换器", element.getClass().getName()));
-        LoggerUtils.info("可用的转换器如下: ");
+        LogUtils.error(String.format("没有匹配到%s元素的转换器", element.getClass().getName()));
+        LogUtils.info("可用的转换器如下: ");
         for (Map.Entry<Class<? extends Element>, Converter> entry : converterMap.entrySet()) {
             Converter value = entry.getValue();
-            LoggerUtils.info(value.getClass().getName());
+            LogUtils.info(value.getClass().getName());
         }
         return new byte[0];
     }

@@ -5,7 +5,7 @@ import com.cin.pos.common.Dict;
 import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ImageCreator;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.StringUtils;
 
 public class Image extends Element {
@@ -84,11 +84,11 @@ public class Image extends Element {
                     this.pixels = ImageCreator.createBarcodePixels(this.value, getWidth(), getHeight());
                 }
                 if (this.pixels == null) {
-                    LoggerUtils.error("image pixels can not null !!!");
+                    LogUtils.error("image pixels can not null !!!");
                 }
             }
         } else {
-            LoggerUtils.error("image value can not null !!!");
+            LogUtils.error("image value can not null !!!");
         }
 
     }

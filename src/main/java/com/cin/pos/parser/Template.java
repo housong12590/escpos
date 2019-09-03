@@ -11,7 +11,7 @@ import com.cin.pos.element.exception.ConditionNotExistException;
 import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ExpressionUtils;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.StringUtils;
 import org.xml.sax.SAXException;
 
@@ -41,7 +41,7 @@ public class Template {
 
     public Document toDocument() throws TemplateParseException {
         if (StringUtils.isEmpty(templateStr)) {
-            LoggerUtils.debug("模版内容为空");
+            LogUtils.debug("模版内容为空");
             throw new TemplateParseException("模版内容为空");
         }
         // 模版预处理,替换模版里的占位符 如 : ${keys}  注: #{keys}在这里暂不处理
@@ -56,7 +56,7 @@ public class Template {
                     element.parser(set, data);
                     document.addElement(element);
                 } catch (ConditionNotExistException e) {
-//                    LoggerUtils.info(e.getMessage());
+//                    LogUtils.info(e.getMessage());
                 }
             }
         }

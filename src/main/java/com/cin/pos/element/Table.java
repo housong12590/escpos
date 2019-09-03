@@ -6,7 +6,7 @@ import com.cin.pos.common.Dict;
 import com.cin.pos.element.exception.TemplateParseException;
 import com.cin.pos.parser.attr.AttributeSet;
 import com.cin.pos.util.ExpressionUtils;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.StringUtils;
 
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class Table extends Element {
 
         private void repeatTr(TR tr) throws TemplateParseException {
             if (data == null) {
-                LoggerUtils.error("模版数据为空, 无法进行table repeat操作");
+                LogUtils.error("模版数据为空, 无法进行table repeat操作");
                 return;
             }
             String expression = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, tr.repeatKey);

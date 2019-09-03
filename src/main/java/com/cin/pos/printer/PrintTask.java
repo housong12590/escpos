@@ -3,7 +3,7 @@ package com.cin.pos.printer;
 import com.cin.pos.element.Document;
 import com.cin.pos.orderset.OrderSet;
 import com.cin.pos.parser.Template;
-import com.cin.pos.util.LoggerUtils;
+import com.cin.pos.util.LogUtils;
 import com.cin.pos.util.Utils;
 
 import java.util.concurrent.Callable;
@@ -92,10 +92,10 @@ public class PrintTask implements Callable<Void> {
     public Void call() throws Exception {
         OrderSet orderSet = printer.getDevice().getOrderSet();
         printer.write(orderSet.reset());
-        LoggerUtils.debug(String.format("%s 开始解析模版 ", taskId));
+        LogUtils.debug(String.format("%s 开始解析模版 ", taskId));
         Document document = template.toDocument();
         byte[] data = document.toBytes(printer.getDevice());
-        LoggerUtils.debug(String.format("%s 发送打印数据 %s 字节 ", taskId, data.length));
+        LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", taskId, data.length));
         printer.write(data);
         printer.write(orderSet.paperFeed(5));
         printer.write(orderSet.cutPaper());
