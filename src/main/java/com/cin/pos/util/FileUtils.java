@@ -105,4 +105,15 @@ public class FileUtils {
             }
         }
     }
+
+    public static boolean deleteFile(String path) {
+        return deleteFile(new File(path));
+    }
+
+    public static boolean deleteFile(File file) {
+        if (file.exists()) {
+            return file.delete();
+        }
+        return false;
+    }
 }
