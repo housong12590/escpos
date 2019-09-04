@@ -2,6 +2,7 @@ package com.cin.pos.util;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -25,10 +26,9 @@ public class JSONUtils {
         return converter.toMap(json, cls);
     }
 
-    public static Map toMap(Object obj) {
+    public static Object toBean(String json, Type type) {
         checkNull();
-        String json = converter.toJson(obj);
-        return converter.toBean(json, Map.class);
+        return converter.toBean(json, type);
     }
 
     public static <T> T toBean(String json, Class<T> cls) {
@@ -49,21 +49,19 @@ public class JSONUtils {
 
 
     private static Converter findSupportJsonLibrary() {
-
-//        try {
-//            Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
-//            return new JacksonConverter();
-//        } catch (ClassNotFoundException ignored) {
-//        }
-//        try {
-//            Class.forName("com.alibaba.fastjson.JSON");
-//            return new FastjsonConverter();
-//        } catch (ClassNotFoundException ignored) {
-//        }
-//
         try {
             Class.forName("com.google.gson.Gson");
             return new GsonConverter();
+        } catch (ClassNotFoundException ignored) {
+        }
+        try {
+            Class.forName("com.alibaba.fastjson.JSON");
+            return new FastjsonConverter();
+        } catch (ClassNotFoundException ignored) {
+        }
+        try {
+            Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
+            return new JacksonConverter();
         } catch (ClassNotFoundException ignored) {
         }
         return null;
@@ -77,6 +75,8 @@ public class JSONUtils {
         <T> List<T> toList(String json, Class<T> cls);
 
         <T> Map<String, T> toMap(String json, Class<T> cls);
+
+        Object toBean(String json, Type type);
 
         String toJson(Object obj);
     }
@@ -98,7 +98,12 @@ public class JSONUtils {
 
         @Override
         public <T> Map<String, T> toMap(String json, Class<T> cls) {
-            ParameterizedTypeImpl type = new ParameterizedTypeImpl(Map.class, new Class[]{cls});
+            Type type = getType(Map.class, String.class, cls);
+            return gson.fromJson(json, type);
+        }
+
+        @Override
+        public Object toBean(String json, Type type) {
             return gson.fromJson(json, type);
         }
 
@@ -122,7 +127,12 @@ public class JSONUtils {
 
         @Override
         public <T> Map<String, T> toMap(String json, Class<T> cls) {
-            ParameterizedTypeImpl type = new ParameterizedTypeImpl(Map.class, new Class[]{cls});
+            Type type = getType(Map.class, String.class, cls);
+            return JSON.parseObject(json, type);
+        }
+
+        @Override
+        public Object toBean(String json, Type type) {
             return JSON.parseObject(json, type);
         }
 
@@ -148,8 +158,8 @@ public class JSONUtils {
         @Override
         public <T> List<T> toList(String json, Class<T> cls) {
             try {
-                return mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<List<T>>() {
-                });
+                JavaType listType = mapper.getTypeFactory().constructCollectionType(List.class, cls);
+                return mapper.readValue(json, listType);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -159,8 +169,19 @@ public class JSONUtils {
         @Override
         public <T> Map<String, T> toMap(String json, Class<T> cls) {
             try {
-                return mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<Map<String, T>>() {
-                });
+                JavaType javaType = mapper.getTypeFactory().constructMapType(Map.class, String.class, cls);
+                return mapper.readValue(json, javaType);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public Object toBean(String json, Type type) {
+            JavaType javaType = mapper.getTypeFactory().constructType(type);
+            try {
+                return mapper.readValue(json, javaType);
             } catch (IOException e) {
                 e.printStackTrace();
             }
