@@ -2,6 +2,7 @@ package com.cin.pos.util;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -143,7 +144,13 @@ public class JSONUtils {
     }
 
     static class JacksonConverter implements Converter {
-        private ObjectMapper mapper = new ObjectMapper();
+
+        private ObjectMapper mapper;
+
+        public JacksonConverter() {
+            mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }
 
         @Override
         public <T> T toBean(String json, Class<T> cls) {
@@ -199,7 +206,7 @@ public class JSONUtils {
         }
     }
 
-    public static Type getType(Class<?> raw, Class<?>... cls) {
+    private static Type getType(Class<?> raw, Class<?>... cls) {
         return new ParameterizedTypeImpl(raw, cls);
     }
 
@@ -207,7 +214,7 @@ public class JSONUtils {
         private final Class raw;
         private final Type[] args;
 
-        public ParameterizedTypeImpl(Class raw, Type[] args) {
+        ParameterizedTypeImpl(Class raw, Type[] args) {
             this.raw = raw;
             this.args = args != null ? args : new Type[0];
         }

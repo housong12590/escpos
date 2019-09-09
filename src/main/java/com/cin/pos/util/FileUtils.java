@@ -1,13 +1,12 @@
 package com.cin.pos.util;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 import java.nio.file.Files;
 
 public class FileUtils {
@@ -41,20 +40,45 @@ public class FileUtils {
 
 
     public static void fileWrite(File file, String content) {
+        File parentFile = file.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
         FileOutputStream fos = null;
-        FileChannel channel = null;
+        BufferedOutputStream bos = null;
         try {
             fos = new FileOutputStream(file);
-            channel = fos.getChannel();
-            byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-            ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-            buffer.put(bytes);
-            buffer.flip();
-            channel.write(buffer);
-        } catch (Exception e) {
+            bos = new BufferedOutputStream(fos);
+            bos.write(content.getBytes());
+            bos.flush();
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Utils.safeClose(fos, channel);
+            Utils.safeClose(bos, fos);
+        }
+    }
+
+    public static void fileWrite(File file, InputStream is) {
+        FileOutputStream fos = null;
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            File parentFile = file.getParentFile();
+            if (!parentFile.exists()) {
+                parentFile.mkdirs();
+            }
+            byte[] buf = new byte[2048];
+            int len;
+            fos = new FileOutputStream(file);
+            while ((len = is.read(buf)) != -1) {
+                fos.write(buf, 0, len);
+            }
+            fos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            Utils.safeClose(is, fos);
         }
     }
 
@@ -106,14 +130,21 @@ public class FileUtils {
         }
     }
 
-    public static boolean deleteFile(String path) {
-        return deleteFile(new File(path));
+    public static void deleteFile(String path) {
+        deleteFile(new File(path));
     }
 
-    public static boolean deleteFile(File file) {
+    public static void deleteFile(File file) {
         if (file.exists()) {
-            return file.delete();
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        deleteFile(f);
+                    }
+                }
+            }
+            file.delete();
         }
-        return false;
     }
 }

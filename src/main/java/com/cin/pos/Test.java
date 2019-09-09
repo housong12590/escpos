@@ -1,25 +1,19 @@
 package com.cin.pos;
 
+import com.cin.pos.element.exception.TemplateParseException;
+import com.cin.pos.parser.Template;
+import com.cin.pos.printer.NetworkPrinter;
+import com.cin.pos.printer.PrintTask;
+import com.cin.pos.util.FileUtils;
+
 public class Test {
 
-    public static void main(String[] args) {
-//        List<Hero> _list = new ArrayList<>();
-//        _list.add(new Hero("hous", 28));
-//        _list.add(new Hero("czlyj", 25));
-//        _list.add(new Hero("fold", 22));
-//        Map<String, Hero> map = new HashMap<>();
-//        map.put("1", _list.get(0));
-//        map.put("2", _list.get(1));
-//        map.put("3", _list.get(2));
-//        String json = JSONUtils.toJson(map);
-//        Map<String, Hero> heroMap = JSONUtils.toMap(json, Hero.class);
-//        System.out.println(heroMap);
-
-        String oldVersion1 = "1.1.1";
-
-        String newVersion2 = "2.2.12";
-
-        System.out.println(oldVersion1.compareTo(newVersion2) < 0 ? "需要更新" : "不需要更新");
+    public static void main(String[] args) throws TemplateParseException {
+        NetworkPrinter printer = new NetworkPrinter("192.168.10.60");
+        String fileRead = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\test_print.xml");
+        Template template = new Template(fileRead);
+        PrintTask printTask = new PrintTask("111",template);
+        printer.print(printTask);
     }
 
 

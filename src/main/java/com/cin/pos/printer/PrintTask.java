@@ -105,6 +105,4 @@ public class PrintTask implements Callable<Void> {
         printer.flush();
         return null;
     }
-
-
 }

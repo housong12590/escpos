@@ -119,10 +119,7 @@ public abstract class Element implements Parser {
     }
 
     private boolean checkCondition(Dict data, String condition) {
-        if (data == null) {
-            return false;
-        }
-        if (StringUtils.isEmpty(condition)) {
+        if (data == null || StringUtils.isEmpty(condition)) {
             return true;
         }
         if (condition.matches("(true|false)")) {
