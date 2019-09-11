@@ -1,20 +1,20 @@
 package com.ciin.pos.printer;
 
+import com.ciin.pos.callback.OnPrintTaskCallback;
 import com.ciin.pos.callback.OnPrinterErrorCallback;
 import com.ciin.pos.connect.Connection;
+import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.ConnectionException;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
-import com.ciin.pos.callback.OnPrintTaskCallback;
-import com.ciin.pos.device.Device;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class Printer implements Runnable {
+public class Printer1 implements Runnable {
 
     private Queue<PrintTask> printTaskQueue = new ConcurrentLinkedQueue<>();
     private Connection connection;
@@ -29,13 +29,22 @@ public class Printer implements Runnable {
 
     private final Object lock = new Object();
 
-    public Printer(Connection connection, Device device) {
+    public Printer1(Connection connection, Device device) {
         this.connection = connection;
         this.device = device;
-        // 开启打印机线程
+        // 初始化打印机线程
+        initPrinterThread();
+    }
+
+    private void initPrinterThread() {
         this.printerThread = new Thread(this);
         this.printerThread.setName(this.connection.toString());
-        this.printerThread.start();
+    }
+
+    private void startPrintThread() {
+        if (!this.printerThread.isAlive()) {
+            this.printerThread.start();
+        }
     }
 
     public List<PrintTask> getPrintTasks() {
@@ -100,6 +109,9 @@ public class Printer implements Runnable {
     }
 
     public void print(PrintTask printTask) {
+        if (!this.printerThread.isAlive()) {
+            startPrintThread();
+        }
         printTask.setPrinter(this);
         synchronized (lock) {
             printTaskQueue.offer(printTask);
@@ -110,59 +122,8 @@ public class Printer implements Runnable {
 
     @Override
     public void run() {
-        while (printerThread != null && !isStop) {
-            if (connection.isConnect()) {
-                if (!printTaskQueue.isEmpty()) {
-                    PrintTask printTask = printTaskQueue.peek();
-                    if (printTask != null) {
-                        String taskId = printTask.getTaskId();
-                        if (printTask.isTimeOut()) {
-                            printTaskQueue.poll();
-                            LogUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", taskId));
-                            if (mPrintTaskCallback != null) {
-                                mPrintTaskCallback.onError(Printer.this, printTask, "打印任务超时");
-                            }
-                        } else {
-                            try {
-                                printStatus();
-                                printTask.call();
-                                activeTime = System.currentTimeMillis();
-                                printTaskQueue.poll();
-                                LogUtils.debug(String.format("%s 打印完成", taskId));
-                                if (mPrintTaskCallback != null) {
-                                    mPrintTaskCallback.onSuccess(Printer.this, printTask);
-                                }
-                                // 打印间隔时间
-                                Utils.sleep(printTask.getIntervalTime());
-                            } catch (ConnectionException e) {
-                                retryConnection();
-                            } catch (Exception e) {
-                                String errorMsg = String.format("打印失败, 错误原因: %s", e.getMessage());
-                                LogUtils.error(taskId + " " + errorMsg);
-                                if (mPrintTaskCallback != null) {
-                                    mPrintTaskCallback.onError(Printer.this, printTask, errorMsg);
-                                }
-                            }
-                        }
-                    }
-                } else if (System.currentTimeMillis() - activeTime > 10000) {
-                    activeTime = System.currentTimeMillis();
-                    try {
-                        writeAndFlush(device.getOrderSet().heartbeat());
-                    } catch (ConnectionException e) {
-                        retryConnection();
-                    }
-                } else {
-                    try {
-                        Thread.sleep(200);
-                    } catch (Exception ignored) {
+        while (!isStop) {
 
-                    }
-                }
-            } else {
-                LogUtils.debug("开始连接打印机....");
-                retryConnection();
-            }
         }
     }
 

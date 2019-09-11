@@ -37,6 +37,7 @@ public class SocketConnection implements Connection {
             socket = new Socket();
             // 设置连接超时时间
             socket.connect(new InetSocketAddress(hostname, port), timeout);
+            socket.setSoTimeout(timeout);
             os = socket.getOutputStream();
             is = socket.getInputStream();
             bufferOs = new BufferedOutputStream(os, bufferSize);
