@@ -1,5 +1,6 @@
 package com.ciin.pos.printer;
 
+import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.parser.Template;
@@ -10,12 +11,15 @@ import java.util.concurrent.Callable;
 
 public class PrintTask implements Callable<Void> {
 
+    // 默认打印任务超时时间
+    private static final int DEFAULT_PRINT_TIMEOUT = 60 * 60 * 1000;
+
     private String taskId;
     private Template template;
     private Object tag;
     private Printer printer;
     private long intervalTime;
-    private long printTimeOut = 60 * 60 * 1000;
+    private long printTimeOut = DEFAULT_PRINT_TIMEOUT;
     private long createTime;
 
 
@@ -27,6 +31,13 @@ public class PrintTask implements Callable<Void> {
         this.createTime = System.currentTimeMillis();
         this.taskId = taskId;
         this.template = template;
+    }
+
+    public PrintTask(String taskId, String templateStr, Dict templateData, Object tag) {
+        this.template = new Template(templateStr, templateData);
+        this.taskId = taskId;
+        this.createTime = System.currentTimeMillis();
+        this.tag = tag;
     }
 
     public Template getTemplate() {
@@ -90,18 +101,30 @@ public class PrintTask implements Callable<Void> {
 
     @Override
     public Void call() throws Exception {
+        if (printer == null) {
+            throw new NullPointerException("请先调用PrintTask.setPrinter()绑定打印机再进行打印...");
+        }
+        // 获取打印指令集
         OrderSet orderSet = printer.getDevice().getOrderSet();
+        // 初始化打印机
         printer.write(orderSet.reset());
         LogUtils.debug(String.format("%s 开始解析模版 ", taskId));
+        // 解析模版
         Document document = template.toDocument();
+        // 转换成字节数组
         byte[] data = document.toBytes(printer.getDevice());
         LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", taskId, data.length));
+        // 写入打印数据
         printer.write(data);
+        // 进纸
         printer.write(orderSet.paperFeed(5));
+        // 切纸
         printer.write(orderSet.cutPaper());
+        // 设置蜂鸣声
         if (printer.isBuzzer()) {
             printer.write(orderSet.buzzer(2));
         }
+        // 冲刷数据
         printer.flush();
         return null;
     }
