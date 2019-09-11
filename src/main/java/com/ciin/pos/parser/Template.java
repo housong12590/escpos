@@ -7,21 +7,22 @@ import com.ciin.pos.common.Dict;
 import com.ciin.pos.convert.ConverterKit;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.element.Element;
-import com.ciin.pos.element.exception.ConditionNotExistException;
-import com.ciin.pos.element.exception.TemplateParseException;
+import com.ciin.pos.exception.DissatisfyConditionError;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.attr.AttributeSet;
+import com.ciin.pos.util.ExpressionUtils;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
-import com.ciin.pos.util.ExpressionUtils;
 
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.regex.Matcher;
+
+import javax.xml.parsers.SAXParser;
 
 public class Template {
 
@@ -56,7 +57,7 @@ public class Template {
                 try {
                     element.parser(set, data);
                     document.addElement(element);
-                } catch (ConditionNotExistException e) {
+                } catch (DissatisfyConditionError e) {
 //                    LogUtils.info(e.getMessage());
                 }
             }

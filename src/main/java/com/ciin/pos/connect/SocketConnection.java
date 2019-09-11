@@ -1,7 +1,6 @@
 package com.ciin.pos.connect;
 
 
-import com.ciin.pos.exception.ConnectionException;
 import com.ciin.pos.util.Utils;
 
 import java.io.BufferedOutputStream;
@@ -31,7 +30,7 @@ public class SocketConnection implements Connection {
 
 
     @Override
-    public void doConnect() throws ConnectionException {
+    public void doConnect() throws IOException {
         this.close();
         try {
             socket = new Socket();
@@ -44,7 +43,7 @@ public class SocketConnection implements Connection {
             isConnect = true;
         } catch (IOException e) {
             isConnect = false;
-            throw new ConnectionException(e.getMessage());
+            throw e;
         }
     }
 
@@ -56,19 +55,31 @@ public class SocketConnection implements Connection {
 
 
     @Override
-    public void write(byte[] bytes) throws ConnectionException {
+    public void write(byte[] bytes) throws IOException {
         if (bufferOs != null) {
             try {
                 bufferOs.write(bytes);
             } catch (IOException e) {
                 isConnect = false;
-                throw new ConnectionException(e.getMessage());
+                throw e;
             }
         }
     }
 
     @Override
-    public void flush() throws ConnectionException {
+    public void writeAndFlush(byte[] data) throws IOException {
+        write(data);
+        flush();
+    }
+
+    @Override
+    public int writeAndRead(byte[] wb, byte[] rb) throws IOException {
+        write(wb);
+        return read(rb);
+    }
+
+    @Override
+    public void flush() throws IOException {
         try {
             if (bufferOs != null) {
                 bufferOs.flush();
@@ -78,19 +89,18 @@ public class SocketConnection implements Connection {
             }
         } catch (IOException e) {
             isConnect = false;
-            throw new ConnectionException(e.getMessage());
+            throw e;
         }
     }
 
     @Override
-    public int read(byte[] bytes) throws ConnectionException {
+    public int read(byte[] bytes) throws IOException {
         if (is != null) {
             try {
                 return is.read(bytes);
             } catch (IOException e) {
-
                 isConnect = false;
-                throw new ConnectionException(e.getMessage());
+                throw e;
             }
         }
         return -1;

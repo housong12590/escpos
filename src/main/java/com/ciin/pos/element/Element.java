@@ -2,8 +2,8 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.element.exception.ConditionNotExistException;
-import com.ciin.pos.element.exception.TemplateParseException;
+import com.ciin.pos.exception.DissatisfyConditionError;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.Parser;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ConvertUtils;
@@ -72,7 +72,7 @@ public abstract class Element implements Parser {
             String condition = attrs.getAttributeValue("condition", null);
             if (!checkCondition(data, condition)) {
                 // 条件不满足 不进行解析
-                throw new ConditionNotExistException(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(), condition));
+                throw new DissatisfyConditionError(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(), condition));
             }
         }
         this.width = attrs.getIntValue("width", WARP_CONTENT);

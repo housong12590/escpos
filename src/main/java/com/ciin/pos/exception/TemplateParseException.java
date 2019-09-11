@@ -1,5 +1,8 @@
-package com.ciin.pos.element.exception;
+package com.ciin.pos.exception;
 
+/**
+ * 模版解析异常
+ */
 public class TemplateParseException extends Exception {
 
 

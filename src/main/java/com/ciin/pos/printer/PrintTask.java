@@ -1,6 +1,7 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.common.Dict;
+import com.ciin.pos.connect.Connection;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.parser.Template;
@@ -106,8 +107,9 @@ public class PrintTask implements Callable<Void> {
         }
         // 获取打印指令集
         OrderSet orderSet = printer.getDevice().getOrderSet();
+        Connection connection = printer.getConnection();
         // 初始化打印机
-        printer.write(orderSet.reset());
+        connection.write(orderSet.reset());
         LogUtils.debug(String.format("%s 开始解析模版 ", taskId));
         // 解析模版
         Document document = template.toDocument();
@@ -115,17 +117,17 @@ public class PrintTask implements Callable<Void> {
         byte[] data = document.toBytes(printer.getDevice());
         LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", taskId, data.length));
         // 写入打印数据
-        printer.write(data);
+        connection.write(data);
         // 进纸
-        printer.write(orderSet.paperFeed(5));
+        connection.write(orderSet.paperFeed(5));
         // 切纸
-        printer.write(orderSet.cutPaper());
+        connection.write(orderSet.cutPaper());
         // 设置蜂鸣声
         if (printer.isBuzzer()) {
-            printer.write(orderSet.buzzer(2));
+            connection.write(orderSet.buzzer(2));
         }
         // 冲刷数据
-        printer.flush();
+        connection.flush();
         return null;
     }
 }

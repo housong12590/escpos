@@ -2,7 +2,7 @@ package com.ciin.pos.element;
 
 
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.element.exception.TemplateParseException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.attr.AttributeSet;
 
 import java.util.LinkedList;

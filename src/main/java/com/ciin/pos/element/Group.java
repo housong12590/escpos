@@ -2,7 +2,7 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.element.exception.TemplateParseException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.convert.ConverterKit;
 import com.ciin.pos.parser.attr.AttributeSet;
