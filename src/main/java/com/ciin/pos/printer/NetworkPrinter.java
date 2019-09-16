@@ -40,6 +40,7 @@ public class NetworkPrinter extends AbstractPrinter {
         if (this.mPrinterThread == null) {
             this.mPrinterThread = new Thread(this);
             this.mPrinterThread.setName(this.mConnection.toString());
+            LogUtils.debug("开启打印线程");
         }
         if (!this.mPrinterThread.isAlive()) {
             mPrinterThreadAlive = true;
@@ -91,6 +92,7 @@ public class NetworkPrinter extends AbstractPrinter {
 
     @Override
     public void run() {
+        LogUtils.debug("执行打印循环");
         while (!isStop) {
             if (!this.mConnection.isConnect()) {
                 retryConnection();
@@ -124,37 +126,37 @@ public class NetworkPrinter extends AbstractPrinter {
                 mPrintTaskCallback.onError(this, printTask, "打印任务超时");
                 return;
             }
-            try {
-                // 检测打印机状态
-                if (checkConnect()) return;
-                // 执行打印任务
-                printTask.call();
-                // 从打印列表里移除
-                printTaskQueue.poll();
-                // 刷新最后激活时间
-                mLastActivationTime = System.currentTimeMillis();
-                LogUtils.debug(String.format("%s 打印完成", taskId));
+        }
+        try {
+            // 检测打印机状态
+            if (!checkConnect()) return;
+            // 执行打印任务
+            printTask.call();
+            // 从打印列表里移除
+            printTaskQueue.poll();
+            // 刷新最后激活时间
+            mLastActivationTime = System.currentTimeMillis();
+            LogUtils.debug(String.format("%s 打印完成", taskId));
+            if (mPrintTaskCallback != null) {
+                // 打印完成回调
+                mPrintTaskCallback.onSuccess(this, printTask);
+            }
+        } catch (Exception e) {
+            if (e instanceof IOException) {
+                // 连接异常, 执行重新连接
+                retryConnection();
+            } else {
+                // 打印抛出现不可逆异常, 直接返回给调用方
+                String errorMsg = String.format("打印失败, 错误原因: %s", e.getMessage());
+                LogUtils.error(taskId + " " + errorMsg);
                 if (mPrintTaskCallback != null) {
-                    // 打印完成回调
-                    mPrintTaskCallback.onSuccess(this, printTask);
-                }
-            } catch (Exception e) {
-                if (e instanceof IOException) {
-                    // 连接异常, 执行重新连接
-                    retryConnection();
-                } else {
-                    // 打印抛出现不可逆异常, 直接返回给调用方
-                    String errorMsg = String.format("打印失败, 错误原因: %s", e.getMessage());
-                    LogUtils.error(taskId + " " + errorMsg);
-                    if (mPrintTaskCallback != null) {
-                        // 打印错误回调
-                        mPrintTaskCallback.onError(this, printTask, errorMsg);
-                    }
+                    // 打印错误回调
+                    mPrintTaskCallback.onError(this, printTask, errorMsg);
                 }
             }
-            // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
-            Utils.sleep(printTask.getIntervalTime());
         }
+        // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
+        Utils.sleep(printTask.getIntervalTime());
     }
 
     // 重新连接

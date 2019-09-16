@@ -74,7 +74,7 @@ public class SocketConnection implements Connection {
 
     @Override
     public int writeAndRead(byte[] wb, byte[] rb) throws IOException {
-        write(wb);
+        writeAndFlush(wb);
         return read(rb);
     }
 
