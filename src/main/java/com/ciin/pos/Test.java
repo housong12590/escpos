@@ -10,6 +10,7 @@ import java.io.InputStream;
 
 public class Test {
 
+
     public static void main(String[] args) {
 //        Printer printer = new NetworkPrinter("192.168.10.60");
 //        String read = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\test_print.xml");

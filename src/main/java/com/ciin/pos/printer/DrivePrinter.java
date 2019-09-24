@@ -8,12 +8,17 @@ import javax.print.attribute.HashDocAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.MediaSizeName;
+import java.awt.print.Book;
 import java.io.ByteArrayInputStream;
 
 /**
  * 驱动打印机
  */
 public class DrivePrinter extends AbstractPrinter {
+
+    //https://blog.csdn.net/u012854263/article/details/51137097
+
+    //https://blog.csdn.net/qq_38418296/article/details/80988887  驱动打印demo
 
     private PrintService printService;
     private String printerName;
@@ -59,6 +64,9 @@ public class DrivePrinter extends AbstractPrinter {
         } catch (PrintException e) {
             e.printStackTrace();
         }
+
+        Book book = new Book();
+//        book.append();
         return false;
     }
 }
