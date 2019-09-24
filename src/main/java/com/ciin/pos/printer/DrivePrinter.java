@@ -10,6 +10,9 @@ import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.MediaSizeName;
 import java.io.ByteArrayInputStream;
 
+/**
+ * 驱动打印机
+ */
 public class DrivePrinter extends AbstractPrinter {
 
     private PrintService printService;
@@ -39,7 +42,7 @@ public class DrivePrinter extends AbstractPrinter {
 
     @Override
     protected boolean print0(PrintTask printTask) throws TemplateParseException {
-        byte[] printData = printTask.getPrintBytes();
+        byte[] printData = printTask.printData();
         HashPrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
         pras.add(new Copies(1));
         pras.add(MediaSizeName.ISO_A4);

@@ -12,6 +12,9 @@ import com.ciin.pos.util.Utils;
 
 import java.io.IOException;
 
+/**
+ * 网络打印机
+ */
 public class NetworkPrinter extends AbstractPrinter {
 
     private String host;
@@ -69,7 +72,7 @@ public class NetworkPrinter extends AbstractPrinter {
     protected boolean print0(PrintTask printTask) throws TemplateParseException {
         try {
             if (checkConnect()) {
-                byte[] data = printTask.getPrintBytes();
+                byte[] data = printTask.printData();
                 LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
                 mConnection.writeAndFlush(data);
                 return true;

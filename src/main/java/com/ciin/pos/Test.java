@@ -1,7 +1,6 @@
 package com.ciin.pos;
 
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
+import com.ciin.pos.util.ByteUtils;
 
 public class Test {
 
@@ -12,9 +11,10 @@ public class Test {
 //        PrintTask printTask = new PrintTask(template);
 //        printer.print(printTask);
 
-        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-        for (PrintService printService : printServices) {
-            System.out.println(printService.getName());
-        }
+        byte[] bytes = ByteUtils.intToByteArray(65535);
+//        System.out.println(Arrays.toString(bytes));
+        int i = ByteUtils.byteArrayToInt(bytes);
+        System.out.println(i);
+
     }
 }

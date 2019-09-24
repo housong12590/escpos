@@ -99,7 +99,7 @@ public class PrintTask {
         return this.taskId;
     }
 
-    public byte[] getPrintBytes() throws TemplateParseException {
+    public byte[] printData() throws TemplateParseException {
         ByteBuffer buffer = new ByteBuffer();
         if (printer == null) {
             throw new NullPointerException("请先调用PrintTask.setPrinter()绑定打印机再进行打印...");
