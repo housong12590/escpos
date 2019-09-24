@@ -1,5 +1,6 @@
 package com.ciin.pos.printer;
 
+import com.ciin.pos.Constants;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TemplateParseException;
@@ -17,7 +18,7 @@ public class ForwardingPrinter extends AbstractPrinter {
 
     public ForwardingPrinter(Device device, String host) {
         super(device);
-        connection = new SocketConnection(host, 9100, 10000);
+        connection = new SocketConnection(host, Constants.PRINTER_PORT, Constants.SOCKET_TIMEOUT, false);
     }
 
     private boolean checkConnect() {

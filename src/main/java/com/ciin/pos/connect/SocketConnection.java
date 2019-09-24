@@ -20,12 +20,14 @@ public class SocketConnection implements Connection {
     private Socket socket;
     private OutputStream os;
     private InputStream is;
+    private boolean useBuffer;
     private BufferedOutputStream bufferOs;
 
-    public SocketConnection(String hostname, int port, int timeout) {
+    public SocketConnection(String hostname, int port, int timeout, boolean useBuffer) {
         this.hostname = hostname;
         this.port = port;
         this.timeout = timeout;
+        this.useBuffer = useBuffer;
     }
 
 
@@ -39,7 +41,9 @@ public class SocketConnection implements Connection {
             socket.setSoTimeout(timeout);
             os = socket.getOutputStream();
             is = socket.getInputStream();
-            bufferOs = new BufferedOutputStream(os, bufferSize);
+            if (useBuffer) {
+                bufferOs = new BufferedOutputStream(os, bufferSize);
+            }
             isConnect = true;
         } catch (IOException e) {
             isConnect = false;
@@ -56,13 +60,15 @@ public class SocketConnection implements Connection {
 
     @Override
     public void write(byte[] bytes) throws IOException {
-        if (bufferOs != null) {
-            try {
+        try {
+            if (useBuffer) {
                 bufferOs.write(bytes);
-            } catch (IOException e) {
-                isConnect = false;
-                throw e;
+            } else {
+                os.write(bytes);
             }
+        } catch (IOException e) {
+            isConnect = false;
+            throw e;
         }
     }
 
@@ -81,10 +87,9 @@ public class SocketConnection implements Connection {
     @Override
     public void flush() throws IOException {
         try {
-            if (bufferOs != null) {
+            if (useBuffer) {
                 bufferOs.flush();
-            }
-            if (os != null) {
+            } else {
                 os.flush();
             }
         } catch (IOException e) {

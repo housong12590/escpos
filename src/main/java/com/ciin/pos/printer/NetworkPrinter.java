@@ -35,7 +35,7 @@ public class NetworkPrinter extends AbstractPrinter {
         this.host = host;
         this.port = port;
         this.timeout = timeout;
-        mConnection = new SocketConnection(host, port, timeout);
+        mConnection = new SocketConnection(host, port, timeout, true);
         try {
             mConnection.doConnect();
         } catch (IOException e) {

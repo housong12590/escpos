@@ -1,6 +1,12 @@
 package com.ciin.pos;
 
+import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.util.ByteUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Test {
 
@@ -11,10 +17,24 @@ public class Test {
 //        PrintTask printTask = new PrintTask(template);
 //        printer.print(printTask);
 
-        byte[] bytes = ByteUtils.intToByteArray(65535);
-//        System.out.println(Arrays.toString(bytes));
-        int i = ByteUtils.byteArrayToInt(bytes);
-        System.out.println(i);
+        String text = "hello hous";
+        ByteBuffer buffer = new ByteBuffer();
+        byte[] data = text.getBytes();
+        int length = data.length;
+        buffer.write(ByteUtils.intToByteArray(length));
+        buffer.write(data);
 
+        InputStream is = new ByteArrayInputStream(buffer.toByteArray());
+        DataInputStream inputStream = new DataInputStream(is);
+        try {
+            int i = inputStream.readInt();
+            System.out.println(i);
+            byte[] bytes = new byte[i];
+            inputStream.read(bytes);
+            String s = new String(bytes);
+            System.out.println(s);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
