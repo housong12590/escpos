@@ -1,16 +1,15 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.connect.Connection;
 import com.ciin.pos.element.Document;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.parser.Template;
+import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
 
-import java.util.concurrent.Callable;
-
-public class PrintTask implements Callable<Void> {
+public class PrintTask {
 
     // 默认打印任务超时时间
     private static final int DEFAULT_PRINT_TIMEOUT = 60 * 60 * 1000;
@@ -100,34 +99,28 @@ public class PrintTask implements Callable<Void> {
         return this.taskId;
     }
 
-    @Override
-    public Void call() throws Exception {
+    public byte[] getPrintBytes() throws TemplateParseException {
+        ByteBuffer buffer = new ByteBuffer();
         if (printer == null) {
             throw new NullPointerException("请先调用PrintTask.setPrinter()绑定打印机再进行打印...");
         }
         // 获取打印指令集
         OrderSet orderSet = printer.getDevice().getOrderSet();
-        Connection connection = printer.getConnection();
         // 初始化打印机
-        connection.write(orderSet.reset());
+        buffer.write(orderSet.reset());
         LogUtils.debug(String.format("%s 开始解析模版 ", taskId));
         // 解析模版
         Document document = template.toDocument();
-        // 转换成字节数组
-        byte[] data = document.toBytes(printer.getDevice());
-        LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", taskId, data.length));
         // 写入打印数据
-        connection.write(data);
+        buffer.write(document.toBytes(printer.getDevice()));
         // 进纸
-        connection.write(orderSet.paperFeed(5));
+        buffer.write(orderSet.paperFeed(5));
         // 切纸
-        connection.write(orderSet.cutPaper());
+        buffer.write(orderSet.cutPaper());
         // 设置蜂鸣声
         if (printer.isBuzzer()) {
-            connection.write(orderSet.buzzer(2));
+            buffer.write(orderSet.buzzer(2));
         }
-        // 冲刷数据
-        connection.flush();
-        return null;
+        return buffer.toByteArray();
     }
 }

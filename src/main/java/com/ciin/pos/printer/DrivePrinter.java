@@ -1,63 +1,61 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.connect.Connection;
 import com.ciin.pos.device.Device;
+import com.ciin.pos.exception.TemplateParseException;
 
-import java.io.IOException;
-
-import javax.print.DocFlavor;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
+import javax.print.*;
+import javax.print.attribute.HashDocAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.MediaSizeName;
+import java.io.ByteArrayInputStream;
 
 public class DrivePrinter extends AbstractPrinter {
 
     private PrintService printService;
+    private String printerName;
 
-    public DrivePrinter(Device device, Connection connection) {
-        super(device, connection);
+    public DrivePrinter(Device device, String printerName) {
+        super(device);
+        this.printerName = printerName;
+        printService = findPrintService(printerName);
     }
 
-    private void findPrintService(String printName) {
-        PrintServiceLookup.lookupPrintServices(null, null);
+    private PrintService findPrintService(String printerName) {
+        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+        for (PrintService service : printServices) {
+            if (service.getName().equals(printerName)) {
+                return service;
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public void release() {
+        printService = null;
     }
 
     @Override
-    public void print(PrintTask printTask) {
+    protected boolean print0(PrintTask printTask) throws TemplateParseException {
+        byte[] printData = printTask.getPrintBytes();
         HashPrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
         pras.add(new Copies(1));
         pras.add(MediaSizeName.ISO_A4);
         DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
-        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-
-
-//        PrintService printService = getPrintService(printerName);
-//        try {
-//            DocPrintJob job = printService.createPrintJob();
-//            InputStream is = new ByteArrayInputStream(file);
-//            DocAttributeSet das = new HashDocAttributeSet();
-//            Doc doc = new SimpleDoc(is, flavor, das);
-//            job.print(doc, pras);
-//        } catch (Exception e) {
-//            log.error("print error, {}", e.getMessage(), e);
-//            throw new RuntimeException("print error");
-//        }
-    }
-
-    @Override
-    public boolean checkConnect() throws IOException {
+        if (printService == null) {
+            throw new RuntimeException("没有相应的打印机");
+        }
+        DocPrintJob printJob = printService.createPrintJob();
+        HashDocAttributeSet das = new HashDocAttributeSet();
+        ByteArrayInputStream is = new ByteArrayInputStream(printData);
+        SimpleDoc doc = new SimpleDoc(is, flavor, das);
+        try {
+            printJob.print(doc, pras);
+        } catch (PrintException e) {
+            e.printStackTrace();
+        }
         return false;
-    }
-
-    @Override
-    public void release() {
-
-    }
-
-    @Override
-    public void run() {
-
     }
 }
