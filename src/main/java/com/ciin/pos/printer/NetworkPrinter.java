@@ -1,6 +1,7 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
+import com.ciin.pos.callback.OnPrinterErrorCallback;
 import com.ciin.pos.connect.Connection;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
@@ -54,7 +55,7 @@ public class NetworkPrinter extends AbstractPrinter {
         if (!mConnection.isConnect()) {
             return false;
         }
-        OrderSet orderSet = this.mDevice.getOrderSet();
+        OrderSet orderSet = this.getDevice().getOrderSet();
         byte[] buff = new byte[48];
         int readLength = this.mConnection.writeAndRead(orderSet.status(), buff);
         return readLength != -1;
@@ -84,18 +85,20 @@ public class NetworkPrinter extends AbstractPrinter {
 
     // 重新连接
     private void retryConnection(PrintTask printTask) {
-        while (!this.mConnection.isConnect() && !close) {
+        while (!this.mConnection.isConnect() && !isClose()) {
             if (printTask != null && printTask.isTimeOut()) {
                 return;
             }
+            OnPrinterErrorCallback printerErrorCallback = getPrinterErrorCallback();
             try {
                 try {
                     // 建立打印机连接
                     this.mConnection.doConnect();
                 } catch (IOException e) {
-                    if (mPrinterErrorCallback != null) {
+
+                    if (printerErrorCallback != null) {
                         LogUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
-                        mPrinterErrorCallback.onConnectError(this, mConnection);
+                        printerErrorCallback.onConnectError(this, mConnection);
                     }
                     throw e;
                 }
@@ -103,9 +106,9 @@ public class NetworkPrinter extends AbstractPrinter {
                     // 检测打印机是否可用
                     checkConnect();
                 } catch (IOException e) {
-                    if (mPrinterErrorCallback != null) {
+                    if (printerErrorCallback != null) {
                         LogUtils.error("打印机异常, 请重启打印机  " + e.getMessage());
-                        mPrinterErrorCallback.onPrinterError(this);
+                        printerErrorCallback.onPrinterError(this);
                     }
                     throw e;
                 }

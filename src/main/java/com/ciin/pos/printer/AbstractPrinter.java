@@ -14,21 +14,18 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractPrinter implements Printer, Runnable {
 
-    protected LinkedBlockingQueue<PrintTask> printTaskQueue;
-    protected Device mDevice;
-    protected boolean mBuzzer;
-    protected OnPrintTaskCallback mPrintTaskCallback;
-    protected OnPrinterErrorCallback mPrinterErrorCallback;
-    protected long mLastActivationTime;
-    protected boolean close;
-    protected boolean blocking;
+    private LinkedBlockingQueue<PrintTask> printTaskQueue;
+    private Device mDevice;
+    private boolean mBuzzer;
+    private OnPrintTaskCallback mPrintTaskCallback;
+    private OnPrinterErrorCallback mPrinterErrorCallback;
+    private boolean close;
     private Thread mThread;
     private boolean done;
 
     AbstractPrinter(Device device) {
         this.mDevice = device;
         printTaskQueue = new LinkedBlockingQueue<>();
-        mLastActivationTime = System.currentTimeMillis();
         mThread = new Thread(this);
         mThread.start();
     }
@@ -73,9 +70,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return this.mBuzzer;
     }
 
-    @Override
-    public void blocking(boolean blocking) {
-        this.blocking = blocking;
+    public boolean isClose() {
+        return close;
     }
 
     @Override
