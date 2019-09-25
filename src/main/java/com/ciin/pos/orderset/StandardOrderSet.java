@@ -6,9 +6,9 @@ import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.element.Size;
 
 /**
- * 佳博打印机指令集
+ * 标准打印机指令集
  */
-public class GprinterOrderSet implements OrderSet {
+public class StandardOrderSet implements OrderSet {
 
     private static final byte LF = 0x0a;
     private static final byte ESC = 0x1b;

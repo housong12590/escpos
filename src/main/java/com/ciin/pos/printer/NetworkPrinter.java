@@ -36,11 +36,6 @@ public class NetworkPrinter extends AbstractPrinter {
         this.port = port;
         this.timeout = timeout;
         mConnection = new SocketConnection(host, port, timeout, true);
-        try {
-            mConnection.doConnect();
-        } catch (IOException e) {
-            LogUtils.error("打印机连接失败, 详细原因: " + e.getMessage());
-        }
     }
 
     public String getHost() {
@@ -55,7 +50,10 @@ public class NetworkPrinter extends AbstractPrinter {
         return timeout;
     }
 
-    public boolean checkConnect() throws IOException {
+    private boolean checkConnect() throws IOException {
+        if (!mConnection.isConnect()) {
+            return false;
+        }
         OrderSet orderSet = this.mDevice.getOrderSet();
         byte[] buff = new byte[48];
         int readLength = this.mConnection.writeAndRead(orderSet.status(), buff);
@@ -63,38 +61,30 @@ public class NetworkPrinter extends AbstractPrinter {
     }
 
     @Override
-    public void release() {
-        super.release();
+    public void close() {
+        super.close();
         this.mConnection.close();
     }
 
     @Override
     protected boolean print0(PrintTask printTask) throws TemplateParseException {
         try {
-            if (checkConnect()) {
-                byte[] data = printTask.printData();
-                LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
-                mConnection.writeAndFlush(data);
-                return true;
+            if (!checkConnect()) {
+                retryConnection(printTask);
             }
+            byte[] data = printTask.printData();
+            LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
+            mConnection.writeAndFlush(data);
+            return true;
         } catch (IOException e) {
             retryConnection(printTask);
         }
         return false;
     }
 
-    @Override
-    protected void heartbeat() {
-        try {
-            checkConnect();
-        } catch (IOException e) {
-            retryConnection(null);
-        }
-    }
-
     // 重新连接
     private void retryConnection(PrintTask printTask) {
-        while (!this.mConnection.isConnect() && stop) {
+        while (!this.mConnection.isConnect() && !close) {
             if (printTask != null && printTask.isTimeOut()) {
                 return;
             }
@@ -126,4 +116,9 @@ public class NetworkPrinter extends AbstractPrinter {
         }
     }
 
+    @Override
+    protected void printEnd() {
+        this.mConnection.close();
+        LogUtils.debug("连接断开");
+    }
 }

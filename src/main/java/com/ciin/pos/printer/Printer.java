@@ -48,6 +48,11 @@ public interface Printer {
     boolean isBuzzer();
 
     /**
+     * 打印机是否阻塞
+     */
+    void blocking(boolean blocking);
+
+    /**
      * 设置打印任务回调
      */
     void setPrintTaskCallback(OnPrintTaskCallback printTaskCallback);
@@ -58,7 +63,7 @@ public interface Printer {
     void setPrinterErrorCallback(OnPrinterErrorCallback printerErrorCallback);
 
     /**
-     * 回收资源
+     * 关闭打印机
      */
-    void release();
+    void close();
 }

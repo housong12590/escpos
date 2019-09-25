@@ -1,24 +1,31 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.device.Device;
-import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.util.LogUtils;
+import com.ciin.pos.util.StringUtils;
 
-import javax.print.*;
+import java.io.ByteArrayInputStream;
+
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
 import javax.print.attribute.HashDocAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.JobName;
 import javax.print.attribute.standard.MediaSizeName;
-import java.awt.print.Book;
-import java.io.ByteArrayInputStream;
 
 /**
  * 驱动打印机
+ * 打印机驱动下载地址:
+ * <p>
+ * 佳博 : http://cn.gainscha.com/qudong.html
+ * 爱普生: http://www.epson.com.cn/Apps/tech_support/GuideDrive.aspx?columnid=384&ptype=0&pmodel=0&strOs=
+ * 北洋: http://www.snbctechs.com/companyfile/65.html
  */
 public class DrivePrinter extends AbstractPrinter {
-
-    //https://blog.csdn.net/u012854263/article/details/51137097
-
-    //https://blog.csdn.net/qq_38418296/article/details/80988887  驱动打印demo
 
     private PrintService printService;
     private String printerName;
@@ -26,13 +33,18 @@ public class DrivePrinter extends AbstractPrinter {
     public DrivePrinter(Device device, String printerName) {
         super(device);
         this.printerName = printerName;
-        printService = findPrintService(printerName);
+        printService = findPrintService();
     }
 
-    private PrintService findPrintService(String printerName) {
+    private PrintService findPrintService() {
+        if (StringUtils.isEmpty(this.printerName)) {
+            LogUtils.debug("驱动打印机名称未设置...");
+            return null;
+        }
         PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
         for (PrintService service : printServices) {
             if (service.getName().equals(printerName)) {
+                LogUtils.debug("DrivePrinter 创建打印机: " + printerName);
                 return service;
             }
         }
@@ -41,32 +53,29 @@ public class DrivePrinter extends AbstractPrinter {
 
 
     @Override
-    public void release() {
+    public void close() {
         printService = null;
     }
 
+
     @Override
-    protected boolean print0(PrintTask printTask) throws TemplateParseException {
-        byte[] printData = printTask.printData();
+    protected boolean print0(PrintTask printTask) throws Exception {
+        byte[] data = printTask.printData();
+        String jobName = StringUtils.isEmpty(printTask.getTitle()) ? printTask.getTaskId() : printTask.getTitle();
         HashPrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
         pras.add(new Copies(1));
         pras.add(MediaSizeName.ISO_A4);
+        pras.add(new JobName(jobName, null));
         DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
         if (printService == null) {
-            throw new RuntimeException("没有相应的打印机");
+            throw new RuntimeException(String.format("%s 打印机不存在", printerName));
         }
         DocPrintJob printJob = printService.createPrintJob();
         HashDocAttributeSet das = new HashDocAttributeSet();
-        ByteArrayInputStream is = new ByteArrayInputStream(printData);
+        LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
+        ByteArrayInputStream is = new ByteArrayInputStream(data);
         SimpleDoc doc = new SimpleDoc(is, flavor, das);
-        try {
-            printJob.print(doc, pras);
-        } catch (PrintException e) {
-            e.printStackTrace();
-        }
-
-        Book book = new Book();
-//        book.append();
-        return false;
+        printJob.print(doc, pras);
+        return true;
     }
 }

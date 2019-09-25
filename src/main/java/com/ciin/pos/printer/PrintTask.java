@@ -21,7 +21,7 @@ public class PrintTask {
     private long intervalTime;
     private long printTimeOut = DEFAULT_PRINT_TIMEOUT;
     private long createTime;
-
+    private String title;
 
     public PrintTask(Template template) {
         this(Utils.generateId(), template);
@@ -86,6 +86,15 @@ public class PrintTask {
 
     public void setIntervalTime(long intervalTime) {
         this.intervalTime = intervalTime;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public PrintTask setTitle(String title) {
+        this.title = title;
+        return this;
     }
 
     public boolean isTimeOut() {
