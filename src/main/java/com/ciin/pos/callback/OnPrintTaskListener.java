@@ -3,7 +3,7 @@ package com.ciin.pos.callback;
 import com.ciin.pos.printer.PrintTask;
 import com.ciin.pos.printer.Printer;
 
-public interface OnPrintTaskCallback {
+public interface OnPrintTaskListener {
 
     void onSuccess(Printer printer, PrintTask printTask);
 

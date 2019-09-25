@@ -97,7 +97,7 @@ public class PrintTask {
         return this;
     }
 
-    public boolean isTimeOut() {
+    public boolean isTimeout() {
         long nowTime = System.currentTimeMillis();
         return nowTime - createTime > printTimeOut;
     }

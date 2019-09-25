@@ -3,19 +3,18 @@ package com.ciin.pos.printer;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
-
-import java.io.ByteArrayInputStream;
+import com.ciin.pos.util.SystemUtils;
 
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
 import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 import javax.print.attribute.HashDocAttributeSet;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.JobName;
 import javax.print.attribute.standard.MediaSizeName;
+import java.io.ByteArrayInputStream;
 
 /**
  * 驱动打印机
@@ -33,24 +32,8 @@ public class DrivePrinter extends AbstractPrinter {
     public DrivePrinter(Device device, String printerName) {
         super(device);
         this.printerName = printerName;
-        printService = findPrintService();
+        printService = SystemUtils.getPrintService(printerName);
     }
-
-    private PrintService findPrintService() {
-        if (StringUtils.isEmpty(this.printerName)) {
-            LogUtils.debug("驱动打印机名称未设置...");
-            return null;
-        }
-        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-        for (PrintService service : printServices) {
-            if (service.getName().equals(printerName)) {
-                LogUtils.debug("DrivePrinter 创建打印机: " + printerName);
-                return service;
-            }
-        }
-        return null;
-    }
-
 
     @Override
     public void close() {

@@ -1,6 +1,7 @@
 package com.ciin.pos.connect;
 
 
+import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
 
 import java.io.BufferedOutputStream;
@@ -51,6 +52,20 @@ public class SocketConnection implements Connection {
         }
     }
 
+
+    @Override
+    public void reConnect(int intervalTime, ReConnectCallback callback) {
+        while (callback.condition() && !isConnect) {
+            try {
+                doConnect();
+            } catch (IOException e) {
+                LogUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
+                callback.onFailure(e);
+                Utils.sleep(intervalTime);
+            }
+        }
+        LogUtils.debug(this.toString() + " 连接成功!!!");
+    }
 
     @Override
     public boolean isConnect() {

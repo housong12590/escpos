@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.callback.OnPrintTaskCallback;
-import com.ciin.pos.callback.OnPrinterErrorCallback;
+import com.ciin.pos.callback.OnPrintTaskListener;
+import com.ciin.pos.callback.OnPrinterErrorListener;
 import com.ciin.pos.device.Device;
 
 import java.util.List;
@@ -50,12 +50,12 @@ public interface Printer {
     /**
      * 设置打印任务回调
      */
-    void setPrintTaskCallback(OnPrintTaskCallback printTaskCallback);
+    void setPrintTaskListener(OnPrintTaskListener printTaskCallback);
 
     /**
      * 设置打印机错误回调
      */
-    void setPrinterErrorCallback(OnPrinterErrorCallback printerErrorCallback);
+    void setPrinterErrorListener(OnPrinterErrorListener printerErrorCallback);
 
     /**
      * 关闭打印机

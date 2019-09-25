@@ -1,15 +1,16 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
-import com.ciin.pos.callback.OnPrinterErrorCallback;
+import com.ciin.pos.callback.OnPrinterErrorListener;
 import com.ciin.pos.connect.Connection;
+import com.ciin.pos.connect.ReConnectCallback;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.device.DeviceFactory;
 import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.exception.TimeoutException;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.util.LogUtils;
-import com.ciin.pos.util.Utils;
 
 import java.io.IOException;
 
@@ -71,52 +72,37 @@ public class NetworkPrinter extends AbstractPrinter {
     protected boolean print0(PrintTask printTask) throws TemplateParseException {
         try {
             if (!checkConnect()) {
-                retryConnection(printTask);
+                reconnect(printTask);
+            }
+            if (printTask.isTimeout()) {
+                throw new TimeoutException();
             }
             byte[] data = printTask.printData();
             LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
             mConnection.writeAndFlush(data);
             return true;
         } catch (IOException e) {
-            retryConnection(printTask);
+            reconnect(printTask);
         }
         return false;
     }
 
     // 重新连接
-    private void retryConnection(PrintTask printTask) {
-        while (!this.mConnection.isConnect() && !isClose()) {
-            if (printTask != null && printTask.isTimeOut()) {
-                return;
+    private void reconnect(PrintTask printTask) {
+        OnPrinterErrorListener printerErrorCallback = getPrinterErrorListener();
+        this.mConnection.reConnect(Constants.RECONNECT_INTERVAL, new ReConnectCallback() {
+            @Override
+            public boolean condition() {
+                return !(printTask.isTimeout() || isClose());
             }
-            OnPrinterErrorCallback printerErrorCallback = getPrinterErrorCallback();
-            try {
-                try {
-                    // 建立打印机连接
-                    this.mConnection.doConnect();
-                } catch (IOException e) {
 
-                    if (printerErrorCallback != null) {
-                        LogUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
-                        printerErrorCallback.onConnectError(this, mConnection);
-                    }
-                    throw e;
+            @Override
+            public void onFailure(Throwable ex) {
+                if (printerErrorCallback != null) {
+                    printerErrorCallback.onConnectError(NetworkPrinter.this, ex);
                 }
-                try {
-                    // 检测打印机是否可用
-                    checkConnect();
-                } catch (IOException e) {
-                    if (printerErrorCallback != null) {
-                        LogUtils.error("打印机异常, 请重启打印机  " + e.getMessage());
-                        printerErrorCallback.onPrinterError(this);
-                    }
-                    throw e;
-                }
-                LogUtils.debug(" 连接成功");
-            } catch (Exception ex) {
-                Utils.sleep(5000);
             }
-        }
+        });
     }
 
     @Override
