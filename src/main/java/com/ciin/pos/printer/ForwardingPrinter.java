@@ -94,4 +94,10 @@ public class ForwardingPrinter extends AbstractPrinter {
     protected void printEnd() {
         this.connection.close();
     }
+
+    @Override
+    public void close() {
+        super.close();
+        this.connection.close();
+    }
 }
