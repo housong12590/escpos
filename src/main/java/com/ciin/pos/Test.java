@@ -1,12 +1,8 @@
 package com.ciin.pos;
 
-import java.io.IOException;
+import gnu.io.*;
 
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
+import java.io.IOException;
 
 public class Test {
 
@@ -15,14 +11,6 @@ public class Test {
 
 
     public static void main(String[] args) throws InterruptedException, IOException, NoSuchPortException, PortInUseException {
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier("COM4");
-        CommPort commPort = portIdentifier.open("COM4", Constants.SOCKET_TIMEOUT);
-        if (commPort instanceof SerialPort) {
-            SerialPort serialPort = (SerialPort) commPort;
-            int baudRate = serialPort.getBaudRate();
-            System.out.println(baudRate);
-            serialPort.close();
-        }
 //        Printer printer = new SerialPortPrinter(DeviceFactory.getDefault(), "COM4", 38400);
 ////        Printer printer = new DrivePrinter(DeviceFactory.getDefault(), "\\\\DESKTOP-GSJUGH8\\GP-C80300 Series");
 //        for (int i = 0; i < 1; i++) {
@@ -33,4 +21,5 @@ public class Test {
 //        Utils.sleep(10 * 1000);
 //        printer.close();
     }
+    //mvn install:install-file -Dfile=E:\code\java\escpos\libs\android.jar -DgroupId=com.android -DartifactId=android -Dversion=1.0.0 -Dpackaging=jar
 }
