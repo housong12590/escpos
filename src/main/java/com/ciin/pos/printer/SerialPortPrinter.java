@@ -12,7 +12,7 @@ import gnu.io.SerialPort;
 /**
  * 串口打印机
  */
-public class SerialPortPrinter extends AbstractLocalPortPrinter {
+public class SerialPortPrinter extends AbstractCommPortPrinter {
 
     private String portName;
     private int baudRate;

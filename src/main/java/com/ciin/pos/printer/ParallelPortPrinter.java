@@ -12,7 +12,7 @@ import gnu.io.ParallelPort;
 /**
  * 并口打印机
  */
-public class ParallelPortPrinter extends AbstractLocalPortPrinter {
+public class ParallelPortPrinter extends AbstractCommPortPrinter {
 
     private String portName;
 

@@ -4,19 +4,18 @@ import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
+import gnu.io.CommPort;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import gnu.io.CommPort;
-
-public abstract class AbstractLocalPortPrinter extends AbstractPrinter {
+public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
     private int bufferSize;
     private CommPort commPort;
     private OutputStream os;
 
-    public AbstractLocalPortPrinter(Device device) {
+    public AbstractCommPortPrinter(Device device) {
         super(device);
         bufferSize = Constants.BUFFER_SIZE;
     }
