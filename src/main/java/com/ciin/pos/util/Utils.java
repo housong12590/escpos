@@ -4,6 +4,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Utils {
@@ -38,5 +40,26 @@ public class Utils {
         }
     }
 
+
+
+    public static List<byte[]> splitArray(byte[] bytes, int len) {
+        List<byte[]> _list = new ArrayList<>();
+        int position = 0;
+        if (bytes.length > len) {
+            int count = bytes.length / len + (bytes.length % len == 0 ? 0 : 1);
+            for (int i = 0; i < count; i++) {
+                if (bytes.length - position < len) {
+                    len = bytes.length - position;
+                }
+                byte[] new_arr = new byte[len];
+                System.arraycopy(bytes, position, new_arr, 0, len);
+                _list.add(new_arr);
+                position += len;
+            }
+        } else {
+            _list.add(bytes);
+        }
+        return _list;
+    }
 
 }

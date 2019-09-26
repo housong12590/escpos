@@ -16,6 +16,8 @@ public final class Constants {
 
     public static final int RECONNECT_INTERVAL = 5000;
 
+    public static final int BUFFER_SIZE = 512;
+
     public static Pattern REPLACE_PATTERN = Pattern.compile("\\$\\{\\s*(.*?)\\s*}");
 
     public static Pattern PARSE_PATTERN = Pattern.compile("#\\{\\s*(.*?)\\s*}");

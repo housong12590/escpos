@@ -98,6 +98,10 @@ public class PrintTask {
     }
 
     public boolean isTimeout() {
+        // 时间为0或者-1时,则永不超时
+        if (printTimeOut == 0 || printTimeOut == -1) {
+            return false;
+        }
         long nowTime = System.currentTimeMillis();
         return nowTime - createTime > printTimeOut;
     }
