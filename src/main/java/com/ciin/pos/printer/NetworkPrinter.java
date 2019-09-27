@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
-import com.ciin.pos.callback.OnPrinterErrorListener;
+import com.ciin.pos.callback.OnPrinterListener;
 import com.ciin.pos.connect.Connection;
 import com.ciin.pos.connect.ReConnectCallback;
 import com.ciin.pos.connect.SocketConnection;
@@ -89,7 +89,7 @@ public class NetworkPrinter extends AbstractPrinter {
 
     // 重新连接
     private void reconnect(PrintTask printTask) {
-        OnPrinterErrorListener printerErrorCallback = getPrinterErrorListener();
+        OnPrinterListener printerErrorCallback = getPrinterListener();
         this.mConnection.reConnect(Constants.RECONNECT_INTERVAL, new ReConnectCallback() {
             @Override
             public boolean condition() {

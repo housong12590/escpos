@@ -2,7 +2,7 @@ package com.ciin.pos.callback;
 
 import com.ciin.pos.printer.Printer;
 
-public interface OnPrinterErrorListener {
+public interface OnPrinterListener {
 
     void onConnectError(Printer printer, Throwable ex);
 

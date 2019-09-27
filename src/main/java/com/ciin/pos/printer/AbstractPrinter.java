@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.callback.OnPrintTaskListener;
-import com.ciin.pos.callback.OnPrinterErrorListener;
+import com.ciin.pos.callback.OnPrintListener;
+import com.ciin.pos.callback.OnPrinterListener;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.exception.TimeoutException;
@@ -19,8 +19,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private LinkedBlockingQueue<PrintTask> printTaskQueue;
     private Device mDevice;
     private boolean mBuzzer;
-    private OnPrintTaskListener mPrintTaskListener;
-    private OnPrinterErrorListener mPrinterErrorListener;
+    private OnPrinterListener mPrinterListener;
     private boolean close;
     private Thread mThread;
     private boolean done;
@@ -82,22 +81,15 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return close;
     }
 
-    @Override
-    public void setPrintTaskListener(OnPrintTaskListener printTaskListener) {
-        this.mPrintTaskListener = printTaskListener;
-    }
 
     @Override
-    public void setPrinterErrorListener(OnPrinterErrorListener printerErrorListener) {
-        this.mPrinterErrorListener = printerErrorListener;
+    public void setPrinterListener(OnPrinterListener printerListener) {
+        this.mPrinterListener = printerListener;
     }
 
-    public OnPrintTaskListener getPrintTaskListener() {
-        return mPrintTaskListener;
-    }
 
-    public OnPrinterErrorListener getPrinterErrorListener() {
-        return mPrinterErrorListener;
+    public OnPrinterListener getPrinterListener() {
+        return mPrinterListener;
     }
 
     @Override
@@ -118,6 +110,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         printEnd();
                     }
                 } else {
+                    OnPrintListener printListener = printTask.getPrintListener();
                     done = false;
                     if (printTask.isTimeout()) {
                         // 任务超时
@@ -127,8 +120,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     try {
                         if (print0(printTask)) {
                             LogUtils.debug(String.format("%s 打印成功.", printTask.getTaskId()));
-                            if (mPrintTaskListener != null) {
-                                mPrintTaskListener.onSuccess(this, printTask);
+                            if (printListener != null) {
+                                printListener.onSuccess(this, printTask);
                             }
                             // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                             Utils.sleep(printTask.getIntervalTime());
@@ -146,9 +139,9 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         } else {
                             errorMsg = "打印失败: " + e.getMessage();
                         }
-                        if (mPrintTaskListener != null) {
+                        if (printListener != null) {
                             LogUtils.error(printTask.getTaskId() + " " + errorMsg);
-                            mPrintTaskListener.onError(this, printTask, errorMsg);
+                            printListener.onError(this, printTask, errorMsg);
                         }
                     }
 
@@ -161,8 +154,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     private void printTaskTimeout(PrintTask printTask) {
         LogUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", printTask.getTaskId()));
-        if (mPrintTaskListener != null) {
-            mPrintTaskListener.onError(this, printTask, "打印任务超时");
+        if (printTask.getPrintListener() != null) {
+            printTask.getPrintListener().onError(this, printTask, "打印任务超时");
         }
     }
 

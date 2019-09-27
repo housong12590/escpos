@@ -1,7 +1,6 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.callback.OnPrintTaskListener;
-import com.ciin.pos.callback.OnPrinterErrorListener;
+import com.ciin.pos.callback.OnPrinterListener;
 import com.ciin.pos.device.Device;
 
 import java.util.List;
@@ -48,14 +47,9 @@ public interface Printer {
     boolean isBuzzer();
 
     /**
-     * 设置打印任务回调
-     */
-    void setPrintTaskListener(OnPrintTaskListener printTaskCallback);
-
-    /**
      * 设置打印机错误回调
      */
-    void setPrinterErrorListener(OnPrinterErrorListener printerErrorCallback);
+    void setPrinterListener(OnPrinterListener printerListener);
 
     /**
      * 关闭打印机
