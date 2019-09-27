@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.callback.OnPrintListener;
-import com.ciin.pos.callback.OnPrinterListener;
+import com.ciin.pos.listener.OnPrintTaskListener;
+import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.exception.TimeoutException;
@@ -110,7 +110,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         printEnd();
                     }
                 } else {
-                    OnPrintListener printListener = printTask.getPrintListener();
+                    OnPrintTaskListener printTaskListener = printTask.getPrintTaskListener();
                     done = false;
                     if (printTask.isTimeout()) {
                         // 任务超时
@@ -120,8 +120,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     try {
                         if (print0(printTask)) {
                             LogUtils.debug(String.format("%s 打印成功.", printTask.getTaskId()));
-                            if (printListener != null) {
-                                printListener.onSuccess(this, printTask);
+                            if (printTaskListener != null) {
+                                printTaskListener.onSuccess(this, printTask);
                             }
                             // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                             Utils.sleep(printTask.getIntervalTime());
@@ -139,9 +139,9 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         } else {
                             errorMsg = "打印失败: " + e.getMessage();
                         }
-                        if (printListener != null) {
+                        if (printTaskListener != null) {
                             LogUtils.error(printTask.getTaskId() + " " + errorMsg);
-                            printListener.onError(this, printTask, errorMsg);
+                            printTaskListener.onError(this, printTask, errorMsg);
                         }
                     }
 
@@ -154,8 +154,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     private void printTaskTimeout(PrintTask printTask) {
         LogUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", printTask.getTaskId()));
-        if (printTask.getPrintListener() != null) {
-            printTask.getPrintListener().onError(this, printTask, "打印任务超时");
+        if (printTask.getPrintTaskListener() != null) {
+            printTask.getPrintTaskListener().onError(this, printTask, "打印任务超时");
         }
     }
 

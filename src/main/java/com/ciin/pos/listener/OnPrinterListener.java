@@ -1,4 +1,4 @@
-package com.ciin.pos.callback;
+package com.ciin.pos.listener;
 
 import com.ciin.pos.printer.Printer;
 

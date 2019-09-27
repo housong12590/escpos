@@ -1,6 +1,6 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.callback.OnPrinterListener;
+import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.device.Device;
 
 import java.util.List;

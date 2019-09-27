@@ -1,9 +1,9 @@
-package com.ciin.pos.callback;
+package com.ciin.pos.listener;
 
 import com.ciin.pos.printer.PrintTask;
 import com.ciin.pos.printer.Printer;
 
-public interface OnPrintListener {
+public interface OnPrintTaskListener {
 
     void onSuccess(Printer printer, PrintTask printTask);
 

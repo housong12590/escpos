@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
-import com.ciin.pos.callback.OnPrinterListener;
+import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.connect.ReConnectCallback;
 import com.ciin.pos.device.Device;

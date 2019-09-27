@@ -1,6 +1,6 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.callback.OnPrintListener;
+import com.ciin.pos.listener.OnPrintTaskListener;
 import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.exception.TemplateParseException;
@@ -23,7 +23,7 @@ public class PrintTask {
     private long printTimeOut = DEFAULT_PRINT_TIMEOUT;
     private long createTime;
     private String title;
-    private OnPrintListener printListener;
+    private OnPrintTaskListener printTaskListener;
 
     public PrintTask(Template template) {
         this(Utils.generateId(), template);
@@ -108,12 +108,12 @@ public class PrintTask {
         return nowTime - createTime > printTimeOut;
     }
 
-    public void setPrintListener(OnPrintListener printListener) {
-        this.printListener = printListener;
+    public void setPrintTaskListener(OnPrintTaskListener printTaskListener) {
+        this.printTaskListener = printTaskListener;
     }
 
-    public OnPrintListener getPrintListener() {
-        return printListener;
+    public OnPrintTaskListener getPrintTaskListener() {
+        return printTaskListener;
     }
 
     @Override
