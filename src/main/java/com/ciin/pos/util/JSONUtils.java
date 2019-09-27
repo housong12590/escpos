@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -84,7 +86,11 @@ public class JSONUtils {
 
 
     static class GsonConverter implements Converter {
-        private Gson gson = new Gson();
+        public static final Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .serializeNulls()
+                .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.FINAL)
+                .create();
 
         @Override
         public <T> T toBean(String json, Class<T> cls) {
