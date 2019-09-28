@@ -10,9 +10,14 @@ public interface Connection {
     void doConnect() throws IOException;
 
     /**
-     * 重新连接
+     * 尝试连接
      */
-    void reConnect(int intervalTime, ReConnectCallback reConnectCallback);
+    boolean tryConnect();
+
+    /**
+     * 尝试连接
+     */
+    boolean tryConnect(OnConnectCallback onConnectCallback);
 
     /**
      * 是否连接成功

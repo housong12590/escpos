@@ -5,6 +5,8 @@ import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 import com.ciin.pos.util.SystemUtils;
 
+import java.io.ByteArrayInputStream;
+
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
 import javax.print.PrintService;
@@ -14,7 +16,6 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.JobName;
 import javax.print.attribute.standard.MediaSizeName;
-import java.io.ByteArrayInputStream;
 
 /**
  * 驱动打印机
@@ -36,10 +37,23 @@ public class DrivePrinter extends AbstractPrinter {
     }
 
     @Override
+    public boolean available() {
+        return printService != null;
+    }
+
+    @Override
     public void close() {
         printService = null;
     }
 
+    @Override
+    public String getPrinterName() {
+        String printerName = super.getPrinterName();
+        if (StringUtils.isEmpty(printerName)) {
+            return "驱动打印机:" + printerName;
+        }
+        return printerName;
+    }
 
     @Override
     protected boolean print0(PrintTask printTask) throws Exception {

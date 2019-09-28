@@ -4,10 +4,11 @@ import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
-import gnu.io.CommPort;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import gnu.io.CommPort;
 
 public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
@@ -22,13 +23,8 @@ public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
     @Override
     protected boolean print0(PrintTask printTask) throws Exception {
-        if (commPort == null) {
-            try {
-                commPort = openPort();
-                os = commPort.getOutputStream();
-            } catch (Exception e) {
-                return false;
-            }
+        if (!available()) {
+            return false;
         }
 
         byte[] data = printTask.printData();
@@ -48,6 +44,19 @@ public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
     abstract CommPort openPort() throws Exception;
 
+
+    @Override
+    public boolean available() {
+        if (commPort == null) {
+            try {
+                commPort = openPort();
+                os = commPort.getOutputStream();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     @Override
     public int getWaitTime() {

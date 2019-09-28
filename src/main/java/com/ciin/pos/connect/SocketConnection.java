@@ -36,6 +36,7 @@ public class SocketConnection implements Connection {
     public void doConnect() throws IOException {
         this.close();
         try {
+            LogUtils.debug("开始连接 " + this);
             socket = new Socket();
             // 设置连接超时时间
             socket.connect(new InetSocketAddress(hostname, port), timeout);
@@ -46,25 +47,32 @@ public class SocketConnection implements Connection {
                 bufferOs = new BufferedOutputStream(os, bufferSize);
             }
             isConnect = true;
+            LogUtils.debug("连接成功 " + this);
         } catch (IOException e) {
             isConnect = false;
             throw e;
         }
     }
 
+    @Override
+    public boolean tryConnect() {
+        return tryConnect(null);
+    }
 
     @Override
-    public void reConnect(int intervalTime, ReConnectCallback callback) {
-        while (callback.condition() && !isConnect) {
+    public boolean tryConnect(OnConnectCallback callback) {
+        if (!isConnect) {
             try {
                 doConnect();
+                return true;
             } catch (IOException e) {
-                LogUtils.error("连接异常, 正在尝试重连  " + e.getMessage());
-                callback.onFailure(e);
-                Utils.sleep(intervalTime);
+                LogUtils.error(String.format("连接异常 %s:%s, ex: %s", hostname, port, e.getMessage()));
+                if (callback != null) {
+                    callback.onFailure(e);
+                }
             }
         }
-        LogUtils.debug(this.toString() + " 连接成功!!!");
+        return false;
     }
 
     @Override

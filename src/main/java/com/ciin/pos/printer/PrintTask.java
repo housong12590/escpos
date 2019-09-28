@@ -19,7 +19,6 @@ public class PrintTask {
     private Template template;
     private Object tag;
     private Printer printer;
-    private long intervalTime;
     private long printTimeOut = DEFAULT_PRINT_TIMEOUT;
     private long createTime;
     private String title;
@@ -74,20 +73,12 @@ public class PrintTask {
         return createTime;
     }
 
-    public long getIntervalTime() {
-        return intervalTime;
-    }
-
     public long getPrintTimeOut() {
         return printTimeOut;
     }
 
     public void setPrintTimeOut(long printTimeOut) {
         this.printTimeOut = printTimeOut;
-    }
-
-    public void setIntervalTime(long intervalTime) {
-        this.intervalTime = intervalTime;
     }
 
     public String getTitle() {

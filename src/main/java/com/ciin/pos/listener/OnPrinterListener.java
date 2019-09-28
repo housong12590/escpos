@@ -4,6 +4,6 @@ import com.ciin.pos.printer.Printer;
 
 public interface OnPrinterListener {
 
-    void onConnectError(Printer printer, Throwable ex);
+    void onPrinterError(Printer printer, Throwable ex);
 
 }

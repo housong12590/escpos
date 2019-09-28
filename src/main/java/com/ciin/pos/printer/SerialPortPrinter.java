@@ -3,6 +3,7 @@ package com.ciin.pos.printer;
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.util.LogUtils;
+import com.ciin.pos.util.StringUtils;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -36,4 +37,16 @@ public class SerialPortPrinter extends AbstractCommPortPrinter {
         }
         throw new NoSuchPortException();
     }
+
+
+    @Override
+    public String getPrinterName() {
+        String printerName = super.getPrinterName();
+        if (StringUtils.isEmpty(printerName)) {
+            return "串口打印机:" + portName;
+        }
+        return printerName;
+    }
 }
+
+

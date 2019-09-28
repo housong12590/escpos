@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.device.Device;
+import com.ciin.pos.listener.OnPrinterListener;
 
 import java.util.List;
 
@@ -11,6 +11,16 @@ public interface Printer {
      * 获取打印机设备信息
      */
     Device getDevice();
+
+    /**
+     * 设置打印机名字
+     */
+    void setPrinterName(String printerName);
+
+    /**
+     * 获取打印机名字
+     */
+    String getPrinterName();
 
     /**
      * 获取打印机所有任务列表
@@ -50,6 +60,28 @@ public interface Printer {
      * 设置打印机错误回调
      */
     void setPrinterListener(OnPrinterListener printerListener);
+
+    int getIntervalTime();
+
+    /**
+     * 设置打印时间间隔
+     */
+    void setIntervalTime(int intervalTime);
+
+    /**
+     * 初始化打印列表
+     */
+    void initPrintTasks(List<PrintTask> printTasks);
+
+    /**
+     * 备用打印机
+     */
+    void setBackupPrinter(Printer printer);
+
+    /**
+     * 打印机是否可用
+     */
+    boolean available();
 
     /**
      * 关闭打印机

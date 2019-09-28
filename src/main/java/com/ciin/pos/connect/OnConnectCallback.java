@@ -1,8 +1,6 @@
 package com.ciin.pos.connect;
 
-public interface ReConnectCallback {
-
-    boolean condition();
+public interface OnConnectCallback {
 
     void onFailure(Throwable ex);
 }

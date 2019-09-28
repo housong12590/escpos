@@ -12,9 +12,7 @@ public final class Constants {
 
     public static final String CHARSET_UTF8 = "UTF-8";
 
-    public static final int SOCKET_TIMEOUT = 10000;
-
-    public static final int RECONNECT_INTERVAL = 5000;
+    public static final int SOCKET_TIMEOUT = 5000;
 
     public static final int BUFFER_SIZE = 512;
 
