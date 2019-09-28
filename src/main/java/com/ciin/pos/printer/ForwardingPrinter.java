@@ -69,7 +69,9 @@ public class ForwardingPrinter extends AbstractPrinter {
             buffer.write(data);
             connection.writeAndFlush(buffer.toByteArray());
             LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
-            return true;
+            byte[] readBuff = new byte[8];
+            int readLength = connection.read(readBuff);
+            return readBuff.length == readLength;
         } catch (IOException ignored) {
         }
         return false;
@@ -92,9 +94,20 @@ public class ForwardingPrinter extends AbstractPrinter {
     @Override
     public boolean available() {
         if (!connection.isConnect()) {
-            connection.tryConnect();
+            doTryConnect();
         }
         return checkConnect();
+    }
+
+    private void doTryConnect() {
+        if (connection.tryConnect()) {
+            try {
+                // 连接完成后, 初始化打印机信息
+                connection.write(null);
+            } catch (IOException ignored) {
+
+            }
+        }
     }
 
     @Override
