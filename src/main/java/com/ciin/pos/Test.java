@@ -48,8 +48,16 @@ public class Test {
 //            Utils.safeClose(os, is);
 //            serialPort.close();
 //        }
-        test01();
+//        test01();
 //        test02();
+        test03();
+    }
+
+    private static void test03() throws IOException {
+        SocketConnection connection = new SocketConnection("192.168.10.60", 9100, 10000, false);
+        connection.doConnect();
+        byte[] buff = new byte[8];
+        connection.read(buff);
     }
 
     private static void test02() {
