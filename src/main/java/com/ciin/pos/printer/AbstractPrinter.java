@@ -109,6 +109,10 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return close;
     }
 
+
+
+
+
     @Override
     public int getIntervalTime() {
         return intervalTime;
