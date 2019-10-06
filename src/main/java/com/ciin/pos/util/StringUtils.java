@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -200,5 +201,25 @@ public class StringUtils {
 
     public static String arrayToString(Collection collection) {
         return arrayToString(collection, ",");
+    }
+
+    public static String md5(String value) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] bytes = md.digest(value.getBytes(StandardCharsets.UTF_8));
+            return toHex(bytes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String toHex(byte[] bytes) {
+        final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
+        StringBuilder ret = new StringBuilder(bytes.length * 2);
+        for (byte aByte : bytes) {
+            ret.append(HEX_DIGITS[(aByte >> 4) & 0x0f]);
+            ret.append(HEX_DIGITS[aByte & 0x0f]);
+        }
+        return ret.toString();
     }
 }
