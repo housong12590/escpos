@@ -7,6 +7,7 @@ import com.ciin.pos.listener.OnPrintTaskListener;
 import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
+import org.w3c.dom.ls.LSException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,8 +15,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-public abstract class AbstractPrinter implements Printer, Runnable {
+public abstract class AbstractPrinter<T extends AbstractPrinter> implements Printer<T>, Runnable {
 
     private static final int DEFAULT_WAIT_TIME = 30;
     private LinkedBlockingDeque<PrintTask> printTaskDeque;
@@ -136,7 +138,6 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         }
     }
 
-
     @Override
     public void removePrinterListener(OnPrinterListener printerListener) {
         if (printerListener != null) {
@@ -173,7 +174,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         }
                     }
                 } else {
-                    OnPrintTaskListener printTaskListener = curPrintTask.getPrintTaskListener();
+                    List<OnPrintEventListener> printEventListeners = curPrintTask.getPrintEventListeners();
                     done = false;
                     if (curPrintTask.isTimeout()) {
                         // 任务超时
@@ -185,9 +186,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             if (this.available() && print0(curPrintTask)) {
                                 printErrorCount = 0;
                                 LogUtils.debug(String.format("%s 打印成功.", curPrintTask.getTaskId()));
-                                if (printTaskListener != null) {
-                                    printTaskListener.onSuccess(this, curPrintTask);
-                                }
+                                printEventListeners.forEach(listener -> listener
+                                        .onEvent(AbstractPrinter.this, curPrintTask, PrintEvent.SUCCESS, null));
                                 // 打印完成之后,把当前的任务置空
                                 curPrintTask = null;
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
@@ -242,18 +242,15 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     private void printTaskError(PrintTask printTask, String errorMsg) {
-        OnPrintTaskListener printTaskListener = printTask.getPrintTaskListener();
-        if (printTaskListener != null) {
-            LogUtils.error(printTask.getTaskId() + " " + errorMsg);
-            printTaskListener.onError(this, printTask, errorMsg);
-        }
+        LogUtils.error(printTask.getTaskId() + " " + errorMsg);
+        printTask.getPrintEventListeners().forEach(listener -> listener
+                .onEvent(AbstractPrinter.this, printTask, PrintEvent.ERROR, errorMsg));
     }
 
     private void printTaskTimeout(PrintTask printTask) {
         LogUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", printTask.getTaskId()));
-        if (printTask.getPrintTaskListener() != null) {
-            printTask.getPrintTaskListener().onTimeout(this, printTask);
-        }
+        printTask.getPrintEventListeners().forEach(listener ->
+                listener.onEvent(AbstractPrinter.this, printTask, PrintEvent.TIMEOUT, null));
     }
 
     private boolean useBackupPrinter(PrintTask printTask) {

@@ -1,6 +1,5 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.listener.OnPrintTaskListener;
 import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.exception.TemplateParseException;
@@ -9,6 +8,9 @@ import com.ciin.pos.parser.Template;
 import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrintTask {
 
@@ -23,19 +25,21 @@ public class PrintTask {
     private long createTime;
     private String title;
     private boolean tempPrint;
-    private OnPrintTaskListener printTaskListener;
+    private List<OnPrintEventListener> printEventListeners;
 
     public PrintTask(Template template) {
         this(Utils.generateId(), template);
     }
 
     public PrintTask(String taskId, Template template) {
+        this.printEventListeners = new ArrayList<>();
         this.createTime = System.currentTimeMillis();
         this.taskId = taskId;
         this.template = template;
     }
 
     public PrintTask(String taskId, String templateStr, Dict templateData, Object tag) {
+        this.printEventListeners = new ArrayList<>();
         this.template = new Template(templateStr, templateData);
         this.taskId = taskId;
         this.createTime = System.currentTimeMillis();
@@ -108,12 +112,16 @@ public class PrintTask {
         return nowTime - createTime > printTimeOut;
     }
 
-    public void setPrintTaskListener(OnPrintTaskListener printTaskListener) {
-        this.printTaskListener = printTaskListener;
+    public void addPrintEventListener(OnPrintEventListener listener) {
+        printEventListeners.add(listener);
     }
 
-    public OnPrintTaskListener getPrintTaskListener() {
-        return printTaskListener;
+    public void removePrintEventListener(OnPrintEventListener listener) {
+        printEventListeners.remove(listener);
+    }
+
+    public List<OnPrintEventListener> getPrintEventListeners() {
+        return printEventListeners;
     }
 
     @Override

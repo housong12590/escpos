@@ -1,6 +1,6 @@
 package com.ciin.pos.printer;
 
-public interface PrintEventListener {
+public interface OnPrintEventListener {
 
-    void onEvent(Printer printer, PrintEvent event);
+    void onEvent(Printer printer, PrintTask printTask, PrintEvent event, Object obj);
 }
