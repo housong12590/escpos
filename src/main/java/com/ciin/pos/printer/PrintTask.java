@@ -9,9 +9,6 @@ import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PrintTask {
 
     // 默认打印任务超时时间
@@ -25,21 +22,19 @@ public class PrintTask {
     private long createTime;
     private String title;
     private boolean tempPrint;
-    private List<OnPrintEventListener> printEventListeners;
+    private OnPrintEventListener printEventListener;
 
     public PrintTask(Template template) {
         this(Utils.generateId(), template);
     }
 
     public PrintTask(String taskId, Template template) {
-        this.printEventListeners = new ArrayList<>();
         this.createTime = System.currentTimeMillis();
         this.taskId = taskId;
         this.template = template;
     }
 
     public PrintTask(String taskId, String templateStr, Dict templateData, Object tag) {
-        this.printEventListeners = new ArrayList<>();
         this.template = new Template(templateStr, templateData);
         this.taskId = taskId;
         this.createTime = System.currentTimeMillis();
@@ -112,16 +107,16 @@ public class PrintTask {
         return nowTime - createTime > printTimeOut;
     }
 
-    public void addPrintEventListener(OnPrintEventListener listener) {
-        printEventListeners.add(listener);
+    public void setPrintEventListener(OnPrintEventListener listener) {
+        this.printEventListener = listener;
     }
 
-    public void removePrintEventListener(OnPrintEventListener listener) {
-        printEventListeners.remove(listener);
+    public OnPrintEventListener getPrintEventListener() {
+        return this.printEventListener;
     }
 
-    public List<OnPrintEventListener> getPrintEventListeners() {
-        return printEventListeners;
+    public OnPrintEventListener getDefaultListener() {
+        return defaultListener;
     }
 
     @Override
@@ -153,4 +148,13 @@ public class PrintTask {
         }
         return buffer.toByteArray();
     }
+
+    private OnPrintEventListener defaultListener = new OnPrintEventListener() {
+        @Override
+        public void onEvent(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
+            if (printEventListener != null) {
+                printEventListener.onEvent(printer, printTask, event, obj);
+            }
+        }
+    };
 }
