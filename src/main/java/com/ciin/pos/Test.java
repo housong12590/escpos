@@ -1,25 +1,15 @@
 package com.ciin.pos;
 
 import com.ciin.pos.connect.SocketConnection;
-import com.ciin.pos.device.DeviceFactory;
-import com.ciin.pos.listener.OnPrintTaskListener;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.orderset.OrderSetFactory;
-import com.ciin.pos.parser.Template;
-import com.ciin.pos.printer.NetworkPrinter;
-import com.ciin.pos.printer.PrintTask;
-import com.ciin.pos.printer.Printer;
-import com.ciin.pos.printer.SerialPortPrinter;
-import com.ciin.pos.util.FileUtils;
 import com.ciin.pos.util.LogUtils;
-import com.ciin.pos.util.Utils;
-
-import java.io.IOException;
-import java.util.Arrays;
-
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.UnsupportedCommOperationException;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 public class Test {
 
@@ -74,26 +64,5 @@ public class Test {
     }
 
     private static void test01() {
-        Printer printer2 = new SerialPortPrinter(DeviceFactory.getDefault(), "COM4", 38400);
-        Printer printer1 = new NetworkPrinter("192.168.10.60");
-        printer1.setBackupPrinter(printer2);
-        for (int i = 0; i < 2; i++) {
-            String read = FileUtils.fileRead("D:\\work\\java\\printer\\printer_client\\src\\main\\resources\\template\\test_print.xml");
-            Template template = new Template(read);
-            PrintTask printTask = new PrintTask(template);
-            printTask.setPrintTaskListener(new OnPrintTaskListener() {
-                @Override
-                public void onSuccess(Printer printer, PrintTask printTask) {
-                    LogUtils.debug("onSuccess: " + printer);
-                }
-
-                @Override
-                public void onError(Printer printer, PrintTask printTask, String errorMsg) {
-                    LogUtils.error("onError: " + printer);
-                }
-            });
-            printer1.print(printTask);
-            Utils.sleep(3 * 60 * 1000);
-        }
     }
 }

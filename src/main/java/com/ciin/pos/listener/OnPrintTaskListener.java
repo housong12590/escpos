@@ -7,5 +7,7 @@ public interface OnPrintTaskListener {
 
     void onSuccess(Printer printer, PrintTask printTask);
 
+    void onTimeout(Printer printer, PrintTask printTask);
+
     void onError(Printer printer, PrintTask printTask, String errorMsg);
 }

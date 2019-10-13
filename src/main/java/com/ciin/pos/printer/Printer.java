@@ -47,6 +47,14 @@ public interface Printer {
     void print(PrintTask printTask);
 
     /**
+     * 添加到打印队列的最前端
+     *
+     * @param printTask 打印任务
+     * @param first     为true时添加到队列的最前端,为false时则在最后
+     */
+    void print(PrintTask printTask, boolean first);
+
+    /**
      * 设置打印机蜂蜜声
      */
     void buzzer(boolean buzzer);
@@ -59,7 +67,9 @@ public interface Printer {
     /**
      * 设置打印机错误回调
      */
-    void setPrinterListener(OnPrinterListener printerListener);
+    void addPrinterListener(OnPrinterListener printerListener);
+
+    void removePrinterListener(OnPrinterListener printerListener);
 
     int getIntervalTime();
 

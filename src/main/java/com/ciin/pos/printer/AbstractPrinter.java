@@ -11,6 +11,7 @@ import com.ciin.pos.util.Utils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
@@ -18,7 +19,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     private static final int DEFAULT_WAIT_TIME = 30;
     private LinkedBlockingDeque<PrintTask> printTaskDeque;
-    private OnPrinterListener mPrinterListener;
+    private List<OnPrinterListener> mPrinterListeners;
     private String printerName;
     private Device mDevice;
     private boolean mBuzzer;
@@ -30,12 +31,12 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private PrintTask curPrintTask;
     private Printer mBackupPrinter;
     private int printErrorCount;
-    private final Object lock = new Object();
     private boolean mBackupPrinterResult;
     private boolean mEnableBackupPrinter;
 
     AbstractPrinter(Device device) {
         this.mDevice = device;
+        mPrinterListeners = new ArrayList<>();
         waitTime = getWaitTime();
         printTaskDeque = new LinkedBlockingDeque<>();
         mThread = new Thread(this);
@@ -87,11 +88,20 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void print(PrintTask printTask) {
+        print(printTask, false);
+    }
+
+    @Override
+    public void print(PrintTask printTask, boolean first) {
         if (close) {
             throw new RuntimeException("打印机已销毁, 无法执行新的打印任务");
         }
         printTask.setPrinter(this);
-        printTaskDeque.offer(printTask);
+        if (first) {
+            printTaskDeque.addFirst(printTask);
+        } else {
+            printTaskDeque.addLast(printTask);
+        }
         LogUtils.debug(String.format("%s 添加到打印队列", printTask.getTaskId()));
     }
 
@@ -109,10 +119,6 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return close;
     }
 
-
-
-
-
     @Override
     public int getIntervalTime() {
         return intervalTime;
@@ -124,12 +130,18 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     @Override
-    public void setPrinterListener(OnPrinterListener printerListener) {
-        this.mPrinterListener = printerListener;
+    public void addPrinterListener(OnPrinterListener printerListener) {
+        if (printerListener != null) {
+            this.mPrinterListeners.add(printerListener);
+        }
     }
 
-    public OnPrinterListener getPrinterListener() {
-        return mPrinterListener;
+
+    @Override
+    public void removePrinterListener(OnPrinterListener printerListener) {
+        if (printerListener != null) {
+            this.mPrinterListeners.remove(printErrorCount);
+        }
     }
 
     @Override
@@ -183,10 +195,14 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                     Utils.sleep(intervalTime);
                                 }
                             } else {
-                                printErrorCount++;
-                                if (mPrinterListener != null) {
-                                    mPrinterListener.onPrinterError(this, new IOException("打印机连接失败"));
+                                mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this, new IOException("打印机连接失败")));
+                                // 临时打印,错误时不添加到当前打印机的打印列表中
+                                if (curPrintTask.isTempPrint()) {
+                                    curPrintTask = null;
+                                    continue;
                                 }
+                                printErrorCount++;
+
                                 // 打印任务失败超过3次 启用备用打印机
                                 // 如果备用打印机可用,直接转到备用用打印机打印
                                 // 如果备用打印机不可用, 则添加到打印列表继续等待打印, 直到任务超时
@@ -215,10 +231,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             } else {
                                 errorMsg = "打印失败: " + e.getMessage();
                             }
-                            if (printTaskListener != null) {
-                                LogUtils.error(curPrintTask.getTaskId() + " " + errorMsg);
-                                printTaskListener.onError(this, curPrintTask, errorMsg);
-                            }
+                            printTaskError(curPrintTask, errorMsg);
                         }
                     }
                 }
@@ -228,43 +241,68 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         }
     }
 
+    private void printTaskError(PrintTask printTask, String errorMsg) {
+        OnPrintTaskListener printTaskListener = printTask.getPrintTaskListener();
+        if (printTaskListener != null) {
+            LogUtils.error(printTask.getTaskId() + " " + errorMsg);
+            printTaskListener.onError(this, printTask, errorMsg);
+        }
+    }
+
     private void printTaskTimeout(PrintTask printTask) {
         LogUtils.debug(String.format("%s 打印任务超时, 已取消本次打印", printTask.getTaskId()));
         if (printTask.getPrintTaskListener() != null) {
-            printTask.getPrintTaskListener().onError(this, printTask, "打印任务超时");
+            printTask.getPrintTaskListener().onTimeout(this, printTask);
         }
     }
 
     private boolean useBackupPrinter(PrintTask printTask) {
+        printTask.setTempPrint(true);
         LogUtils.debug(printTask.getTaskId() + String.format(" %s 转到 -> %s", this.toString(), mBackupPrinter.toString()));
         OnPrintTaskListener oldListener = printTask.getPrintTaskListener();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         printTask.setPrintTaskListener(new OnPrintTaskListener() {
             @Override
             public void onSuccess(Printer printer, PrintTask printTask) {
                 mBackupPrinterResult = true;
-                synchronized (lock) {
-                    lock.notifyAll();
-                }
+                countDownLatch.countDown();
                 oldListener.onSuccess(printer, printTask);
+            }
+
+            @Override
+            public void onTimeout(Printer printer, PrintTask printTask) {
+                mBackupPrinterResult = false;
+                countDownLatch.countDown();
+                oldListener.onTimeout(printer, printTask);
             }
 
             @Override
             public void onError(Printer printer, PrintTask printTask, String errorMsg) {
                 mBackupPrinterResult = false;
-                synchronized (lock) {
-                    lock.notifyAll();
-                }
+                countDownLatch.countDown();
                 oldListener.onError(printer, printTask, errorMsg);
             }
         });
-        mBackupPrinter.print(printTask);
-        synchronized (lock) {
-            try {
-                lock.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+        OnPrinterListener onPrinterListener = new OnPrinterListener() {
+            @Override
+            public void onPrinterError(Printer printer, Throwable ex) {
+                mBackupPrinterResult = false;
+                countDownLatch.countDown();
             }
+        };
+
+        mBackupPrinter.addPrinterListener(onPrinterListener);
+        mBackupPrinter.print(printTask);
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            mBackupPrinterResult = false;
         }
+        mBackupPrinter.removePrinterListener(onPrinterListener);
+        printTask.setTempPrint(false);
+        printTask.setPrintTaskListener(oldListener);
         return mBackupPrinterResult;
     }
 

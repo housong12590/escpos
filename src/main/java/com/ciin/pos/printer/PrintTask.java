@@ -22,6 +22,7 @@ public class PrintTask {
     private long printTimeOut = DEFAULT_PRINT_TIMEOUT;
     private long createTime;
     private String title;
+    private boolean tempPrint;
     private OnPrintTaskListener printTaskListener;
 
     public PrintTask(Template template) {
@@ -88,6 +89,14 @@ public class PrintTask {
     public PrintTask setTitle(String title) {
         this.title = title;
         return this;
+    }
+
+    public boolean isTempPrint() {
+        return tempPrint;
+    }
+
+    public void setTempPrint(boolean tempPrint) {
+        this.tempPrint = tempPrint;
     }
 
     public boolean isTimeout() {
