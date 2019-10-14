@@ -69,8 +69,19 @@ public interface Printer {
      */
     void addPrinterListener(OnPrinterListener printerListener);
 
+    /**
+     * 移除打印机错误回调
+     */
     void removePrinterListener(OnPrinterListener printerListener);
 
+    /**
+     * 开启保持打印
+     */
+    void setEnabledKeepPrint(boolean enabled);
+
+    /**
+     * 获取打印时间间隔
+     */
     int getIntervalTime();
 
     /**

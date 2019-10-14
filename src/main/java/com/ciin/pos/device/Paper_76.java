@@ -3,7 +3,7 @@ package com.ciin.pos.device;
 public class Paper_76 implements Paper {
     @Override
     public int getCharLen() {
-        return 0;
+        return 40;
     }
 
     @Override

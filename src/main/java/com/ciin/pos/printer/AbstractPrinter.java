@@ -35,6 +35,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private int printErrorCount;
     private boolean mBackupPrinterResult;
     private boolean mEnableBackupPrinter;
+    private boolean mEnabledKeepPrint;
 
     AbstractPrinter(Device device) {
         this.mDevice = device;
@@ -166,6 +167,11 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     @Override
+    public void setEnabledKeepPrint(boolean keepPrint) {
+        this.mEnabledKeepPrint = keepPrint;
+    }
+
+    @Override
     public void run() {
         while (!close) {
             try {
@@ -203,7 +209,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             } else {
                                 mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this, new IOException("打印机连接失败")));
                                 // 临时打印,错误时不添加到当前打印机的打印列表中
-                                if (curPrintTask.isTempPrint()) {
+                                if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
                                     curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, null);
                                     curPrintTask = null;
                                 } else {
