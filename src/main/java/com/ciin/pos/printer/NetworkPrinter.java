@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * 网络打印机
  */
-public class NetworkPrinter<T extends NetworkPrinter> extends AbstractPrinter<T> {
+public class NetworkPrinter extends AbstractPrinter {
 
     private String host;
     private int port;

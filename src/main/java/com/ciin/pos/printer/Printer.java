@@ -5,7 +5,7 @@ import com.ciin.pos.listener.OnPrinterListener;
 
 import java.util.List;
 
-public interface Printer<T extends Printer> {
+public interface Printer {
 
     /**
      * 获取打印机设备信息

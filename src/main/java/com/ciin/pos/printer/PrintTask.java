@@ -3,6 +3,8 @@ package com.ciin.pos.printer;
 import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.listener.OnPrintEventListener;
+import com.ciin.pos.listener.PrintEvent;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.parser.Template;
 import com.ciin.pos.util.ByteBuffer;
@@ -18,7 +20,7 @@ public class PrintTask {
     private Template template;
     private Object tag;
     private Printer printer;
-    private long printTimeOut = DEFAULT_PRINT_TIMEOUT;
+    private long timeout = DEFAULT_PRINT_TIMEOUT;
     private long createTime;
     private String title;
     private boolean tempPrint;
@@ -73,12 +75,12 @@ public class PrintTask {
         return createTime;
     }
 
-    public long getPrintTimeOut() {
-        return printTimeOut;
+    public long getTimeout() {
+        return timeout;
     }
 
-    public void setPrintTimeOut(long printTimeOut) {
-        this.printTimeOut = printTimeOut;
+    public void setTimeout(long mill) {
+        this.timeout = mill;
     }
 
     public String getTitle() {
@@ -94,17 +96,18 @@ public class PrintTask {
         return tempPrint;
     }
 
-    public void setTempPrint(boolean tempPrint) {
+    public PrintTask setTempPrint(boolean tempPrint) {
         this.tempPrint = tempPrint;
+        return this;
     }
 
     public boolean isTimeout() {
         // 时间为0或者-1时,则永不超时
-        if (printTimeOut == 0 || printTimeOut == -1) {
+        if (timeout == 0 || timeout == -1) {
             return false;
         }
         long nowTime = System.currentTimeMillis();
-        return nowTime - createTime > printTimeOut;
+        return nowTime - createTime > timeout;
     }
 
     public void setPrintEventListener(OnPrintEventListener listener) {
@@ -115,7 +118,7 @@ public class PrintTask {
         return this.printEventListener;
     }
 
-    public OnPrintEventListener getDefaultListener() {
+    OnPrintEventListener getDefaultListener() {
         return defaultListener;
     }
 
@@ -151,9 +154,9 @@ public class PrintTask {
 
     private OnPrintEventListener defaultListener = new OnPrintEventListener() {
         @Override
-        public void onEvent(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
+        public void onEventTriggered(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
             if (printEventListener != null) {
-                printEventListener.onEvent(printer, printTask, event, obj);
+                printEventListener.onEventTriggered(printer, printTask, event, obj);
             }
         }
     };
