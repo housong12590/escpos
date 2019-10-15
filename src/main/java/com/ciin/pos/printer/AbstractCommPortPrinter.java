@@ -4,10 +4,11 @@ import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
-import gnu.io.CommPort;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import gnu.io.CommPort;
 
 public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
@@ -63,18 +64,12 @@ public abstract class AbstractCommPortPrinter extends AbstractPrinter {
     }
 
     @Override
-    protected void printEnd() {
+    protected void printEnd0() {
         if (commPort != null) {
             LogUtils.debug("关闭端口: " + this.commPort.getName());
             Utils.safeClose(os);
             commPort.close();
             commPort = null;
         }
-    }
-
-    @Override
-    public void close() {
-        printEnd();
-        super.close();
     }
 }

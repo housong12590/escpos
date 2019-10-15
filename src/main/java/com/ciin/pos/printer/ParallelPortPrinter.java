@@ -2,6 +2,8 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
+import com.ciin.pos.exception.PlatformErrorException;
+import com.ciin.pos.platform.Platform;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
@@ -17,8 +19,16 @@ public class ParallelPortPrinter extends AbstractCommPortPrinter {
 
     private String portName;
 
+    public ParallelPortPrinter(String portName) {
+        this(Device.getDefault(), portName);
+    }
+
     public ParallelPortPrinter(Device device, String portName) {
         super(device);
+        if (!Platform.isWindows()) {
+            this.close();
+            throw new PlatformErrorException("not is windows platform");
+        }
         this.portName = portName;
     }
 
@@ -38,7 +48,7 @@ public class ParallelPortPrinter extends AbstractCommPortPrinter {
     public String getPrinterName() {
         String printerName = super.getPrinterName();
         if (StringUtils.isEmpty(printerName)) {
-            return "并口打印机:" + portName;
+            return "并口打印机: " + portName;
         }
         return printerName;
     }

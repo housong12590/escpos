@@ -87,7 +87,7 @@ public class ForwardingPrinter extends AbstractPrinter {
     }
 
     @Override
-    protected void printEnd() {
+    protected void printEnd0() {
         this.connection.close();
         if (connection.isConnect()) {
             LogUtils.debug(String.format("连接断开 %s", this.connection));
@@ -111,11 +111,5 @@ public class ForwardingPrinter extends AbstractPrinter {
 
             }
         }
-    }
-
-    @Override
-    public void close() {
-        printEnd();
-        super.close();
     }
 }

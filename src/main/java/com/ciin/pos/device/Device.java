@@ -43,6 +43,6 @@ public class Device {
     }
 
     public static Device getDefault() {
-        return new Device(new Paper_80());
+        return DeviceFactory.device_80();
     }
 }

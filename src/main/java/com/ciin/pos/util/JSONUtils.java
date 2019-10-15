@@ -46,7 +46,7 @@ public class JSONUtils {
 
     private static void checkNull() {
         if (converter == null) {
-            throw new NullPointerException("not found json parse library,You can use gson fastjson jackson");
+            throw new NullPointerException("not found json parse library,You can use gson fastjson jackson, add the appropriate dependency");
         }
     }
 

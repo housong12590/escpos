@@ -54,7 +54,7 @@ public class ImageCreator {
         try {
             Class.forName("com.google.zxing.MultiFormatWriter");
         } catch (ClassNotFoundException e) {
-            throw new NullPointerException("zxing not exist");
+            throw new NullPointerException("zxing lib not exist, add the appropriate dependency");
         }
     }
 

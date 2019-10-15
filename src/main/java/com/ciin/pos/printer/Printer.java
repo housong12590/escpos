@@ -55,6 +55,11 @@ public interface Printer {
     void print(PrintTask printTask, boolean first);
 
     /**
+     * 测试打印
+     */
+    void testPrint();
+
+    /**
      * 设置打印机蜂蜜声
      */
     void buzzer(boolean buzzer);

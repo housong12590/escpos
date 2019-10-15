@@ -1,6 +1,8 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.device.Device;
+import com.ciin.pos.exception.PlatformErrorException;
+import com.ciin.pos.platform.Platform;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 import com.ciin.pos.util.SystemUtils;
@@ -30,19 +32,34 @@ public class DrivePrinter extends AbstractPrinter {
     private PrintService printService;
     private String printerName;
 
+
+    public DrivePrinter(String printerName) {
+        this(Device.getDefault(), printerName);
+    }
+
     public DrivePrinter(Device device, String printerName) {
         super(device);
         this.printerName = printerName;
-        printService = SystemUtils.getPrintService(printerName);
+        if (!Platform.isWindows()) {
+            this.close();
+            throw new PlatformErrorException("not is windows platform");
+        }
+
     }
 
     @Override
     public boolean available() {
+        if (printService == null) {
+            printService = SystemUtils.getPrintService(printerName);
+        }
+        if (printService == null) {
+            LogUtils.warn(String.format("未找到%s驱动打印机", this.printerName));
+        }
         return printService != null;
     }
 
     @Override
-    public void close() {
+    protected void printEnd0() {
         printService = null;
     }
 
@@ -50,7 +67,7 @@ public class DrivePrinter extends AbstractPrinter {
     public String getPrinterName() {
         String printerName = super.getPrinterName();
         if (StringUtils.isEmpty(printerName)) {
-            return "驱动打印机:" + printerName;
+            return "驱动打印机: " + printerName;
         }
         return printerName;
     }
@@ -64,9 +81,6 @@ public class DrivePrinter extends AbstractPrinter {
         pras.add(MediaSizeName.ISO_A4);
         pras.add(new JobName(jobName, null));
         DocFlavor flavor = DocFlavor.INPUT_STREAM.AUTOSENSE;
-        if (printService == null) {
-            throw new RuntimeException(String.format("%s 打印机不存在", printerName));
-        }
         DocPrintJob printJob = printService.createPrintJob();
         HashDocAttributeSet das = new HashDocAttributeSet();
         LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));

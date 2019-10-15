@@ -1,11 +1,13 @@
 package com.ciin.pos.printer;
 
+import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.exception.TimeoutException;
 import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.listener.PrintEvent;
+import com.ciin.pos.parser.Template;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
 
@@ -25,7 +27,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private String printerName;
     private Device mDevice;
     private boolean mBuzzer;
-    private boolean close;
+    private boolean mClose;
     private Thread mThread;
     private boolean done;
     private int waitTime;
@@ -36,14 +38,13 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private boolean mBackupPrinterResult;
     private boolean mEnableBackupPrinter;
     private boolean mEnabledKeepPrint;
+    private boolean mPrintEnd;
 
     AbstractPrinter(Device device) {
         this.mDevice = device;
         mPrinterListeners = new ArrayList<>();
         waitTime = getWaitTime();
         printTaskDeque = new LinkedBlockingDeque<>();
-        mThread = new Thread(this);
-        mThread.start();
     }
 
     @Override
@@ -89,6 +90,13 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     @Override
+    public void testPrint() {
+        PrintTask printTask = new PrintTask(new Template(Constants.TEST_TEMPLATE));
+        printTask.setTempPrint(true);
+        print(printTask);
+    }
+
+    @Override
     public void clear() {
         printTaskDeque.clear();
     }
@@ -104,7 +112,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void print(PrintTask printTask, boolean first) {
-        if (close) {
+        if (mClose) {
             throw new RuntimeException("打印机已销毁, 无法执行新的打印任务");
         }
         printTask.setPrinter(this);
@@ -114,6 +122,11 @@ public abstract class AbstractPrinter implements Printer, Runnable {
             printTaskDeque.addLast(printTask);
         }
         LogUtils.debug(String.format("%s 添加到打印队列", printTask.getTaskId()));
+        mPrintEnd = false;
+        if (mThread == null) {
+            mThread = new Thread(this);
+            mThread.start();
+        }
     }
 
     @Override
@@ -126,8 +139,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return this.mBuzzer;
     }
 
-    public boolean isClose() {
-        return close;
+    public boolean ismClose() {
+        return mClose;
     }
 
     @Override
@@ -161,10 +174,24 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void close() {
-        this.mThread.interrupt();
-        this.close = true;
-        this.mThread = null;
+        if (this.printTaskDeque != null) {
+            this.printTaskDeque.clear();
+        }
+        if (!this.mClose) {
+            printEnd();
+        }
+        this.mClose = true;
     }
+
+    private void printEnd() {
+        if (mThread != null) {
+            this.mThread.interrupt();
+            this.mThread = null;
+        }
+        this.mPrintEnd = true;
+        printEnd0();
+    }
+
 
     @Override
     public void setEnabledKeepPrint(boolean keepPrint) {
@@ -173,13 +200,16 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void run() {
-        while (!close) {
+        while (!mClose || !mPrintEnd) {
             try {
                 curPrintTask = printTaskDeque.poll(waitTime, TimeUnit.SECONDS);
+                // 如果是短暂的打印, 并且队列中没有任务了, 直接关闭
                 if (curPrintTask == null) {
-                    if (!this.done) {
-                        this.done = true;
+                    if (!mEnabledKeepPrint) {
                         printEnd();
+                    } else if (!this.done) {
+                        this.done = true;
+                        printEnd0();
                     } else {
                         if (mEnableBackupPrinter && this.available()) {
                             this.mEnableBackupPrinter = false;
@@ -289,9 +319,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return mBackupPrinterResult;
     }
 
-    protected void printEnd() {
-
-    }
+    protected abstract void printEnd0();
 
     protected abstract boolean print0(PrintTask printTask) throws Exception;
 

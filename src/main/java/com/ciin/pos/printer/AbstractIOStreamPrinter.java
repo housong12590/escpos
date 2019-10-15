@@ -9,11 +9,11 @@ import com.ciin.pos.util.LogUtils;
 
 import java.io.IOException;
 
-public abstract class IOStreamPrinter extends AbstractPrinter {
+public abstract class AbstractIOStreamPrinter extends AbstractPrinter {
 
     protected Connection connection;
 
-    public IOStreamPrinter(Device device, Connection connection) {
+    public AbstractIOStreamPrinter(Device device, Connection connection) {
         super(device);
         this.connection = connection;
     }
@@ -45,12 +45,6 @@ public abstract class IOStreamPrinter extends AbstractPrinter {
     }
 
     @Override
-    public void close() {
-        printEnd();
-        super.close();
-    }
-
-    @Override
     protected boolean print0(PrintTask printTask) throws TemplateParseException {
         if (printTask.isTimeout()) {
             throw new TimeoutException();
@@ -67,10 +61,9 @@ public abstract class IOStreamPrinter extends AbstractPrinter {
     }
 
     @Override
-    protected void printEnd() {
-        this.connection.close();
+    protected void printEnd0() {
         if (connection.isConnect()) {
-            LogUtils.debug(String.format("连接断开 %s", this.connection));
+            this.connection.close();
         }
     }
 }

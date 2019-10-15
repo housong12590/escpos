@@ -2,6 +2,8 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
+import com.ciin.pos.exception.PlatformErrorException;
+import com.ciin.pos.platform.Platform;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
@@ -18,10 +20,18 @@ public class SerialPortPrinter extends AbstractCommPortPrinter {
     private String portName;
     private int baudRate;
 
+    public SerialPortPrinter(String portName, int baudRate) {
+        this(Device.getDefault(), portName, baudRate);
+    }
+
     public SerialPortPrinter(Device device, String portName, int baudRate) {
         super(device);
         this.portName = portName;
         this.baudRate = baudRate;
+        if (!Platform.isWindows()) {
+            this.close();
+            throw new PlatformErrorException("not is windows platform");
+        }
     }
 
     @Override
@@ -43,7 +53,7 @@ public class SerialPortPrinter extends AbstractCommPortPrinter {
     public String getPrinterName() {
         String printerName = super.getPrinterName();
         if (StringUtils.isEmpty(printerName)) {
-            return "串口打印机:" + portName;
+            return "串口打印机: " + portName;
         }
         return printerName;
     }
