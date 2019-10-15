@@ -139,7 +139,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         return this.mBuzzer;
     }
 
-    public boolean ismClose() {
+    public boolean isClose() {
         return mClose;
     }
 
@@ -240,7 +240,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this, new IOException("打印机连接失败")));
                                 // 临时打印,错误时不添加到当前打印机的打印列表中
                                 if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
-                                    curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, null);
+                                    curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "连接发生错误");
                                     curPrintTask = null;
                                 } else {
                                     printErrorCount++;
