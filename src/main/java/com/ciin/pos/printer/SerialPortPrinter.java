@@ -2,7 +2,7 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
-import com.ciin.pos.exception.PlatformErrorException;
+import com.ciin.pos.exception.PlatformException;
 import com.ciin.pos.platform.Platform;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
@@ -30,7 +30,7 @@ public class SerialPortPrinter extends AbstractCommPortPrinter {
         this.baudRate = baudRate;
         if (!Platform.isWindows()) {
             this.close();
-            throw new PlatformErrorException("not is windows platform");
+            throw new PlatformException("not is windows platform");
         }
     }
 

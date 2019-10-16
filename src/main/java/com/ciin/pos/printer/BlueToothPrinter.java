@@ -2,7 +2,7 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.connect.BlueToothConnection;
 import com.ciin.pos.device.Device;
-import com.ciin.pos.exception.PlatformErrorException;
+import com.ciin.pos.exception.PlatformException;
 import com.ciin.pos.platform.Platform;
 import com.ciin.pos.util.StringUtils;
 
@@ -18,7 +18,7 @@ public class BlueToothPrinter extends AbstractIOStreamPrinter {
         super(device, new BlueToothConnection(address));
         if (!Platform.isAndroid()) {
             this.close();
-            throw new PlatformErrorException("not is android platform");
+            throw new PlatformException("not is android platform");
         }
         this.address = address;
     }
