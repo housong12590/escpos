@@ -233,6 +233,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     }
                     try {
                         if (!mEnableBackupPrinter || curPrintTask.isTempPrint()) {
+                            curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.PREPARE, null);
                             if (this.available() && print0(curPrintTask)) {
                                 printErrorCount = 0;
                                 LogUtils.debug(String.format("%s 打印成功.", curPrintTask.getTaskId()));
@@ -321,6 +322,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         } catch (InterruptedException e) {
             mBackupPrinterResult = false;
         }
+        printTask.setPrinter(this);
         printTask.setTempPrint(false);
         printTask.setPrintEventListener(oldListener);
         return mBackupPrinterResult;

@@ -13,16 +13,14 @@ import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ExpressionUtils;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
-
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.regex.Matcher;
-
-import javax.xml.parsers.SAXParser;
 
 public class Template {
 
@@ -39,6 +37,10 @@ public class Template {
         this.templateStr = templateStr;
         this.data = data;
         this.saxParser = XmlParseFactory.newParser();
+    }
+
+    public void setTemplateStr(String templateStr) {
+        this.templateStr = templateStr;
     }
 
     public Document toDocument() throws TemplateParseException {

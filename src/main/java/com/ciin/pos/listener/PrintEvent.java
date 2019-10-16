@@ -3,6 +3,10 @@ package com.ciin.pos.listener;
 public enum PrintEvent {
 
     /**
+     * 准备打印
+     */
+    PREPARE("准备打印"),
+    /**
      * 打印成功
      */
     SUCCESS("打印成功"),
