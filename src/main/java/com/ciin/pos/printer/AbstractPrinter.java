@@ -73,7 +73,9 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void initPrintTasks(List<PrintTask> printTasks) {
-        printTaskDeque.addAll(printTasks);
+        for (PrintTask printTask : printTasks) {
+            print(printTask);
+        }
     }
 
     @Override
