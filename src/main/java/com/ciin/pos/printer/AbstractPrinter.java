@@ -147,12 +147,12 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public int getIntervalTime() {
-        return intervalTime;
+        return intervalTime / 1000;
     }
 
     @Override
-    public void setIntervalTime(int intervalTime) {
-        this.intervalTime = intervalTime;
+    public void setIntervalTime(int seconds) {
+        this.intervalTime = seconds * 1000;
     }
 
     @Override
