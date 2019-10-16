@@ -2,6 +2,11 @@ package com.ciin.pos.device;
 
 public class Paper_80 implements Paper {
     @Override
+    public int paperWidth() {
+        return 80;
+    }
+
+    @Override
     public int getCharLen() {
         return 48;
     }

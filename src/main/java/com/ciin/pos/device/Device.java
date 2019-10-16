@@ -42,6 +42,10 @@ public class Device {
         this.orderSet = orderSet;
     }
 
+    public int getPaperWidth() {
+        return paper.paperWidth();
+    }
+
     public static Device getDefault() {
         return DeviceFactory.device_80();
     }

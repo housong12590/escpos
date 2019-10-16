@@ -40,6 +40,11 @@ public interface Printer {
     void clear();
 
     /**
+     * 获取打印纸宽度
+     */
+    int getPaperWidth();
+
+    /**
      * 添加一个打印任务
      *
      * @param printTask 打印任务

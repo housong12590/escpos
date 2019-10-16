@@ -103,6 +103,11 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         printTaskDeque.clear();
     }
 
+    @Override
+    public int getPaperWidth() {
+        return mDevice.getPaperWidth();
+    }
+
     public int getWaitTime() {
         return DEFAULT_WAIT_TIME;
     }
