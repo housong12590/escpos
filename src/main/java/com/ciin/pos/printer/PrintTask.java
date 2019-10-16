@@ -76,11 +76,11 @@ public class PrintTask {
     }
 
     public long getTimeout() {
-        return timeout / 1000;
+        return timeout;
     }
 
-    public void setTimeout(long seconds) {
-        this.timeout = seconds * 1000;
+    public void setTimeout(long millis) {
+        this.timeout = millis;
     }
 
     public String getTitle() {

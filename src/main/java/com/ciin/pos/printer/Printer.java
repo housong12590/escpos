@@ -87,12 +87,12 @@ public interface Printer {
     /**
      * 获取打印时间间隔
      */
-    int getIntervalTime();
+    long getIntervalTime();
 
     /**
      * 设置打印时间间隔
      */
-    void setIntervalTime(int intervalTime);
+    void setIntervalTime(long intervalTime);
 
     /**
      * 初始化打印列表

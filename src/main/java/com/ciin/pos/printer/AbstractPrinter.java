@@ -31,7 +31,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private Thread mThread;
     private boolean done;
     private int waitTime;
-    private int intervalTime;
+    private long intervalTime;
     private PrintTask curPrintTask;
     private Printer mBackupPrinter;
     private int printErrorCount;
@@ -146,13 +146,13 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     @Override
-    public int getIntervalTime() {
-        return intervalTime / 1000;
+    public long getIntervalTime() {
+        return intervalTime;
     }
 
     @Override
-    public void setIntervalTime(int seconds) {
-        this.intervalTime = seconds * 1000;
+    public void setIntervalTime(long millis) {
+        this.intervalTime = millis;
     }
 
     @Override
