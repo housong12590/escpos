@@ -21,7 +21,7 @@ public class DefaultLoggerImpl implements Logger {
 
     @Override
     public void info(String message) {
-        print("info", message);
+        print("info ", message);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class DefaultLoggerImpl implements Logger {
 
     @Override
     public void warn(String message) {
-        print("warn", message);
+        print("warn ", message);
     }
 
     private void print(String level, String message) {

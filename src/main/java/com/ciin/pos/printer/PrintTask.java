@@ -3,6 +3,7 @@ package com.ciin.pos.printer;
 import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.listener.OnPaperChangeListener;
 import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.PrintEvent;
 import com.ciin.pos.orderset.OrderSet;
@@ -24,6 +25,7 @@ public class PrintTask {
     private long createTime;
     private String title;
     private boolean tempPrint;
+    private OnPaperChangeListener paperChangeListener;
     private OnPrintEventListener printEventListener;
 
     public PrintTask(Template template) {
@@ -116,6 +118,14 @@ public class PrintTask {
 
     public OnPrintEventListener getPrintEventListener() {
         return this.printEventListener;
+    }
+
+    public void setPaperChangeListener(OnPaperChangeListener listener) {
+        this.paperChangeListener = listener;
+    }
+
+    public OnPaperChangeListener getPaperChangeLister() {
+        return this.paperChangeListener;
     }
 
     OnPrintEventListener getDefaultListener() {

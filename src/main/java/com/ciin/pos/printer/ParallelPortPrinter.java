@@ -37,9 +37,9 @@ public class ParallelPortPrinter extends AbstractCommPortPrinter {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
         CommPort commPort = portIdentifier.open(portName, Constants.SOCKET_TIMEOUT);
         if (commPort instanceof ParallelPort) {
-            ParallelPort serialPort = (ParallelPort) commPort;
-            LogUtils.debug("开启端口: " + serialPort.getName());
-            return serialPort;
+            ParallelPort parallelPort = (ParallelPort) commPort;
+            LogUtils.debug("开启端口: " + parallelPort.getName());
+            return parallelPort;
         }
         throw new NoSuchPortException();
     }

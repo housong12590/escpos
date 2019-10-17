@@ -1,15 +1,15 @@
 package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
+import com.ciin.pos.common.Dict;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
-import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.exception.TimeoutException;
-import com.ciin.pos.util.ByteBuffer;
-import com.ciin.pos.util.ByteUtils;
+import com.ciin.pos.listener.PrintProtocol;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -19,62 +19,55 @@ import java.nio.charset.Charset;
 public class ForwardingPrinter extends AbstractPrinter {
 
     private final SocketConnection connection;
+    private DataInputStream is;
     private static final String PING = "ping";
     private static byte[] hb;
+    private String printerValue;
     private String host;
     private int port;
 
     static {
         byte[] data = PING.getBytes(Charset.forName("UTF-8"));
-        byte[] head = ByteUtils.intToByteArray(data.length);
-        ByteBuffer buffer = new ByteBuffer();
-        buffer.write(head);
-        buffer.write(data);
-        hb = buffer.toByteArray();
+        PrintProtocol protocol = new PrintProtocol(PrintProtocol.ping_head, data);
+        hb = protocol.toBytes();
     }
 
-    public ForwardingPrinter(Device device, String host) {
+    public ForwardingPrinter(Device device, String host, String printerValue) {
         super(device);
         this.host = host;
         this.port = Constants.PRINTER_PORT;
-        connection = new SocketConnection(host, Constants.PRINTER_PORT, Constants.SOCKET_TIMEOUT, false);
+        this.printerValue = printerValue;
+        connection = new SocketConnection(this.host, this.port, Constants.SOCKET_TIMEOUT, false);
     }
 
     private boolean checkConnect() {
         if (!connection.isConnect()) {
             return false;
         }
-        byte[] buff = new byte[8];
         try {
-            int readLength = this.connection.writeAndRead(hb, buff);
-            return readLength == buff.length;
+            connection.writeAndFlush(hb);
+            PrintProtocol data = readData();
+            if (data != null) {
+                if (data.getHead() == PrintProtocol.ping_head) {
+                    return true;
+                }
+            }
         } catch (IOException ignored) {
         }
         return false;
     }
 
     @Override
-    protected boolean print0(PrintTask printTask) throws TemplateParseException {
+    protected boolean print0(PrintTask printTask) throws Exception {
         if (printTask.isTimeout()) {
             throw new TimeoutException();
         }
-        try {
-            // 获取打印数据
-            byte[] data = printTask.printData();
-            ByteBuffer buffer = new ByteBuffer();
-            byte[] dataLength = ByteUtils.intToByteArray(data.length);
-            // 写入4字节的长度信息
-            buffer.write(dataLength);
-            // 写入data数据
-            buffer.write(data);
-            connection.writeAndFlush(buffer.toByteArray());
-            LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
-            byte[] readBuff = new byte[8];
-            int readLength = connection.read(readBuff);
-            return readBuff.length == readLength;
-        } catch (IOException ignored) {
-        }
-        return false;
+        // 获取打印数据
+        byte[] data = printTask.printData();
+        PrintProtocol pr = new PrintProtocol(PrintProtocol.print_head, data);
+        connection.writeAndFlush(pr.toBytes());
+        LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
+        return checkResult(printTask, readData());
     }
 
     @Override
@@ -104,12 +97,61 @@ public class ForwardingPrinter extends AbstractPrinter {
 
     private void doTryConnect() {
         if (connection.tryConnect()) {
+            is = new DataInputStream(connection.getInputStream());
             try {
                 // 连接完成后, 初始化打印机信息
-                connection.write(null);
+                byte[] data = printerValue.getBytes(Charset.forName("utf-8"));
+                PrintProtocol protocol = new PrintProtocol(PrintProtocol.printer_head, data);
+                connection.writeAndFlush(protocol.toBytes());
             } catch (IOException ignored) {
 
             }
         }
+    }
+
+    private boolean checkResult(PrintTask printTask, PrintProtocol protocol) {
+        if (protocol != null && protocol.getHead() == PrintProtocol.result_head) {
+            String resultJson = new String(protocol.getData());
+            Dict dict = Dict.create(resultJson);
+            if (dict.getBool("error")) {
+                throw new RuntimeException(dict.getString("msg"));
+            } else if (dict.getBool("success")) {
+                return true;
+            } else {
+                LogUtils.warn(printTask.getTaskId() + " " + dict.getString("msg"));
+            }
+        }
+        return false;
+    }
+
+    private PrintProtocol readData() {
+        try {
+            byte head = is.readByte();
+            int length = is.readInt();
+            byte[] data = new byte[length];
+            is.read(data);
+            return new PrintProtocol(head, data);
+        } catch (IOException ignored) {
+
+        }
+        return null;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public ForwardingPrinter setHost(String host) {
+        this.host = host;
+        return this;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public ForwardingPrinter setPort(int port) {
+        this.port = port;
+        return this;
     }
 }

@@ -4,6 +4,7 @@ import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.exception.TimeoutException;
+import com.ciin.pos.listener.OnPaperChangeListener;
 import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.listener.PrintEvent;
@@ -207,7 +208,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void run() {
-        while (!mClose || !mPrintEnd) {
+        while (!mClose && !mPrintEnd) {
             try {
                 curPrintTask = printTaskDeque.poll(waitTime, TimeUnit.SECONDS);
                 // 如果是短暂的打印, 并且队列中没有任务了, 直接关闭
@@ -249,12 +250,14 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 // 临时打印,错误时不添加到当前打印机的打印列表中
                                 if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
                                     curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "连接发生错误");
+                                    LogUtils.debug(String.format("%s 打印失败", curPrintTask.getTaskId()));
                                     curPrintTask = null;
                                 } else {
                                     printErrorCount++;
                                     // 打印任务失败超过3次 启用备用打印机
                                     // 如果备用打印机可用,直接转到备用用打印机打印
                                     // 如果备用打印机不可用, 则添加到打印列表继续等待打印, 直到任务超时
+                                    LogUtils.debug(String.format("%s 打印失败, 打印任务将重新添加到队列中, 等待继续打印", curPrintTask.getTaskId()));
                                     if (printErrorCount >= 3 && this.mBackupPrinter != null && this.mBackupPrinter.available()) {
                                         mEnableBackupPrinter = true;
                                         LogUtils.debug("启用备用打印机: " + mBackupPrinter.getPrinterName());
@@ -302,16 +305,26 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     private boolean useBackupPrinter(PrintTask printTask) {
+        boolean paperChange = false;
+        OnPaperChangeListener paperChangeLister = printTask.getPaperChangeLister();
+        if (paperChangeLister != null && getPaperWidth() != mBackupPrinter.getPaperWidth()) {
+            paperChange = true;
+            paperChangeLister.onChange(mBackupPrinter, printTask);
+        }
         printTask.setTempPrint(true);
         LogUtils.debug(printTask.getTaskId() + String.format(" %s 转到 -> %s", this.toString(), mBackupPrinter.toString()));
         OnPrintEventListener oldListener = printTask.getPrintEventListener();
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        boolean finalPaperChange = paperChange;
         printTask.setPrintEventListener(new OnPrintEventListener() {
             @Override
             public void onEventTriggered(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
                 mBackupPrinterResult = event == PrintEvent.SUCCESS;
                 if (oldListener != null) {
                     oldListener.onEventTriggered(printer, printTask, event, obj);
+                }
+                if (!mBackupPrinterResult && finalPaperChange) {
+                    paperChangeLister.onChange(AbstractPrinter.this, printTask);
                 }
                 countDownLatch.countDown();
             }
