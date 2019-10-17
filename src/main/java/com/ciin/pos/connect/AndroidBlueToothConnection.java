@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-public class BlueToothConnection extends AbstractConnection {
+public class AndroidBlueToothConnection extends AbstractConnection {
 
     private static final UUID SERIAL_PORT_SERVICE_CLASS_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static final int bufferSize = 4096;
@@ -23,11 +23,11 @@ public class BlueToothConnection extends AbstractConnection {
     private OutputStream os;
     private boolean useBuff;
 
-    public BlueToothConnection(String address) {
+    public AndroidBlueToothConnection(String address) {
         this(address, false);
     }
 
-    public BlueToothConnection(String address, boolean useBuff) {
+    public AndroidBlueToothConnection(String address, boolean useBuff) {
         this.address = address;
         this.useBuff = useBuff;
     }

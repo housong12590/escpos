@@ -7,8 +7,6 @@ import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 import com.ciin.pos.util.SystemUtils;
 
-import java.io.ByteArrayInputStream;
-
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
 import javax.print.PrintService;
@@ -18,6 +16,7 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.JobName;
 import javax.print.attribute.standard.MediaSizeName;
+import java.io.ByteArrayInputStream;
 
 /**
  * 驱动打印机
@@ -27,17 +26,17 @@ import javax.print.attribute.standard.MediaSizeName;
  * 爱普生: http://www.epson.com.cn/Apps/tech_support/GuideDrive.aspx?columnid=384&ptype=0&pmodel=0&strOs=
  * 北洋: http://www.snbctechs.com/companyfile/65.html
  */
-public class DrivePrinter extends AbstractPrinter {
+public class WindowsDrivePrinter extends AbstractPrinter {
 
     private PrintService printService;
     private String printerName;
 
 
-    public DrivePrinter(String printerName) {
+    public WindowsDrivePrinter(String printerName) {
         this(Device.getDefault(), printerName);
     }
 
-    public DrivePrinter(Device device, String printerName) {
+    public WindowsDrivePrinter(Device device, String printerName) {
         super(device);
         this.printerName = printerName;
         if (!Platform.isWindows()) {
