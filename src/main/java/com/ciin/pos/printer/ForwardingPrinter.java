@@ -5,7 +5,7 @@ import com.ciin.pos.common.Dict;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TimeoutException;
-import com.ciin.pos.listener.PrintProtocol;
+import com.ciin.pos.protocol.PrintProtocol;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
