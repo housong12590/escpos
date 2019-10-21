@@ -1,10 +1,11 @@
 package com.ciin.pos.util;
 
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 
 public class SystemUtils {
 
@@ -24,5 +25,14 @@ public class SystemUtils {
             }
         }
         return null;
+    }
+
+    public static boolean isAdmin() {
+        String[] groups = (new com.sun.security.auth.module.NTSystem()).getGroupIDs();
+        for (String group : groups) {
+            if (group.equals("S-1-5-32-544"))
+                return true;
+        }
+        return false;
     }
 }

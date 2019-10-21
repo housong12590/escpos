@@ -41,7 +41,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private boolean mEnabledKeepPrint;
     private boolean mPrintEnd;
 
-    AbstractPrinter(Device device) {
+    public AbstractPrinter(Device device) {
         this.mDevice = device;
         mPrinterListeners = new ArrayList<>();
         waitTime = getWaitTime();
@@ -237,7 +237,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.PREPARE, null);
                             if (this.available() && print0(curPrintTask)) {
                                 printErrorCount = 0;
-                                LogUtils.debug(String.format("%s 打印成功.", curPrintTask.getTaskId()));
+                                LogUtils.debug(String.format("%s 打印成功", curPrintTask.getTaskId()));
                                 curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.SUCCESS, null);
                                 // 打印完成之后,把当前的任务置空
                                 curPrintTask = null;

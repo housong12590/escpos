@@ -41,7 +41,6 @@ public class Utils {
     }
 
 
-
     public static List<byte[]> splitArray(byte[] bytes, int len) {
         List<byte[]> _list = new ArrayList<>();
         int position = 0;
@@ -61,5 +60,4 @@ public class Utils {
         }
         return _list;
     }
-
 }

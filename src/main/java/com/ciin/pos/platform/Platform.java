@@ -50,6 +50,10 @@ public class Platform {
         }
     }
 
+    public static boolean is32Bit() {
+        return !is64Bit();
+    }
+
     public static boolean is64Bit() {
         String model = System.getProperty("sun.arch.data.model", System.getProperty("com.ibm.vm.bitmode"));
         if (model != null) {

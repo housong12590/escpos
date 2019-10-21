@@ -2,6 +2,7 @@ package com.ciin.pos.util;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -56,6 +57,11 @@ public class FileUtils {
         } finally {
             Utils.safeClose(bos, fos);
         }
+    }
+
+    public static void fileWrite(File file, byte[] data) {
+        ByteArrayInputStream is = new ByteArrayInputStream(data);
+        fileWrite(file, is);
     }
 
     public static void fileWrite(File file, InputStream is) {
