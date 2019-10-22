@@ -3,6 +3,7 @@ package com.ciin.pos.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
@@ -34,5 +35,34 @@ public class SystemUtils {
                 return true;
         }
         return false;
+    }
+
+    public static String machineSerialId() {
+        String str = getHardDiskSerialNumber() + getCPUSerialNumber();
+        return StringUtils.md5(str);
+    }
+
+    private static String getHardDiskSerialNumber() {
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"wmic", "path", "win32_physicalmedia", "get", "serialnumber"});
+            process.getOutputStream().close();
+            Scanner sc = new Scanner(process.getInputStream());
+            sc.next();
+            return sc.next();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static String getCPUSerialNumber() {
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"wmic", "cpu", "get", "ProcessorId"});
+            process.getOutputStream().close();
+            Scanner sc = new Scanner(process.getInputStream());
+            sc.next();
+            return sc.next();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
