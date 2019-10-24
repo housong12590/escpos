@@ -9,6 +9,7 @@ import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.listener.PrintEvent;
 import com.ciin.pos.parser.Template;
+import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
 
@@ -138,6 +139,59 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     @Override
+    public PrintResult syncPrint(PrintTask printTask) {
+        if (Thread.currentThread() == mThread) {
+            throw new RuntimeException("不能在打印线程中调用同步方法");
+        }
+        PrintResult result = new PrintResult();
+        CountDownLatch downLatch = new CountDownLatch(1);
+        OnPrintEventListener listener = printTask.getPrintEventListener();
+        if (listener == null) {
+            printTask.setPrintEventListener(new OnPrintEventListener() {
+                @Override
+                public void onEventTriggered(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
+                    switch (event) {
+                        case TIMEOUT:
+                            result.setSuccess(false);
+                            result.setMessage("打印超时");
+                            break;
+                        case ERROR:
+                            result.setSuccess(false);
+                            result.setMessage(ConvertUtils.toString(obj));
+                            break;
+                        case SUCCESS:
+                            result.setSuccess(true);
+                            result.setMessage("打印成功");
+                            break;
+                        case CANCEL:
+                            result.setSuccess(false);
+                            result.setMessage("取消打印");
+                            break;
+                    }
+                    if (event != PrintEvent.PREPARE) {
+                        downLatch.countDown();
+                    }
+                }
+            });
+        }
+        print(printTask, true);
+        try {
+            downLatch.await();
+        } catch (InterruptedException e) {
+            result.setSuccess(false);
+            result.setMessage("方法调用超时");
+        }
+        return result;
+    }
+
+    @Override
+    public PrintResult syncTestPrint() {
+        PrintTask printTask = new PrintTask(new Template(Constants.TEST_TEMPLATE));
+        printTask.setTempPrint(true);
+        return syncPrint(printTask);
+    }
+
+    @Override
     public void buzzer(boolean buzzer) {
         this.mBuzzer = buzzer;
     }
@@ -249,7 +303,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this, new IOException("打印机连接失败")));
                                 // 临时打印,错误时不添加到当前打印机的打印列表中
                                 if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
-                                    curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "连接发生错误");
+                                    curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "连接错误");
                                     LogUtils.debug(String.format("%s 打印失败", curPrintTask.getTaskId()));
                                     curPrintTask = null;
                                 } else {

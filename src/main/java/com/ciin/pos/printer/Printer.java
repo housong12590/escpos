@@ -60,6 +60,16 @@ public interface Printer {
     void print(PrintTask printTask, boolean first);
 
     /**
+     * 同步打印
+     */
+    PrintResult syncPrint(PrintTask printTask);
+
+    /**
+     * 同步测试打印
+     */
+    PrintResult syncTestPrint();
+
+    /**
      * 测试打印
      */
     void testPrint();
