@@ -316,7 +316,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 int sec = (int) (intervalTime / 1000);
                                 // 判断一下当前打印机的间隔时间,如果大于10 秒,则认为可能过长, 日志提示一下
                                 if (sec > 10) {
-                                    LogUtils.warn("当前打印机的间隔时间是%s秒, 可能间隔时间长太了");
+                                    LogUtils.warn(String.format("当前打印机的间隔时间是%s秒, 可能间隔时间长太了", sec));
                                 }
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                                 if (intervalTime > 0) {
