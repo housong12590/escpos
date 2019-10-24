@@ -184,10 +184,10 @@ public abstract class AbstractPrinter implements Printer, Runnable {
             if (!await) {
                 // 任务已经超时, 取消该打印任务
                 cancel(printTask.getTaskId());
-                result.setMessage("方法调用超时");
+                result.setMessage("method call timeout");
             }
         } catch (InterruptedException ignored) {
-            result.setMessage("工作线程被打断");
+            result.setMessage("print thread interrupt");
         }
         return result;
     }
