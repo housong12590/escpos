@@ -124,62 +124,70 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         if (mClose) {
             throw new RuntimeException("打印机已销毁, 无法执行新的打印任务");
         }
+        // 打印任务绑定打印机
         printTask.setPrinter(this);
+        // 添加到打印列表的头部
         if (first) {
             printTaskDeque.addFirst(printTask);
         } else {
             printTaskDeque.addLast(printTask);
         }
         LogUtils.debug(String.format("%s 添加到打印队列", printTask.getTaskId()));
+        // 恢复打印完成标志位
         mPrintEnd = false;
+        // 检测打印工作线程
         if (mThread == null) {
             mThread = new Thread(this);
+            mThread.setName(this.getPrinterName());
             mThread.start();
         }
     }
 
     @Override
     public PrintResult syncPrint(PrintTask printTask) {
+        // 检测一下调用线程和打印线程是否是同一个线程, 如果是同一个线程则会发生死锁
         if (Thread.currentThread() == mThread) {
             throw new RuntimeException("不能在打印线程中调用同步方法");
         }
         PrintResult result = new PrintResult();
+        // 创建线程同步器
         CountDownLatch downLatch = new CountDownLatch(1);
-        OnPrintEventListener listener = printTask.getPrintEventListener();
-        if (listener == null) {
-            printTask.setPrintEventListener(new OnPrintEventListener() {
-                @Override
-                public void onEventTriggered(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
-                    switch (event) {
-                        case TIMEOUT:
-                            result.setSuccess(false);
-                            result.setMessage("打印超时");
-                            break;
-                        case ERROR:
-                            result.setSuccess(false);
-                            result.setMessage(ConvertUtils.toString(obj));
-                            break;
-                        case SUCCESS:
-                            result.setSuccess(true);
-                            result.setMessage("打印成功");
-                            break;
-                        case CANCEL:
-                            result.setSuccess(false);
-                            result.setMessage("取消打印");
-                            break;
-                    }
-                    if (event != PrintEvent.PREPARE) {
-                        downLatch.countDown();
-                    }
+        // 获取该任务的打印回调
+        final OnPrintEventListener listener = printTask.getPrintEventListener();
+        // 替换打印任务的回调
+        printTask.setPrintEventListener(new OnPrintEventListener() {
+            @Override
+            public void onEventTriggered(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
+                if (listener != null) {
+                    listener.onEventTriggered(printer, printTask, event, obj);
                 }
-            });
-        }
+                result.setMessage(event.getValue());
+                switch (event) {
+                    case ERROR:
+                        result.setMessage(ConvertUtils.toString(obj));
+                        break;
+                    case SUCCESS:
+                        result.setSuccess(true);
+                        break;
+                }
+                downLatch.countDown();
+                // 打印完成后, 把原先设置的打印回调设置回去
+                printTask.setPrintEventListener(listener);
+            }
+        });
+        // 同步打印任务因为要阻塞线程调用线程, 应该优先处理
+        // 把打印任务添加到打印队列头部等待打印
         print(printTask, true);
         try {
-            downLatch.await();
-        } catch (InterruptedException e) {
-            result.setSuccess(false);
-            result.setMessage("方法调用超时");
+            // 等待打印回调结果, 如果10秒还没有结果 ,则认为超时了 , 不再等待
+            boolean await = downLatch.await(10, TimeUnit.SECONDS);
+            if (!await) {
+                // 任务已经超时, 取消该打印任务
+                cancel(printTask.getTaskId());
+                result.setMessage("方法调用超时");
+            }
+        } catch (InterruptedException ignored) {
+            result.setMessage("工作线程被打断");
         }
         return result;
     }
@@ -264,15 +272,19 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     public void run() {
         while (!mClose && !mPrintEnd) {
             try {
+                // 从打印队列中获取打印任务, 如果在@waitTime时间内还没有获取到结果,则会返回一个null对象
                 curPrintTask = printTaskDeque.poll(waitTime, TimeUnit.SECONDS);
-                // 如果是短暂的打印, 并且队列中没有任务了, 直接关闭
+                // 打印队列中已经没有打印任务了
                 if (curPrintTask == null) {
+                    // 检测用户是否设置了保持打印, 如果没有设置保持打印, 则关闭当前的打印线程
                     if (!mEnabledKeepPrint) {
                         printEnd();
-                    } else if (!this.done) {
+                    } else if (!this.done) { // 设置了保持打印, 但没有打印任务, 关闭打印持有的相关连接
                         this.done = true;
                         printEnd0();
                     } else {
+                        // 如果当前是使用备用打印机进行打印, 此用检测一下 ,当前的打印机是否可用
+                        // 如果可用则关闭备用打印机模式, 使用当前打印机进行下次打印
                         if (mEnableBackupPrinter && this.available()) {
                             this.mEnableBackupPrinter = false;
                             this.done = false;
@@ -281,25 +293,39 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     }
                 } else {
                     done = false;
+                    // 检测打印任务是否超时
                     if (curPrintTask.isTimeout()) {
-                        // 任务超时
+                        // 任务已经超时, 回调相关方法, 准备进行下次打印
                         printTaskTimeout(curPrintTask);
+                        // 因为当前的任务已经超时, 所以不需要进行后续的打印操作
                         continue;
                     }
                     try {
+                        // 检测当前是否开启了备用打印模式
+                        // 如果备用打印模式, 则不能打印当前打印机的一些临时任务, 比如打印测试纸
                         if (!mEnableBackupPrinter || curPrintTask.isTempPrint()) {
-                            curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.PREPARE, null);
+                            // 检测当前打印机是否可用, 如果可用则发送打印指令
                             if (this.available() && print0(curPrintTask)) {
+                                // 当前的打印任务已经打印完成
                                 printErrorCount = 0;
                                 LogUtils.debug(String.format("%s 打印成功", curPrintTask.getTaskId()));
+                                // 回调打印完成的回调
                                 curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.SUCCESS, null);
                                 // 打印完成之后,把当前的任务置空
                                 curPrintTask = null;
+                                int sec = (int) (intervalTime / 1000);
+                                // 判断一下当前打印机的间隔时间,如果大于10 秒,则认为可能过长, 日志提示一下
+                                if (sec > 10) {
+                                    LogUtils.warn("当前打印机的间隔时间是%s秒, 可能间隔时间长太了");
+                                }
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                                 if (intervalTime > 0) {
+                                    LogUtils.debug("太累了, 休息一会再工作吧 ~ " + intervalTime / 1000 + "秒");
                                     Utils.sleep(intervalTime);
                                 }
                             } else {
+                                // 可能由于打印机不可用, 或者发送打印数据出现异常
+                                // 调用打印机错误回调
                                 mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this, new IOException("打印机连接失败")));
                                 // 临时打印,错误时不添加到当前打印机的打印列表中
                                 if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
@@ -321,17 +347,20 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 }
                             }
                         } else {
-                            // 如果备用打印机也打印失败, 则继续添加到打印队列中
+                            // 使用备用打印机打印当前的任务
                             if (!this.useBackupPrinter(curPrintTask)) {
+                                // 如果备用打印机也打印失败, 则继续添加到打印队列中
                                 printTaskDeque.addFirst(curPrintTask);
                             }
                         }
                     } catch (Exception e) {
                         if (curPrintTask != null) {
+                            // 当前打印任务超时
                             if (e instanceof TimeoutException) {
                                 printTaskTimeout(curPrintTask);
                                 continue;
                             }
+                            // 打印过程中出现不可逆的异常, 比如模版解析失败, 重试也不可能打印成功的, 直接触发回调
                             String errorMsg;
                             if (e instanceof TemplateParseException) {
                                 errorMsg = "模版解析失败: " + e.getMessage();
@@ -359,32 +388,40 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     private boolean useBackupPrinter(PrintTask printTask) {
+        // 纸张大小变化标志位
         boolean paperChange = false;
         OnPaperChangeListener paperChangeLister = printTask.getPaperChangeLister();
+        // 检测备用打印机和当前的打印机纸张大小是否一致, 如果不一致则触发纸张变化的回调, 可以让调用则重新设置打印模版
         if (paperChangeLister != null && getPaperWidth() != mBackupPrinter.getPaperWidth()) {
             paperChange = true;
             paperChangeLister.onChange(mBackupPrinter, printTask);
         }
+        // 使用备用打印机进行打印, 需要设置成临时打印, 如果备用打印机也打印失败, 则不继续添加到备用打印机的打印队列中
         printTask.setTempPrint(true);
         LogUtils.debug(printTask.getTaskId() + String.format(" %s 转到 -> %s", this.toString(), mBackupPrinter.toString()));
+        // 获取当前打印任务的回调
         OnPrintEventListener oldListener = printTask.getPrintEventListener();
         CountDownLatch countDownLatch = new CountDownLatch(1);
         boolean finalPaperChange = paperChange;
+        // 把打印任务的回调设置成自己的回调 , 然后再触发调用者的回调
         printTask.setPrintEventListener(new OnPrintEventListener() {
             @Override
             public void onEventTriggered(Printer printer, PrintTask printTask, PrintEvent event, Object obj) {
-                mBackupPrinterResult = event == PrintEvent.SUCCESS;
                 if (oldListener != null) {
                     oldListener.onEventTriggered(printer, printTask, event, obj);
                 }
+                mBackupPrinterResult = event == PrintEvent.SUCCESS;
                 if (!mBackupPrinterResult && finalPaperChange) {
                     paperChangeLister.onChange(AbstractPrinter.this, printTask);
                 }
+                // 备用打印机打印结束
                 countDownLatch.countDown();
             }
         });
+        // 使用备用打印机进行打印
         mBackupPrinter.print(printTask);
         try {
+            // 等待备用打印机打印结束
             countDownLatch.await();
         } catch (InterruptedException e) {
             mBackupPrinterResult = false;

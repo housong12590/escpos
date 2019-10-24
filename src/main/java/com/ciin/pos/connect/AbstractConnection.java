@@ -72,6 +72,7 @@ public abstract class AbstractConnection implements Connection {
     @Override
     public int writeAndRead(byte[] wb, byte[] rb) throws IOException {
         write(wb);
+        flush();
         return read(rb);
     }
 
