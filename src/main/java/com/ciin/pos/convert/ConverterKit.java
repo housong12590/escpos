@@ -55,6 +55,7 @@ public class ConverterKit {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends Element> byte[] matchConverterToBytes(T element, Device device) {
         Converter converter = converterMap.get(element.getClass());
         if (converter != null) {
