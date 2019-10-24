@@ -50,9 +50,8 @@ public abstract class AbstractIOStreamPrinter extends AbstractPrinter {
         }
         byte[] data = printTask.printData();
         try {
-//            connection.writeAndFlush(data);
-            connection.flush();
-            LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
+            connection.writeAndFlush(data);
+            LogUtils.debug(String.format("%s send print data %s byte", printTask.getTaskId(), data.length));
             return true;
         } catch (IOException ignored) {
 

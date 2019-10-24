@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractPrinter implements Printer, Runnable {
 
-    private static final int DEFAULT_WAIT_TIME = 30;
+    private static final int DEFAULT_WAIT_TIME = 10;
     private LinkedBlockingDeque<PrintTask> printTaskDeque;
     private List<OnPrinterListener> mPrinterListeners;
     private String printerName;
@@ -313,11 +313,6 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.SUCCESS, null);
                                 // 打印完成之后,把当前的任务置空
                                 curPrintTask = null;
-                                int sec = (int) (intervalTime / 1000);
-                                // 判断一下当前打印机的间隔时间,如果大于10 秒,则认为可能过长, 日志提示一下
-                                if (sec > 10) {
-                                    LogUtils.warn(String.format("当前打印机的间隔时间是%s秒, 可能间隔时间长太了", sec));
-                                }
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                                 if (intervalTime > 0) {
                                     LogUtils.debug("太累了, 休息一会再工作吧 ~ " + intervalTime / 1000 + "秒");
@@ -326,10 +321,11 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             } else {
                                 // 可能由于打印机不可用, 或者发送打印数据出现异常
                                 // 调用打印机错误回调
-                                mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this, new IOException("打印机连接失败")));
+                                mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this,
+                                        new IOException("printer connect error")));
                                 // 临时打印,错误时不添加到当前打印机的打印列表中
                                 if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
-                                    curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "连接错误");
+                                    curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "connect error");
                                     LogUtils.debug(String.format("%s 打印失败", curPrintTask.getTaskId()));
                                     curPrintTask = null;
                                 } else {
@@ -363,9 +359,9 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             // 打印过程中出现不可逆的异常, 比如模版解析失败, 重试也不可能打印成功的, 直接触发回调
                             String errorMsg;
                             if (e instanceof TemplateParseException) {
-                                errorMsg = "模版解析失败: " + e.getMessage();
+                                errorMsg = "template parse error: " + e.getMessage();
                             } else {
-                                errorMsg = "打印失败: " + e.getMessage();
+                                errorMsg = "print error: " + e.getMessage();
                             }
                             printTaskError(curPrintTask, errorMsg);
                         }

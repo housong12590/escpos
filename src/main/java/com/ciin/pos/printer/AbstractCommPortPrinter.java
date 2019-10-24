@@ -4,11 +4,10 @@ import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.Utils;
+import gnu.io.CommPort;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import gnu.io.CommPort;
 
 public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
@@ -56,11 +55,6 @@ public abstract class AbstractCommPortPrinter extends AbstractPrinter {
             }
         }
         return true;
-    }
-
-    @Override
-    public int getWaitTime() {
-        return 10;
     }
 
     @Override
