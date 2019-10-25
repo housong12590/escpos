@@ -1,12 +1,12 @@
 package com.ciin.pos.element;
 
+import com.ciin.common.Dict;
+import com.ciin.common.utils.ExpressionUtils;
 import com.ciin.pos.Constants;
-import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.TemplateParseException;
-import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.convert.ConverterKit;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.attr.AttributeSet;
-import com.ciin.pos.util.ExpressionUtils;
+import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package com.ciin.pos.protocol;
 
+import com.ciin.common.utils.ByteUtils;
 import com.ciin.pos.util.ByteBuffer;
-import com.ciin.pos.util.ByteUtils;
 
 public class PrintProtocol {
 
@@ -48,7 +48,7 @@ public class PrintProtocol {
     public byte[] toBytes() {
         ByteBuffer buffer = new ByteBuffer();
         buffer.write(this.head);
-        buffer.write(ByteUtils.intToByteArray(length));
+        buffer.write(ByteUtils.intToBytes(length));
         buffer.write(data);
         return buffer.toByteArray();
     }

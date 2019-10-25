@@ -1,6 +1,6 @@
 package com.ciin.pos.printer;
 
-import com.ciin.pos.common.Dict;
+import com.ciin.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.listener.OnPaperChangeListener;

@@ -1,6 +1,7 @@
 package com.ciin.pos.parser.attr;
 
-import com.ciin.pos.util.ConvertUtils;
+
+import com.ciin.common.utils.ConvertUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;

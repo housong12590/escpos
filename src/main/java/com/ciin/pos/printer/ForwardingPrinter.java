@@ -1,7 +1,7 @@
 package com.ciin.pos.printer;
 
+import com.ciin.common.Dict;
 import com.ciin.pos.Constants;
-import com.ciin.pos.common.Dict;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TimeoutException;
