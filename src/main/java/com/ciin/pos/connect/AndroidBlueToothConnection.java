@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
 import com.ciin.pos.exception.BlueToothException;
-import com.ciin.pos.util.Utils;
+import com.ciin.pos.util.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class AndroidBlueToothConnection extends AbstractConnection {
     @Override
     public void close() {
         super.close();
-        Utils.safeClose(socket);
+        IOUtils.safeClose(socket);
     }
 
     @Override

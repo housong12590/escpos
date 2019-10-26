@@ -12,8 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class StringUtils {
 
@@ -137,7 +139,7 @@ public class StringUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Utils.safeClose(inputStream);
+            IOUtils.safeClose(inputStream);
         }
         return null;
     }
@@ -221,5 +223,25 @@ public class StringUtils {
             ret.append(HEX_DIGITS[aByte & 0x0f]);
         }
         return ret.toString();
+    }
+
+    public static Map<String, Object> parseQueryString(String queryString) {
+        Map<String, Object> param = new HashMap<>();
+        if (isEmpty(queryString)) {
+            return param;
+        }
+        for (String queryStr : queryString.split("&")) {
+            String[] split = queryStr.split("=");
+            if (split.length == 2) {
+                param.put(split[0], split[1]);
+            }
+        }
+        return param;
+    }
+
+    public static String toQueryString(Map<String, Object> queryMap) {
+        StringBuilder sb = new StringBuilder();
+        queryMap.forEach((s, object) -> sb.append(s).append("=").append(object).append("&"));
+        return sb.substring(0, sb.length() - 1);
     }
 }

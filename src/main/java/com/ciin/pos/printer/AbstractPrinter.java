@@ -1,6 +1,5 @@
 package com.ciin.pos.printer;
 
-import com.ciin.common.utils.ConvertUtils;
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.TemplateParseException;
@@ -10,8 +9,9 @@ import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.OnPrinterListener;
 import com.ciin.pos.listener.PrintEvent;
 import com.ciin.pos.parser.Template;
+import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.LogUtils;
-import com.ciin.pos.util.Utils;
+import com.ciin.pos.util.ThreadUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -316,7 +316,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                                 if (intervalTime > 0) {
                                     LogUtils.debug("太累了, 休息一会再工作吧 ~ " + intervalTime / 1000 + "秒");
-                                    Utils.sleep(intervalTime);
+                                    ThreadUtils.sleep(intervalTime);
                                 }
                             } else {
                                 // 可能由于打印机不可用, 或者发送打印数据出现异常

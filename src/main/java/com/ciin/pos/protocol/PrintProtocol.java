@@ -1,7 +1,7 @@
 package com.ciin.pos.protocol;
 
-import com.ciin.common.utils.ByteUtils;
 import com.ciin.pos.util.ByteBuffer;
+import com.ciin.pos.util.ByteUtils;
 
 public class PrintProtocol {
 

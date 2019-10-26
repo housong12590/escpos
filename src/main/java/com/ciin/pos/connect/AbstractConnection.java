@@ -1,7 +1,7 @@
 package com.ciin.pos.connect;
 
+import com.ciin.pos.util.IOUtils;
 import com.ciin.pos.util.LogUtils;
-import com.ciin.pos.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,7 +101,7 @@ public abstract class AbstractConnection implements Connection {
         if (this.isConnect) {
             LogUtils.debug("连接关闭 " + this);
         }
-        Utils.safeClose(getInputStream(), getOutputStream());
+        IOUtils.safeClose(getInputStream(), getOutputStream());
         this.isConnect = false;
     }
 

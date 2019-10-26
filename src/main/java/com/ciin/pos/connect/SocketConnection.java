@@ -1,7 +1,7 @@
 package com.ciin.pos.connect;
 
 import com.ciin.pos.Constants;
-import com.ciin.pos.util.Utils;
+import com.ciin.pos.util.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class SocketConnection extends AbstractConnection {
     @Override
     public void close() {
         super.close();
-        Utils.safeClose(socket);
+        IOUtils.safeClose(socket);
     }
 
     @Override

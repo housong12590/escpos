@@ -1,6 +1,6 @@
 package com.ciin.pos;
 
-import com.ciin.pos.util.Utils;
+import com.ciin.pos.util.DateUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class LocalVariable {
 
         @Override
         public String getValue() {
-            return Utils.getDefaultFormat().format(new Date());
+            return DateUtils.getDefaultFormat().format(new Date());
         }
     }
 

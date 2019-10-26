@@ -2,12 +2,15 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
+import com.ciin.pos.util.IOUtils;
+import com.ciin.pos.util.ListUtils;
 import com.ciin.pos.util.LogUtils;
-import com.ciin.pos.util.Utils;
-import gnu.io.CommPort;
+import com.ciin.pos.util.ThreadUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import gnu.io.CommPort;
 
 public abstract class AbstractCommPortPrinter extends AbstractPrinter {
 
@@ -29,10 +32,10 @@ public abstract class AbstractCommPortPrinter extends AbstractPrinter {
         byte[] data = printTask.printData();
         LogUtils.debug(String.format("%s 发送打印数据 %s 字节 ", printTask.getTaskId(), data.length));
         try {
-            for (byte[] bytes : Utils.splitArray(data, bufferSize)) {
+            for (byte[] bytes : ListUtils.splitArray(data, bufferSize)) {
                 os.write(bytes);
                 os.flush();
-                Utils.sleep(30);
+                ThreadUtils.sleep(30);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,7 +64,7 @@ public abstract class AbstractCommPortPrinter extends AbstractPrinter {
     protected void printEnd0() {
         if (commPort != null) {
             LogUtils.debug("关闭端口: " + this.commPort.getName());
-            Utils.safeClose(os);
+            IOUtils.safeClose(os);
             commPort.close();
             commPort = null;
         }

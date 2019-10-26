@@ -1,6 +1,6 @@
 package com.ciin.pos.printer;
 
-import com.ciin.common.Dict;
+import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.listener.OnPaperChangeListener;
@@ -9,8 +9,8 @@ import com.ciin.pos.listener.PrintEvent;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.parser.Template;
 import com.ciin.pos.util.ByteBuffer;
+import com.ciin.pos.util.IdUtils;
 import com.ciin.pos.util.LogUtils;
-import com.ciin.pos.util.Utils;
 
 public class PrintTask {
 
@@ -29,7 +29,7 @@ public class PrintTask {
     private OnPrintEventListener printEventListener;
 
     public PrintTask(Template template) {
-        this(Utils.generateId(), template);
+        this(IdUtils.uuid(), template);
     }
 
     public PrintTask(String taskId, Template template) {
