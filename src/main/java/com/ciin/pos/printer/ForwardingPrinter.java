@@ -12,6 +12,7 @@ import com.ciin.pos.util.StringUtils;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 网络转发打印机
@@ -27,7 +28,7 @@ public class ForwardingPrinter extends AbstractPrinter {
     private int port;
 
     static {
-        byte[] data = PING.getBytes(Charset.forName("UTF-8"));
+        byte[] data = PING.getBytes(StandardCharsets.UTF_8);
         PrintProtocol protocol = new PrintProtocol(PrintProtocol.ping_head, data);
         hb = protocol.toBytes();
     }
@@ -100,7 +101,7 @@ public class ForwardingPrinter extends AbstractPrinter {
             is = new DataInputStream(connection.getInputStream());
             try {
                 // 连接完成后, 初始化打印机信息
-                byte[] data = printerValue.getBytes(Charset.forName("utf-8"));
+                byte[] data = printerValue.getBytes(StandardCharsets.UTF_8);
                 PrintProtocol protocol = new PrintProtocol(PrintProtocol.printer_head, data);
                 connection.writeAndFlush(protocol.toBytes());
             } catch (IOException ignored) {
