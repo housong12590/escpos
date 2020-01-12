@@ -4,14 +4,13 @@ import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
 import com.ciin.pos.connect.SocketConnection;
 import com.ciin.pos.device.Device;
-import com.ciin.pos.exception.TimeoutException;
+import com.ciin.pos.exception.PrintTimeoutException;
 import com.ciin.pos.protocol.PrintProtocol;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -61,7 +60,7 @@ public class ForwardingPrinter extends AbstractPrinter {
     @Override
     protected boolean print0(PrintTask printTask) throws Exception {
         if (printTask.isTimeout()) {
-            throw new TimeoutException();
+            throw new PrintTimeoutException();
         }
         // 获取打印数据
         byte[] data = printTask.printData();

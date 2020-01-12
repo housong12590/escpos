@@ -2,15 +2,19 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.DissatisfyConditionError;
-import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.exception.TemplateException;
+import com.ciin.pos.exception.UnsatisfiedConditionException;
 import com.ciin.pos.parser.Parser;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.ExpressionUtils;
 import com.ciin.pos.util.StringUtils;
 
+/**
+ * @author hous
+ */
 public abstract class Element implements Parser {
+
 
     public static final int WARP_CONTENT = -1;
     private int width;
@@ -67,14 +71,16 @@ public abstract class Element implements Parser {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateException {
         if (!attrs.hasAttribute("condition")) {
             String condition = attrs.getAttributeValue("condition", null);
             if (!checkCondition(data, condition)) {
                 // 条件不满足 不进行解析
-                throw new DissatisfyConditionError(String.format("%s  %s 判断条件不成立 ,退出解析过程", this.getClass(), condition));
+                String errorMsg = String.format("%s %s 判断条件不成立,退出解析过程", this.getClass(), condition);
+                throw new UnsatisfiedConditionException(errorMsg);
             }
         }
+
         this.width = attrs.getIntValue("width", WARP_CONTENT);
         this.height = attrs.getIntValue("height", WARP_CONTENT);
 

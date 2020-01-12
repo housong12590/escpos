@@ -20,7 +20,7 @@ public class TableConverter implements Converter<Table> {
         ByteBuffer buffer = new ByteBuffer();
         int charLen = device.getPaper().getCharLen();
         List<Table.TR> trs = table.getTrs();
-        buffer.write(orderSet.align(Align.left));
+        buffer.write(orderSet.align(Align.LEFT));
         buffer.write(orderSet.bold(false));
         buffer.write(orderSet.underline(false));
         buffer.write(orderSet.textSize(Size.normal));

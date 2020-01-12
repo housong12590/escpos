@@ -58,6 +58,12 @@
             <version>2.1.7</version>
         </dependency>
 
+        <!--        <dependency>-->
+        <!--            <groupId>com.googlecode.aviator</groupId>-->
+        <!--            <artifactId>aviator</artifactId>-->
+        <!--            <version>4.2.9</version>-->
+        <!--        </dependency>-->
+
     </dependencies>
     <build>
         <plugins>

@@ -2,7 +2,7 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.connect.Connection;
 import com.ciin.pos.device.Device;
-import com.ciin.pos.exception.TimeoutException;
+import com.ciin.pos.exception.PrintTimeoutException;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.util.LogUtils;
 
@@ -46,7 +46,7 @@ public abstract class AbstractIOStreamPrinter extends AbstractPrinter {
     @Override
     protected boolean print0(PrintTask printTask) throws Exception {
         if (printTask.isTimeout()) {
-            throw new TimeoutException();
+            throw new PrintTimeoutException();
         }
         byte[] data = printTask.printData();
         try {

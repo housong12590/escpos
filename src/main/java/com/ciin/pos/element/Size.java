@@ -2,8 +2,17 @@ package com.ciin.pos.element;
 
 public enum Size {
 
+    /**
+     * 正常大小
+     */
     normal(1, 1),
+    /**
+     * 较大
+     */
     big(2, 2),
+    /**
+     * 超大
+     */
     oversized(3, 3),
     w1h1(1, 1),
     w2h1(2, 1),

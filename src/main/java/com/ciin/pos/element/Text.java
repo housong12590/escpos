@@ -3,10 +3,11 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.exception.TemplateException;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.ExpressionUtils;
+import com.ciin.pos.util.StringUtils;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class Text extends Element {
 
     private String value = "";
     private Repeat repeat = Repeat.none;
-    private Align align = Align.left;
+    private Align align = Align.LEFT;
     private Size size = Size.normal;
     private boolean bold;
     private boolean underline;
@@ -73,7 +74,7 @@ public class Text extends Element {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateException {
         super.parser(attrs, data);
         this.bold = attrs.getBooleanValue("bold", this.bold);
         this.underline = attrs.getBooleanValue("underline", this.underline);
@@ -86,7 +87,22 @@ public class Text extends Element {
 
 
     public enum Repeat {
-        none, auto, fill, count;
+        /**
+         * 不重复
+         */
+        none,
+        /**
+         * 自动
+         */
+        auto,
+        /**
+         * 填满
+         */
+        fill,
+        /**
+         * 重复固定次数
+         */
+        count;
 
         public int value;
 
@@ -147,13 +163,16 @@ public class Text extends Element {
             case "w3h3":
                 size = Size.w3h3;
                 break;
+            default:
+                size = Size.normal;
+                break;
         }
         return size;
     }
 
 
     private Repeat parserRepeat(String attribute, Repeat repeat) {
-        if (attribute == null || attribute.equals("")) {
+        if (StringUtils.isEmpty(attribute)) {
             return repeat;
         }
         attribute = attribute.toLowerCase().trim();

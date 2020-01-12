@@ -7,22 +7,20 @@ import com.ciin.pos.common.Dict;
 import com.ciin.pos.convert.ConverterKit;
 import com.ciin.pos.element.Document;
 import com.ciin.pos.element.Element;
-import com.ciin.pos.exception.DissatisfyConditionError;
-import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.exception.TemplateException;
+import com.ciin.pos.exception.UnsatisfiedConditionException;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ExpressionUtils;
 import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
-
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.regex.Matcher;
-
-import javax.xml.parsers.SAXParser;
 
 public class Template {
 
@@ -45,10 +43,10 @@ public class Template {
         this.templateStr = templateStr;
     }
 
-    public Document toDocument() throws TemplateParseException {
+    public Document toDocument() throws TemplateException {
         if (StringUtils.isEmpty(templateStr)) {
             LogUtils.debug("模版内容为空");
-            throw new TemplateParseException("模版内容为空");
+            throw new TemplateException("模版内容为空");
         }
         // 模版预处理,替换模版里的占位符 如 : ${keys}  注: #{keys}在这里暂不处理
         templateStr = pretreatment(templateStr, data);
@@ -61,8 +59,9 @@ public class Template {
                 try {
                     element.parser(set, data);
                     document.addElement(element);
-                } catch (DissatisfyConditionError e) {
-//                    LogUtils.info(e.getMessage());
+                    // 忽略条件不满足异常
+                } catch (UnsatisfiedConditionException ignored) {
+
                 }
             }
         }

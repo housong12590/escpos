@@ -60,13 +60,13 @@ public class StringUtils {
             String value = "";
             if (align != null) {
                 switch (align) {
-                    case left:
+                    case LEFT:
                         value = fillBlankRight2GBKLength(sb.toString(), len);
                         break;
-                    case right:
+                    case RIGHT:
                         value = fillBlankLeft2GBKLength(sb.toString(), len);
                         break;
-                    case center:
+                    case CENTER:
                         value = fillBlankBoth2GBKLength(sb.toString(), len);
                         break;
                 }

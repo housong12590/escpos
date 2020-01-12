@@ -50,8 +50,8 @@ public class StandardOrderSet implements OrderSet {
     @Override
     public byte[] align(Align align) {
         byte b;
-        if (align == Align.center) b = 0x01;
-        else if (align == Align.right) b = 0x02;
+        if (align == Align.CENTER) b = 0x01;
+        else if (align == Align.RIGHT) b = 0x02;
         else b = 0x00;
         return new byte[]{ESC, 0x61, b};
     }

@@ -20,8 +20,8 @@ public class Document {
         return elements;
     }
 
-    public boolean addElement(Element element) {
-        return this.elements.add(element);
+    public void addElement(Element element) {
+        this.elements.add(element);
     }
 
     public byte[] toBytes(Device device) {

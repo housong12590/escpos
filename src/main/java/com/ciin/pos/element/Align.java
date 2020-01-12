@@ -1,8 +1,18 @@
 package com.ciin.pos.element;
 
 public enum Align {
-
-    left, center, right;
+    /**
+     * 左对齐
+     */
+    LEFT,
+    /**
+     * 居中对齐
+     */
+    CENTER,
+    /**
+     * 右边齐
+     */
+    RIGHT;
 
     @Override
     public String toString() {
@@ -15,20 +25,21 @@ public enum Align {
         }
         attribute = attribute.toLowerCase().trim();
         switch (attribute) {
-            case "left":
-            case "0":
-            case "l":
-                align = Align.left;
-                break;
             case "center":
             case "1":
             case "c":
-                align = Align.center;
+                align = Align.CENTER;
                 break;
             case "right":
             case "2":
             case "r":
-                align = Align.right;
+                align = Align.RIGHT;
+                break;
+            case "left":
+            case "0":
+            case "l":
+            default:
+                align = Align.LEFT;
                 break;
         }
         return align;

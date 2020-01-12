@@ -2,10 +2,9 @@ package com.ciin.pos.element;
 
 
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.TemplateParseException;
+import com.ciin.pos.exception.TemplateException;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ImageCreator;
-import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
 public class Image extends Element {
@@ -13,7 +12,7 @@ public class Image extends Element {
     private Type type = Type.image;
     private String value = "";
     private int[] pixels;
-    private Align align = Align.left;
+    private Align align = Align.LEFT;
 
     public Image() {
 
@@ -59,7 +58,18 @@ public class Image extends Element {
 
 
     public enum Type {
-        image, qrcode, barcode;
+        /**
+         * 图片
+         */
+        image,
+        /**
+         * 二维码
+         */
+        qrcode,
+        /**
+         * 条形码
+         */
+        barcode;
 
         @Override
         public String toString() {
@@ -69,7 +79,7 @@ public class Image extends Element {
 
 
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser(AttributeSet attrs, Dict data) throws TemplateException {
         super.parser(attrs, data);
         this.value = attrs.getAttributeValue("value", this.value);
         this.type = parserImageType(attrs.getAttributeValue("type"), this.type);
@@ -84,13 +94,12 @@ public class Image extends Element {
                     this.pixels = ImageCreator.createBarcodePixels(this.value, getWidth(), getHeight());
                 }
                 if (this.pixels == null) {
-                    LogUtils.error("image pixels can not null !!!");
+                    throw new TemplateException("image pixels can not null !!!");
                 }
             }
         } else {
-            LogUtils.error("image value can not null !!!");
+            throw new TemplateException("image value can not null !!!");
         }
-
     }
 
 
@@ -100,14 +109,15 @@ public class Image extends Element {
         }
         attribute = attribute.toLowerCase().trim();
         switch (attribute) {
-            case "image":
-                type = Type.image;
-                break;
             case "qrcode":
                 type = Type.qrcode;
                 break;
             case "barcode":
                 type = Type.barcode;
+                break;
+            case "image":
+            default:
+                type = Type.image;
                 break;
         }
         return type;
