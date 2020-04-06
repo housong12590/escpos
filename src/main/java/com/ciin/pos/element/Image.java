@@ -75,6 +75,15 @@ public class Image extends Element {
         public String toString() {
             return this.name();
         }
+
+        public static Type of(String value) {
+            for (Type type : Type.values()) {
+                if (type.name().equals(value)) {
+                    return type;
+                }
+            }
+            return image;
+        }
     }
 
 
@@ -107,19 +116,6 @@ public class Image extends Element {
         if (attribute == null) {
             return type;
         }
-        attribute = attribute.toLowerCase().trim();
-        switch (attribute) {
-            case "qrcode":
-                type = Type.qrcode;
-                break;
-            case "barcode":
-                type = Type.barcode;
-                break;
-            case "image":
-            default:
-                type = Type.image;
-                break;
-        }
-        return type;
+        return Type.of(attribute.toLowerCase().trim());
     }
 }
