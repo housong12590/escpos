@@ -2,7 +2,7 @@ package com.ciin.pos.printer;
 
 import com.ciin.pos.common.Dict;
 import com.ciin.pos.element.Document;
-import com.ciin.pos.exception.TemplateException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.listener.OnPaperChangeListener;
 import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.PrintEvent;
@@ -137,7 +137,7 @@ public class PrintTask {
         return this.taskId;
     }
 
-    public byte[] printData() throws TemplateException {
+    public byte[] printData() throws TemplateParseException {
         ByteBuffer buffer = new ByteBuffer();
         if (printer == null) {
             throw new NullPointerException("请先调用PrintTask.setPrinter()绑定打印机再进行打印...");

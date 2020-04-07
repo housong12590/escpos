@@ -3,7 +3,7 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.TemplateException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.ExpressionUtils;
@@ -74,14 +74,13 @@ public class Text extends Element {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateException {
-        super.parser(attrs, data);
-        this.bold = attrs.getBooleanValue("bold", this.bold);
-        this.underline = attrs.getBooleanValue("underline", this.underline);
-        this.align = Align.parserAlign(attrs.getAttributeValue("align"), this.align);
-        this.size = parserTextSize(attrs.getAttributeValue("size"), this.size);
-        this.value = attrs.getAttributeValue("value", this.value);
-        this.repeat = parserRepeat(attrs.getAttributeValue("repeat"), this.repeat);
+    public void parser0(AttributeSet attrs, Dict data) throws TemplateParseException {
+        this.bold = attrs.getBooleanValue(Attribute.BOLD, this.bold);
+        this.underline = attrs.getBooleanValue(Attribute.UNDERLINE, this.underline);
+        this.align = Align.parserAlign(attrs.getAttributeValue(Attribute.ALIGN), this.align);
+        this.size = parserTextSize(attrs.getAttributeValue(Attribute.SIZE), this.size);
+        this.value = attrs.getAttributeValue(Attribute.VALUE, this.value);
+        this.repeat = parserRepeat(attrs.getAttributeValue(Attribute.REPEAT), this.repeat);
         this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, this.value, data);
     }
 

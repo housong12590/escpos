@@ -33,4 +33,9 @@ public class NetworkPrinter extends AbstractIOStreamPrinter {
         }
         return printerName;
     }
+
+    @Override
+    public String toString() {
+        return getPrinterName();
+    }
 }

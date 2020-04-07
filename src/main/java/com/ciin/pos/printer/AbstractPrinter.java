@@ -3,7 +3,7 @@ package com.ciin.pos.printer;
 import com.ciin.pos.Constants;
 import com.ciin.pos.device.Device;
 import com.ciin.pos.exception.PrintTimeoutException;
-import com.ciin.pos.exception.TemplateException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.listener.OnPaperChangeListener;
 import com.ciin.pos.listener.OnPrintEventListener;
 import com.ciin.pos.listener.OnPrinterListener;
@@ -358,7 +358,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             }
                             // 打印过程中出现不可逆的异常, 比如模版解析失败, 重试也不可能打印成功的, 直接触发回调
                             String errorMsg;
-                            if (e instanceof TemplateException) {
+                            if (e instanceof TemplateParseException) {
                                 errorMsg = "template parse error: " + e.getMessage();
                             } else {
                                 errorMsg = "print error: " + e.getMessage();

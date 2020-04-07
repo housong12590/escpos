@@ -2,12 +2,12 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.TemplateException;
-import com.ciin.pos.exception.UnsatisfiedConditionException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.Parser;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.ExpressionUtils;
+import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
 /**
@@ -71,24 +71,26 @@ public abstract class Element implements Parser {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateException {
-        if (!attrs.hasAttribute("condition")) {
-            String condition = attrs.getAttributeValue("condition", null);
-            if (!checkCondition(data, condition)) {
-                // 条件不满足 不进行解析
-                String errorMsg = String.format("%s %s 判断条件不成立,退出解析过程", this.getClass(), condition);
-                throw new UnsatisfiedConditionException(errorMsg);
-            }
+    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+        String condition = attrs.getAttributeValue(Attribute.CONDITION, null);
+        if (StringUtils.isNotEmpty(condition) && !checkCondition(data, condition)) {
+            // 条件不满足 不进行解析
+            String errorMsg = String.format("%s %s 判断条件不成立,退出节点解析", this.getClass(), condition);
+            LogUtils.debug(errorMsg);
+            return;
+//            throw new UnsatisfiedConditionException(errorMsg);
         }
 
-        this.width = attrs.getIntValue("width", WARP_CONTENT);
-        this.height = attrs.getIntValue("height", WARP_CONTENT);
-
+        this.width = attrs.getIntValue(Attribute.WIDTH, WARP_CONTENT);
+        this.height = attrs.getIntValue(Attribute.HEIGHT, WARP_CONTENT);
         parserMargin(attrs, margin);
+        parser0(attrs, data);
     }
 
+    public abstract void parser0(AttributeSet attrs, Dict data) throws TemplateParseException;
+
     private void parserMargin(AttributeSet attrs, int[] margin) {
-        String value = attrs.getAttributeValue("margin");
+        String value = attrs.getAttributeValue(Attribute.MARGIN);
         if (StringUtils.isNotEmpty(value)) {
             String[] splits = value.split(",");
             int[] margins = new int[splits.length];
@@ -118,10 +120,10 @@ public abstract class Element implements Parser {
             margin[2] = right;
             margin[3] = bottom;
         }
-        margin[0] = attrs.getIntValue("marginLeft", margin[0]);
-        margin[1] = attrs.getIntValue("marginTop", margin[1]);
-        margin[2] = attrs.getIntValue("marginRight", margin[2]);
-        margin[3] = attrs.getIntValue("marginBottom", margin[3]);
+        margin[0] = attrs.getIntValue(Attribute.MARGIN_LEFT, margin[0]);
+        margin[1] = attrs.getIntValue(Attribute.MARGIN_TOP, margin[1]);
+        margin[2] = attrs.getIntValue(Attribute.MARGIN_RIGHT, margin[2]);
+        margin[3] = attrs.getIntValue(Attribute.MARGIN_BOTTOM, margin[3]);
     }
 
     private boolean checkCondition(Dict data, String condition) {

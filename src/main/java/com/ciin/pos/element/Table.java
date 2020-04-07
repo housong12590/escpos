@@ -3,7 +3,7 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
-import com.ciin.pos.exception.TemplateException;
+import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ExpressionUtils;
 import com.ciin.pos.util.LogUtils;
@@ -31,10 +31,8 @@ public class Table extends Element {
         this.trs = trs;
     }
 
-
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateException {
-        super.parser(attrs, data);
+    public void parser0(AttributeSet attrs, Dict data) throws TemplateParseException {
         this.data = data;
         List<AttributeSet> attributeSets = attrs.getAttributeSets();
         for (AttributeSet trAttrs : attributeSets) {
@@ -91,10 +89,10 @@ public class Table extends Element {
             this.repeatKey = repeatKey;
         }
 
-        public void parser(AttributeSet attrs) throws TemplateException {
-            this.bold = attrs.getBooleanValue("bold", false);
-            this.repeat = attrs.getBooleanValue("repeat", false);
-            this.repeatKey = attrs.getAttributeValue("repeatKey");
+        public void parser(AttributeSet attrs) throws TemplateParseException {
+            this.bold = attrs.getBooleanValue(Attribute.BOLD, false);
+            this.repeat = attrs.getBooleanValue(Attribute.REPEAT, false);
+            this.repeatKey = attrs.getAttributeValue(Attribute.REPEAT_KEY);
             for (AttributeSet attributeSet : attrs.getAttributeSets()) {
                 TD td = new TD(attributeSet);
                 tds.add(td);
@@ -106,21 +104,21 @@ public class Table extends Element {
             }
         }
 
-        private void repeatTr(TR tr) throws TemplateException {
+        private void repeatTr(TR tr) throws TemplateParseException {
             if (data == null) {
                 LogUtils.error("模版数据为空, 无法进行table repeat操作");
                 return;
             }
             String expression = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, tr.repeatKey);
             if (StringUtils.isEmpty(expression)) {
-                throw new TemplateException("无效的表达式" + tr.repeatKey);
+                throw new TemplateParseException("无效的表达式" + tr.repeatKey);
             }
             Object expressionValue = data.getExpressionValue(expression);
             if (expressionValue == null) {
-                throw new TemplateException(tr.repeatKey + "表达式值为空值");
+                throw new TemplateParseException(tr.repeatKey + "表达式值为空值");
             }
             if (!(expressionValue instanceof Iterable)) {
-                throw new TemplateException(tr.repeatKey + "的值不是一个可迭代对象,无法进行遍历");
+                throw new TemplateParseException(tr.repeatKey + "的值不是一个可迭代对象,无法进行遍历");
             }
             for (Object value : ((Iterable) expressionValue)) {
                 if (value instanceof Map) {
@@ -135,13 +133,13 @@ public class Table extends Element {
                     }
                     trs.add(tr1);
                 } else {
-                    throw new TemplateException(tr.repeatKey + "数据格式不正确");
+                    throw new TemplateParseException(tr.repeatKey + "数据格式不正确");
                 }
             }
         }
     }
 
-    public class TD {
+    public static class TD {
 
         private String value = "";
         private int weight = 1;
@@ -153,9 +151,9 @@ public class Table extends Element {
         }
 
         public TD(AttributeSet attr) {
-            this.value = attr.getAttributeValue("value", this.value);
-            this.weight = attr.getIntValue("weight", this.weight);
-            this.align = Align.parserAlign(attr.getAttributeValue("align"), this.align);
+            this.value = attr.getAttributeValue(Attribute.VALUE, this.value);
+            this.weight = attr.getIntValue(Attribute.WEIGHT, this.weight);
+            this.align = Align.parserAlign(attr.getAttributeValue(Attribute.ALIGN), this.align);
         }
 
         public TD(String value, int weight, Align align, int width) {

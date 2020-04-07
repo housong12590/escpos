@@ -1,13 +1,12 @@
 package com.ciin.pos.convert;
 
 
-import com.ciin.pos.element.Align;
-import com.ciin.pos.util.ByteBuffer;
-import com.ciin.pos.util.ImageCreator;
-import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.device.Device;
+import com.ciin.pos.element.Align;
 import com.ciin.pos.element.Image;
 import com.ciin.pos.orderset.OrderSet;
+import com.ciin.pos.util.ByteBuffer;
+import com.ciin.pos.util.ImageCreator;
 
 public class ImageConverter implements Converter<Image> {
 
@@ -16,7 +15,6 @@ public class ImageConverter implements Converter<Image> {
         OrderSet orderSet = device.getOrderSet();
         int[] pixels = image.getPixels();
         if (pixels == null || pixels.length == 0) {
-            LogUtils.error("图片数据为空!");
             return new byte[0];
         }
         int width = image.getWidth();
