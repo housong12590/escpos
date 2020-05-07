@@ -387,7 +387,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         // 纸张大小变化标志位
         boolean paperChange = false;
         OnPaperChangeListener paperChangeLister = printTask.getPaperChangeLister();
-        // 检测备用打印机和当前的打印机纸张大小是否一致, 如果不一致则触发纸张变化的回调, 可以让调用则重新设置打印模版
+        // 检测备用打印机和当前的打印机纸张大小是否一致, 如果不一致则触发纸张变化的回调, 可以让调用者重新设置打印模版
         if (paperChangeLister != null && getPaperWidth() != mBackupPrinter.getPaperWidth()) {
             paperChange = true;
             paperChangeLister.onChange(mBackupPrinter, printTask);
