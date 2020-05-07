@@ -1,4 +1,4 @@
-package com.cin.pos.util;
+package com.ciin.pos.util;
 
 
 import java.io.ByteArrayInputStream;
@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtil {
+public class StringUtils {
 
     public static int lengthOfGBK1(String value) {
         if (value == null)
@@ -190,7 +190,7 @@ public class StringUtil {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Util.ioClose(inputStream);
+            IOUtils.safeClose(inputStream);
         }
         return null;
     }
@@ -265,7 +265,7 @@ public class StringUtil {
         if (keys.isEmpty()) {
             return obj;
         }
-        key = StringUtil.arrayToString(keys, ".");
+        key = StringUtils.arrayToString(keys, ".");
         try {
             map = (Map) obj;
         } catch (Exception e) {
