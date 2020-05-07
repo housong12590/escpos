@@ -29,7 +29,7 @@ import java.io.ByteArrayInputStream;
 public class WindowsDrivePrinter extends AbstractPrinter {
 
     private PrintService printService;
-    private String printerName;
+    private final String printerName;
 
 
     public WindowsDrivePrinter(String printerName) {
