@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="http://www.w3school.com.cn"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.w3school.com.cn print_template.xsd">
+          xsi:schemaLocation="http://www.w3school.com.cn src/main/resources/print_template.xsd">
 
     <text value="${keys.mch}" align="center" bold="true" size="big"/>
     <text value="${keys.title}" align="center" bold="true" size="big"/>
