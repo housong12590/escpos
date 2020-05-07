@@ -7,19 +7,14 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtil {
 
-    public static int lengthOfGBK(String value) {
+    public static int lengthOfGBK1(String value) {
         if (value == null)
             return 0;
         StringBuilder buff = new StringBuilder(value);
@@ -28,7 +23,7 @@ public class StringUtil {
         for (int i = 0; i < buff.length(); i++) {
             stmp = buff.substring(i, i + 1);
             try {
-                stmp = new String(stmp.getBytes("utf8"));
+                stmp = new String(stmp.getBytes(StandardCharsets.UTF_8));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -41,14 +36,42 @@ public class StringUtil {
         return length;
     }
 
+    public static int lengthOfGBK(String value) {
+        if (isEmpty(value)) {
+            return 0;
+        } else {
+            int length = 0;
+
+            for (int i = 0; i < value.length(); ++i) {
+                char c = value.charAt(i);
+                length += lengthOfGBK(c);
+            }
+
+            return length;
+        }
+    }
+
+    public static int lengthOfGBK(char c) {
+        return c > 255 ? 2 : 1;
+    }
+
     public static List<String> splitStringLenOfGBK(String text, int len) {
         List<String> list = new ArrayList<>();
-        int index = 0;
-        do {
-            String str = subStringOfGBK(text, index, len);
-            list.add(str);
-            index += str.length();
-        } while (index < text.length());
+        StringBuilder sb = new StringBuilder();
+        int tempLen = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            tempLen += lengthOfGBK(c);
+            if (tempLen >= len) {
+                list.add(sb.toString());
+                tempLen = 0;
+                sb.delete(0, sb.length() - 1);
+            }
+            sb.append(c);
+        }
+        if (sb.length() != 0) {
+            list.add(sb.toString());
+        }
         return list;
     }
 
