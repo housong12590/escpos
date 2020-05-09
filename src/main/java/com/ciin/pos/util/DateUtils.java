@@ -111,7 +111,7 @@ public class DateUtils {
         return DATE_FORMAT.format(date) + String.format(" %02d:00:00", resetTime);
     }
 
-    private long getTimestamp() {
+    public static long getTimestamp() {
         return System.currentTimeMillis() / 1000;
     }
 }
