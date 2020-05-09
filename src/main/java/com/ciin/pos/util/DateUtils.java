@@ -103,13 +103,15 @@ public class DateUtils {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         Date date;
-        if (hour >= resetTime) {
-            date = calendar.getTime();
-        } else {
+        if (hour < resetTime) {
             int day = calendar.get(Calendar.DATE);
             calendar.set(Calendar.DATE, day - 1);
-            date = calendar.getTime();
         }
+        date = calendar.getTime();
         return DATE_FORMAT.format(date) + String.format(" %02d:00:00", resetTime);
+    }
+
+    private long getTimestamp() {
+        return System.currentTimeMillis() / 1000;
     }
 }
