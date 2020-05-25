@@ -1,7 +1,7 @@
 package com.ciin.pos.util;
 
 
-import com.ciin.pos.element.Align;
+import com.ciin.pos.enums.Align;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

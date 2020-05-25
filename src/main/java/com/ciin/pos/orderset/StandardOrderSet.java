@@ -1,9 +1,9 @@
 package com.ciin.pos.orderset;
 
 
-import com.ciin.pos.element.Align;
+import com.ciin.pos.enums.Align;
 import com.ciin.pos.util.ByteBuffer;
-import com.ciin.pos.element.Size;
+import com.ciin.pos.enums.Size;
 
 /**
  * 标准打印机指令集

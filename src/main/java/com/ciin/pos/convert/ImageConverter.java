@@ -2,7 +2,7 @@ package com.ciin.pos.convert;
 
 
 import com.ciin.pos.device.Device;
-import com.ciin.pos.element.Align;
+import com.ciin.pos.enums.Align;
 import com.ciin.pos.element.Image;
 import com.ciin.pos.orderset.OrderSet;
 import com.ciin.pos.util.ByteBuffer;

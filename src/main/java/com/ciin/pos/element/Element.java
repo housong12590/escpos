@@ -7,7 +7,6 @@ import com.ciin.pos.parser.Parser;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ConvertUtils;
 import com.ciin.pos.util.ExpressionUtils;
-import com.ciin.pos.util.LogUtils;
 import com.ciin.pos.util.StringUtils;
 
 /**
@@ -76,7 +75,7 @@ public abstract class Element implements Parser {
         if (StringUtils.isNotEmpty(condition) && !checkCondition(data, condition)) {
             // 条件不满足 不进行解析
             String errorMsg = String.format("%s %s 判断条件不成立,退出节点解析", this.getClass(), condition);
-            LogUtils.debug(errorMsg);
+//            LogUtils.debug(errorMsg);
             return;
 //            throw new UnsatisfiedConditionException(errorMsg);
         }

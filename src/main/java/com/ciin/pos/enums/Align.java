@@ -1,4 +1,4 @@
-package com.ciin.pos.element;
+package com.ciin.pos.enums;
 
 public enum Align {
     /**
@@ -19,7 +19,7 @@ public enum Align {
         return this.name();
     }
 
-    public static Align parserAlign(String attribute, Align align) {
+    public static Align of(String attribute, Align align) {
         if (attribute == null) {
             return align;
         }

@@ -1,7 +1,7 @@
 package com.ciin.pos.orderset;
 
-import com.ciin.pos.element.Align;
-import com.ciin.pos.element.Size;
+import com.ciin.pos.enums.Align;
+import com.ciin.pos.enums.Size;
 
 /**
  * 打印指令集

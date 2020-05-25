@@ -1,12 +1,13 @@
 package com.ciin.pos.convert;
 
 
-import com.ciin.pos.element.Text;
-import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.device.Device;
-import com.ciin.pos.element.Align;
-import com.ciin.pos.element.Size;
+import com.ciin.pos.element.Text;
+import com.ciin.pos.enums.Align;
+import com.ciin.pos.enums.Repeat;
+import com.ciin.pos.enums.Size;
 import com.ciin.pos.orderset.OrderSet;
+import com.ciin.pos.util.ByteBuffer;
 import com.ciin.pos.util.StringUtils;
 
 import java.util.List;
@@ -71,14 +72,14 @@ public class TextConverter implements Converter<Text> {
     private String handleString(Device device, Text text) {
         String value = text.getValue();
         int charLen = device.getPaper().getCharLen();
-        Text.Repeat repeat = text.getRepeat();
+        Repeat repeat = text.getRepeat();
         StringBuilder sb = new StringBuilder(text.getValue());
         int marginLeft = text.getMarginLeft();
         int marginRight = text.getMarginRight();
-        if (repeat == Text.Repeat.auto) {
+        if (repeat == Repeat.auto) {
             String str = autoRepeatText(device, repeat.texts, text);
             sb.append(str);
-        } else if (repeat == Text.Repeat.fill) {
+        } else if (repeat == Repeat.fill) {
             // 把一行填充满
             Size size = text.getSize();
             int length = StringUtils.lengthOfGBK(value) * size.w;
@@ -86,12 +87,12 @@ public class TextConverter implements Converter<Text> {
             for (int i = 0; i < dstLen; i++) {
                 sb.append(value);
             }
-        } else if (repeat == Text.Repeat.count) {
+        } else if (repeat == Repeat.count) {
             // 重复固定次数
             for (int i = 0; i < repeat.value; i++) {
                 sb.append(value);
             }
-        } else if (repeat == Text.Repeat.none) {
+        } else if (repeat == Repeat.none) {
             // 不重复什么都不做
         }
         // 处理左右边距
@@ -134,7 +135,7 @@ public class TextConverter implements Converter<Text> {
         if (texts != null) {
             for (Text t1 : texts) {
                 if (t1 != text) {
-                    if (t1.getRepeat() == Text.Repeat.auto) {
+                    if (t1.getRepeat() == Repeat.auto) {
                         repeatElementNum++;
                     }
                     String value = t1.getValue();
@@ -149,8 +150,8 @@ public class TextConverter implements Converter<Text> {
         int repeatCount = (charLen - brotherLen - selfLen - marginLeft - marginRight) / selfLen / repeatElementNum;
         if (repeatElementNum != 1) {
             for (Text t1 : texts) {
-                if (t1.getRepeat() == Text.Repeat.auto) {
-                    Text.Repeat repeat = Text.Repeat.count;
+                if (t1.getRepeat() == Repeat.auto) {
+                    Repeat repeat = Repeat.count;
                     repeat.value = repeatCount;
                     t1.setRepeat(repeat);
                 }

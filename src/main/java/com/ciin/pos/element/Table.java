@@ -3,6 +3,7 @@ package com.ciin.pos.element;
 
 import com.ciin.pos.Constants;
 import com.ciin.pos.common.Dict;
+import com.ciin.pos.enums.Align;
 import com.ciin.pos.exception.TemplateParseException;
 import com.ciin.pos.parser.attr.AttributeSet;
 import com.ciin.pos.util.ExpressionUtils;
@@ -153,7 +154,7 @@ public class Table extends Element {
         public TD(AttributeSet attr) {
             this.value = attr.getAttributeValue(Attribute.VALUE, this.value);
             this.weight = attr.getIntValue(Attribute.WEIGHT, this.weight);
-            this.align = Align.parserAlign(attr.getAttributeValue(Attribute.ALIGN), this.align);
+            this.align = Align.of(attr.getAttributeValue(Attribute.ALIGN), this.align);
         }
 
         public TD(String value, int weight, Align align, int width) {
