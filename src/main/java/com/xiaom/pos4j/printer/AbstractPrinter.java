@@ -353,7 +353,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                     }
                                     printTaskDeque.addFirst(curPrintTask);
                                 }
-                                if (!mEnableBackupPrinter) {
+                                // 开启了保持打印且没有切换到备用打印机
+                                if (mEnabledKeepPrint && !mEnableBackupPrinter) {
                                     ThreadUtils.sleep(mErrorIntervalTime);
                                 }
                                 curPrintTask = null;
