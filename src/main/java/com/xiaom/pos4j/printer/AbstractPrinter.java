@@ -286,7 +286,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         this.done = true;
                         printEnd0();
                     } else {
-                        // 如果当前是使用备用打印机进行打印, 此用检测一下 ,当前的打印机是否可用
+                        // 如果当前是使用备用打印机进行打印, 先检测一下 ,当前的打印机是否可用
                         // 如果可用则关闭备用打印机模式, 使用当前打印机进行下次打印
                         if (mEnableBackupPrinter && this.available()) {
                             this.mEnableBackupPrinter = false;
@@ -318,7 +318,6 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 curPrintTask = null;
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                                 if (intervalTime > 0) {
-                                    LogUtils.debug("太累了, 休息一会再工作吧 ~ " + intervalTime / 1000 + "秒");
                                     ThreadUtils.sleep(intervalTime);
                                 }
                             } else {
@@ -330,7 +329,6 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 if (curPrintTask.isTempPrint() || !mEnabledKeepPrint) {
                                     curPrintTask.getDefaultListener().onEventTriggered(this, curPrintTask, PrintEvent.ERROR, "connect error");
                                     LogUtils.debug(String.format("%s 打印失败", curPrintTask.getTaskId()));
-                                    curPrintTask = null;
                                 } else {
                                     printErrorCount++;
                                     // 打印任务失败超过3次 启用备用打印机
@@ -342,8 +340,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                         LogUtils.debug("启用备用打印机: " + mBackupPrinter.getPrinterName());
                                     }
                                     printTaskDeque.addFirst(curPrintTask);
-                                    curPrintTask = null;
                                 }
+                                curPrintTask = null;
                             }
                         } else {
                             // 使用备用打印机打印当前的任务
