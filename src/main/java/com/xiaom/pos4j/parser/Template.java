@@ -3,7 +3,6 @@ package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.LocalVariable;
-import com.xiaom.pos4j.common.Dict;
 import com.xiaom.pos4j.convert.ConverterKit;
 import com.xiaom.pos4j.element.Document;
 import com.xiaom.pos4j.element.Element;
@@ -28,14 +27,14 @@ public class Template {
 
     private SAXParser saxParser;
     private String templateStr;
-    private Map<String, Object> data;
+    private Map<?, ?> data;
 
 
     public Template(String templateStr) {
         this(templateStr, null);
     }
 
-    public Template(String templateStr, Map<String, Object> data) {
+    public Template(String templateStr, Map<?, ?> data) {
         this.templateStr = templateStr;
         this.data = data;
         this.saxParser = XmlParseFactory.newParser();
