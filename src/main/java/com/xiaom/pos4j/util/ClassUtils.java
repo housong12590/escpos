@@ -1,5 +1,12 @@
 package com.xiaom.pos4j.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author hous
  */
@@ -92,4 +99,33 @@ public class ClassUtils {
     public static boolean isLong(Class<?> cls) {
         return cls == long.class || cls == Long.class;
     }
+
+    public static boolean isStatic(Field field) {
+        return Modifier.isStatic(field.getModifiers());
+    }
+
+    public static Field[] getFields(Object bean) {
+        Class<?> cls = bean.getClass();
+        List<Field> _list = new ArrayList<>();
+        for (Field field : cls.getDeclaredFields()) {
+            if (isStatic(field)) {
+                continue;
+            }
+            _list.add(field);
+        }
+        return _list.toArray(new Field[0]);
+    }
+
+    public static Class<?> getParameterizedType(Field f) {
+        Type fc = f.getGenericType(); // 关键的地方得到其Generic的类型
+        if (fc instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) fc;
+            Type[] types = pt.getActualTypeArguments();
+            if (types != null && types.length > 0) {
+                return (Class<?>) types[0];
+            }
+        }
+        return null;
+    }
+
 }

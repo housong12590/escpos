@@ -2,7 +2,7 @@ package com.xiaom.pos4j.element;
 
 
 import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
@@ -117,7 +117,7 @@ public class Table extends Element {
             if (StringUtils.isEmpty(expression)) {
                 throw new TemplateParseException("无效的表达式" + tr.repeatKey);
             }
-            Object expressionValue = ExpressionUtils.getExpressionValue(data, expression);
+            Object expressionValue = ExpressionUtils.getValue(data, expression);
             if (expressionValue == null) {
                 throw new TemplateParseException(tr.repeatKey + "表达式值为空值");
             }

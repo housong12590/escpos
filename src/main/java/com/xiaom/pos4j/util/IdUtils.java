@@ -1,7 +1,7 @@
 package com.xiaom.pos4j.util;
 
 
-import com.xiaom.pos4j.common.SnowFlake;
+import com.xiaom.pos4j.comm.SnowFlake;
 
 import java.util.UUID;
 

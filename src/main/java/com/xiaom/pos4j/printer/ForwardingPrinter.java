@@ -1,7 +1,7 @@
 package com.xiaom.pos4j.printer;
 
 import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.connect.SocketConnection;
 import com.xiaom.pos4j.device.Device;
 import com.xiaom.pos4j.exception.PrintTimeoutException;

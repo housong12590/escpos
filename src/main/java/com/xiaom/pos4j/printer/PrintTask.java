@@ -1,6 +1,6 @@
 package com.xiaom.pos4j.printer;
 
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.element.Document;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.listener.OnPaperChangeListener;
