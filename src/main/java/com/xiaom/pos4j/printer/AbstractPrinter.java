@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractPrinter implements Printer, Runnable {
 
+    private static final long PRINT_INTERVAL_TIME = 1000;
+    private static final long ERROR_INTERVAL_TIME = 5000;
     private static final int DEFAULT_WAIT_TIME = 10;
     private LinkedBlockingDeque<PrintTask> printTaskDeque;
     private List<OnPrinterListener> mPrinterListeners;
@@ -34,9 +36,10 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     private boolean mBuzzer;
     private boolean mClose;
     private Thread mThread;
-    private boolean done;
+    private boolean mDone;
     private int waitTime;
-    private long intervalTime;
+    private long mPrintIntervalTime = PRINT_INTERVAL_TIME;
+    private long mErrorIntervalTime = ERROR_INTERVAL_TIME;
     private PrintTask curPrintTask;
     private Printer mBackupPrinter;
     private int printErrorCount;
@@ -89,8 +92,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         while (it.hasNext()) {
             PrintTask printTask = it.next();
             if (printTask.getTaskId().equals(taskId)) {
-                printTask.getDefaultListener()
-                        .onEventTriggered(this, printTask, PrintEvent.CANCEL, null);
+                printTask.getDefaultListener().onEventTriggered(this, printTask, PrintEvent.CANCEL, null);
                 it.remove();
             }
         }
@@ -217,13 +219,23 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     }
 
     @Override
-    public long getIntervalTime() {
-        return intervalTime;
+    public long getPrintInterval() {
+        return mPrintIntervalTime;
     }
 
     @Override
-    public void setIntervalTime(long millis) {
-        this.intervalTime = millis;
+    public void setPrintInterval(long interval) {
+        this.mPrintIntervalTime = interval;
+    }
+
+    @Override
+    public long getErrorInterval() {
+        return mErrorIntervalTime;
+    }
+
+    @Override
+    public void setErrorInterval(long interval) {
+        this.mErrorIntervalTime = interval;
     }
 
     @Override
@@ -282,20 +294,20 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     // 检测用户是否设置了保持打印, 如果没有设置保持打印, 则关闭当前的打印线程
                     if (!mEnabledKeepPrint) {
                         printEnd();
-                    } else if (!this.done) { // 设置了保持打印, 但没有打印任务, 关闭打印持有的相关连接
-                        this.done = true;
+                    } else if (!this.mDone) { // 设置了保持打印, 但没有打印任务, 关闭打印持有的相关连接
+                        this.mDone = true;
                         printEnd0();
                     } else {
                         // 如果当前是使用备用打印机进行打印, 先检测一下 ,当前的打印机是否可用
                         // 如果可用则关闭备用打印机模式, 使用当前打印机进行下次打印
                         if (mEnableBackupPrinter && this.available()) {
                             this.mEnableBackupPrinter = false;
-                            this.done = false;
+                            this.mDone = false;
                             LogUtils.debug("关闭备用打印机: " + mBackupPrinter.getPrinterName());
                         }
                     }
                 } else {
-                    done = false;
+                    mDone = false;
                     // 检测打印任务是否超时
                     if (curPrintTask.isTimeout()) {
                         // 任务已经超时, 回调相关方法, 准备进行下次打印
@@ -317,8 +329,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 // 打印完成之后,把当前的任务置空
                                 curPrintTask = null;
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
-                                if (intervalTime > 0) {
-                                    ThreadUtils.sleep(intervalTime);
+                                if (mPrintIntervalTime > 0) {
+                                    ThreadUtils.sleep(mPrintIntervalTime);
                                 }
                             } else {
                                 // 可能由于打印机不可用, 或者发送打印数据出现异常
@@ -334,12 +346,15 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                     // 打印任务失败超过3次 启用备用打印机
                                     // 如果备用打印机可用,直接转到备用用打印机打印
                                     // 如果备用打印机不可用, 则添加到打印列表继续等待打印, 直到任务超时
-                                    LogUtils.debug(String.format("%s 打印失败, 打印任务将重新添加到队列中, 等待继续打印", curPrintTask.getTaskId()));
+                                    LogUtils.debug(String.format("%s 打印失败, 打印任务将重新添加到队列中", curPrintTask.getTaskId()));
                                     if (printErrorCount >= 3 && this.mBackupPrinter != null && this.mBackupPrinter.available()) {
                                         mEnableBackupPrinter = true;
                                         LogUtils.debug("启用备用打印机: " + mBackupPrinter.getPrinterName());
                                     }
                                     printTaskDeque.addFirst(curPrintTask);
+                                }
+                                if (!mEnableBackupPrinter) {
+                                    ThreadUtils.sleep(mErrorIntervalTime);
                                 }
                                 curPrintTask = null;
                             }
@@ -368,7 +383,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                         }
                     }
                 }
-            } catch (InterruptedException ignored) {
+            } catch (Exception ignored) {
 
             }
         }

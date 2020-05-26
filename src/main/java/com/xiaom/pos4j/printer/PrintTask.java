@@ -18,7 +18,7 @@ import com.xiaom.pos4j.util.LogUtils;
 public class PrintTask {
 
     // 默认打印任务超时时间
-    private static final int DEFAULT_PRINT_TIMEOUT = 60 * 60 * 1000;
+    private static final int DEFAULT_PRINT_TIMEOUT = 60000;
 
     private String taskId;
     private Template template;
