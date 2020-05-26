@@ -12,7 +12,6 @@ import com.xiaom.pos4j.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author hous
@@ -124,8 +123,9 @@ public class Table extends Element {
             if (!(expressionValue instanceof Iterable)) {
                 throw new TemplateParseException(tr.repeatKey + "的值不是一个可迭代对象,无法进行遍历");
             }
-            for (Object value : ((Iterable<?>) expressionValue)) {
-                if (value instanceof Map) {
+
+            try {
+                for (Object value : ((Iterable<?>) expressionValue)) {
                     Dict item = Dict.create(value);
                     TR tr1 = new TR();
                     tr.setBold(isBold());
@@ -136,9 +136,9 @@ public class Table extends Element {
                         tr1.setBold(bold);
                     }
                     trs.add(tr1);
-                } else {
-                    throw new TemplateParseException(tr.repeatKey + "数据格式不正确");
                 }
+            } catch (Exception e) {
+                throw new TemplateParseException(tr.repeatKey + " 数据格式不正确", e);
             }
         }
     }

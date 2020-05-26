@@ -43,13 +43,13 @@ public class Group extends Element {
     private void repeatChild(Iterable<?> it, AttributeSet attrs) throws TemplateParseException {
         List<AttributeSet> attributeSets = attrs.getAttributeSets();
         for (Object item : it) {
-            if (item instanceof Map) {
-                Dict itemData = Dict.create(item);
+            Dict itemData = Dict.create(item);
+            try {
                 for (AttributeSet attributeSet : attributeSets) {
                     generateChildElement(attributeSet, itemData);
                 }
-            } else {
-                LogUtils.error(String.format("数据格式不满足遍历条件 %s", item));
+            } catch (Exception e) {
+                LogUtils.error(String.format("数据格式错误 %s", item));
             }
         }
     }
