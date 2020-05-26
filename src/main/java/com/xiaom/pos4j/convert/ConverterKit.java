@@ -25,7 +25,7 @@ public class ConverterKit {
         registerConverter(Group.class, new GroupConverter());
     }
 
-    public static void registerConverter(Class<? extends Element> element, Converter converter) {
+    public static void registerConverter(Class<? extends Element> element, @SuppressWarnings("rawtypes") Converter converter) {
         converterMap.put(element, converter);
         String elementName = element.getSimpleName().toLowerCase();
         elementMap.put(elementName, element);
@@ -33,6 +33,7 @@ public class ConverterKit {
 
     }
 
+    @SuppressWarnings("rawtypes")
     public static Converter matchConverter(String elementName) {
         if (StringUtils.isNotEmpty(elementName)) {
             Class<? extends Element> elementClass = elementMap.get(elementName);
