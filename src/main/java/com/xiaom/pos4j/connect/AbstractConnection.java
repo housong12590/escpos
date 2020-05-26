@@ -18,7 +18,6 @@ public abstract class AbstractConnection implements Connection {
     public void doConnect() throws IOException {
         close();
         try {
-//            LogUtils.debug("开始连接 " + this);
             connect();
             this.isConnect = true;
             LogUtils.debug("连接成功 " + this);

@@ -11,7 +11,6 @@ import com.xiaom.pos4j.listener.PrintEvent;
 import com.xiaom.pos4j.parser.Template;
 import com.xiaom.pos4j.util.ConvertUtils;
 import com.xiaom.pos4j.util.LogUtils;
-import com.xiaom.pos4j.util.ThreadUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -259,6 +258,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void close() {
+        LogUtils.debug("关闭打印机");
         if (this.printTaskDeque != null) {
             this.printTaskDeque.clear();
         }
@@ -288,7 +288,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
         while (!mClose && !mPrintEnd) {
             try {
                 // 从打印队列中获取打印任务, 如果在@waitTime时间内还没有获取到结果,则会返回一个null对象
-                curPrintTask = printTaskDeque.poll(waitTime, TimeUnit.SECONDS);
+                curPrintTask = printTaskDeque.poll(mEnabledKeepPrint ? waitTime : 0, TimeUnit.SECONDS);
                 // 打印队列中已经没有打印任务了
                 if (curPrintTask == null) {
                     // 检测用户是否设置了保持打印, 如果没有设置保持打印, 则关闭当前的打印线程
@@ -330,7 +330,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 curPrintTask = null;
                                 // 兼容部分性能差的打印机, 两次打印间需要间隔一定的时间
                                 if (mPrintIntervalTime > 0) {
-                                    ThreadUtils.sleep(mPrintIntervalTime);
+                                    Thread.sleep(mPrintIntervalTime);
                                 }
                             } else {
                                 // 可能由于打印机不可用, 或者发送打印数据出现异常
@@ -355,7 +355,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 }
                                 // 开启了保持打印且没有切换到备用打印机
                                 if (mEnabledKeepPrint && !mEnableBackupPrinter) {
-                                    ThreadUtils.sleep(mErrorIntervalTime);
+                                    Thread.sleep(mErrorIntervalTime);
                                 }
                                 curPrintTask = null;
                             }
@@ -385,7 +385,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     }
                 }
             } catch (Exception ignored) {
-
+                ignored.printStackTrace();
             }
         }
     }
