@@ -12,6 +12,7 @@ import com.xiaom.pos4j.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author hous
@@ -19,7 +20,7 @@ import java.util.List;
 public class Table extends Element {
 
     private List<TR> trs = new ArrayList<>();
-    private Dict data;
+    private Map<?, ?> data;
 
 
     public Table() {
@@ -35,7 +36,7 @@ public class Table extends Element {
     }
 
     @Override
-    public void parser0(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         this.data = data;
         List<AttributeSet> attributeSets = attrs.getAttributeSets();
         for (AttributeSet trAttrs : attributeSets) {
@@ -116,7 +117,7 @@ public class Table extends Element {
             if (StringUtils.isEmpty(expression)) {
                 throw new TemplateParseException("无效的表达式" + tr.repeatKey);
             }
-            Object expressionValue = data.getExpressionValue(expression);
+            Object expressionValue = ExpressionUtils.getExpressionValue(data, expression);
             if (expressionValue == null) {
                 throw new TemplateParseException(tr.repeatKey + "表达式值为空值");
             }

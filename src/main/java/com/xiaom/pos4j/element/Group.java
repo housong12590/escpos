@@ -20,7 +20,7 @@ public class Group extends Element {
     private List<Element> children = new ArrayList<>();
 
     @Override
-    public void parser0(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         this.repeatKey = attrs.getAttributeValue(Attribute.REPEAT_KEY, null);
         if (StringUtils.isEmpty(repeatKey)) {
             return;
@@ -29,7 +29,7 @@ public class Group extends Element {
         if (StringUtils.isEmpty(expression)) {
             throw new TemplateParseException("表达式错误: " + repeatKey);
         }
-        Object value = data.getExpressionValue(expression);
+        Object value = ExpressionUtils.getExpressionValue(data, expression);
         if (value == null) {
             throw new TemplateParseException(expression + " 值为null");
         }

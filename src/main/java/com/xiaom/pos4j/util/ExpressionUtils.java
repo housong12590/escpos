@@ -13,7 +13,7 @@ public class ExpressionUtils {
 
     private final static Pattern ARRAY_PATTERN = Pattern.compile("(\\w+)\\[(-?\\d+)\\]");
 
-    public static String replacePlaceholder(Pattern regexp, String content, Map data) {
+    public static String replacePlaceholder(Pattern regexp, String content, Map<?, ?> data) {
         Matcher matcher = regexp.matcher(content);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {

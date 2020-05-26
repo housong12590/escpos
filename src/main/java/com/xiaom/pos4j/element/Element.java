@@ -1,13 +1,14 @@
 package com.xiaom.pos4j.element;
 
 import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.common.Dict;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.Parser;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
 import com.xiaom.pos4j.util.ConvertUtils;
 import com.xiaom.pos4j.util.ExpressionUtils;
 import com.xiaom.pos4j.util.StringUtils;
+
+import java.util.Map;
 
 /**
  * @author hous
@@ -70,7 +71,7 @@ public abstract class Element implements Parser {
     }
 
     @Override
-    public void parser(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         String condition = attrs.getAttributeValue(Attribute.CONDITION, null);
         if (StringUtils.isNotEmpty(condition) && !checkCondition(data, condition)) {
             // 条件不满足 不进行解析
@@ -86,7 +87,7 @@ public abstract class Element implements Parser {
         parser0(attrs, data);
     }
 
-    public abstract void parser0(AttributeSet attrs, Dict data) throws TemplateParseException;
+    public abstract void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException;
 
     private void parserMargin(AttributeSet attrs, int[] margin) {
         String value = attrs.getAttributeValue(Attribute.MARGIN);
@@ -125,7 +126,7 @@ public abstract class Element implements Parser {
         margin[3] = attrs.getIntValue(Attribute.MARGIN_BOTTOM, margin[3]);
     }
 
-    private boolean checkCondition(Dict data, String condition) {
+    private boolean checkCondition(Map<?, ?> data, String condition) {
         if (data == null || StringUtils.isEmpty(condition)) {
             return true;
         }
@@ -134,7 +135,7 @@ public abstract class Element implements Parser {
         }
         String placeholderKey = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, condition);
         if (!StringUtils.isEmpty(placeholderKey)) {
-            Object value = data.getExpressionValue(placeholderKey);
+            Object value = ExpressionUtils.getExpressionValue(data, placeholderKey);
             if (value == null) {
                 return false;
             } else {

@@ -28,14 +28,14 @@ public class Template {
 
     private SAXParser saxParser;
     private String templateStr;
-    private Dict data;
+    private Map<String, Object> data;
 
 
     public Template(String templateStr) {
         this(templateStr, null);
     }
 
-    public Template(String templateStr, Dict data) {
+    public Template(String templateStr, Map<String, Object> data) {
         this.templateStr = templateStr;
         this.data = data;
         this.saxParser = XmlParseFactory.newParser();

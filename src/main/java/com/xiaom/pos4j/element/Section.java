@@ -1,11 +1,11 @@
 package com.xiaom.pos4j.element;
 
 
-import com.xiaom.pos4j.common.Dict;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 
 /**
@@ -33,7 +33,7 @@ public class Section extends Element {
 
 
     @Override
-    public void parser0(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         for (AttributeSet attributeSet : attrs.getAttributeSets()) {
             Text text = new Text();
             text.parser(attributeSet, data);

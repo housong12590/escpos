@@ -2,13 +2,14 @@ package com.xiaom.pos4j.element;
 
 
 import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.common.Dict;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Repeat;
 import com.xiaom.pos4j.enums.Size;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
 import com.xiaom.pos4j.util.ExpressionUtils;
+
+import java.util.Map;
 
 /**
  * @author hous
@@ -75,7 +76,7 @@ public class Text extends Element {
     }
 
     @Override
-    public void parser0(AttributeSet attrs, Dict data) throws TemplateParseException {
+    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         this.bold = attrs.getBooleanValue(Attribute.BOLD, this.bold);
         this.underline = attrs.getBooleanValue(Attribute.UNDERLINE, this.underline);
         this.align = Align.of(attrs.getAttributeValue(Attribute.ALIGN), this.align);
