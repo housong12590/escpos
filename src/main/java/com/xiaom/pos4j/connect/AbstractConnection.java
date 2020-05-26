@@ -13,18 +13,21 @@ import java.io.OutputStream;
 public abstract class AbstractConnection implements Connection {
 
     private boolean isConnect;
+    private boolean isClose;
 
     @Override
     public void doConnect() throws IOException {
-        close();
         try {
+            isClose = false;
             connect();
             this.isConnect = true;
             LogUtils.debug("连接成功 " + this);
         } catch (IOException e) {
             this.isConnect = false;
-            LogUtils.error(String.format("连接异常 %s, ex: %s", this, e.getMessage()));
-            throw e;
+            if (!isClose) {
+                LogUtils.error(String.format("连接异常 %s, ex: %s", this, e.getMessage()));
+                throw e;
+            }
         }
     }
 
@@ -100,6 +103,7 @@ public abstract class AbstractConnection implements Connection {
 
     @Override
     public void close() {
+        this.isClose = true;
         if (this.isConnect) {
             LogUtils.debug("连接关闭 " + this);
         }

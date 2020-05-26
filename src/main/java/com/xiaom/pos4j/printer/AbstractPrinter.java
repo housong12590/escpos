@@ -333,6 +333,10 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                     Thread.sleep(mPrintIntervalTime);
                                 }
                             } else {
+                                // 如果当前打印机已经调用了close方法,则退出不执行后续操作
+                                if (isClose()) {
+                                    return;
+                                }
                                 // 可能由于打印机不可用, 或者发送打印数据出现异常
                                 // 调用打印机错误回调
                                 mPrinterListeners.forEach(listener -> listener.onPrinterError(AbstractPrinter.this,
@@ -385,7 +389,6 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                     }
                 }
             } catch (Exception ignored) {
-                ignored.printStackTrace();
             }
         }
     }
