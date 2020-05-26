@@ -350,7 +350,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                     // 打印任务失败超过3次 启用备用打印机
                                     // 如果备用打印机可用,直接转到备用用打印机打印
                                     // 如果备用打印机不可用, 则添加到打印列表继续等待打印, 直到任务超时
-                                    LogUtils.debug(String.format("%s 打印失败, 打印任务将重新添加到队列中", curPrintTask.getTaskId()));
+                                    LogUtils.debug(String.format("%s 打印失败", curPrintTask.getTaskId()));
                                     if (printErrorCount >= 3 && this.mBackupPrinter != null && this.mBackupPrinter.available()) {
                                         mEnableBackupPrinter = true;
                                         LogUtils.debug("启用备用打印机: " + mBackupPrinter.getPrinterName());
