@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ciin</groupId>
-    <artifactId>escpos</artifactId>
+    <artifactId>escpos4j</artifactId>
     <version>1.0.2</version>
 
     <dependencies>
