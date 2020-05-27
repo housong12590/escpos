@@ -367,6 +367,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                             // 使用备用打印机打印当前的任务
                             if (!this.useBackupPrinter(curPrintTask)) {
                                 // 如果备用打印机也打印失败, 则继续添加到打印队列中
+                                LogUtils.debug("备用打印机打印失败, 关闭备用打印机");
+                                mEnableBackupPrinter = false;
                                 printTaskDeque.addFirst(curPrintTask);
                             }
                         }
