@@ -104,6 +104,12 @@ public class ClassUtils {
         return Modifier.isStatic(field.getModifiers());
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(Object obj) {
+        if (obj == null) return null;
+        return (T) obj;
+    }
+
     public static Field[] getFields(Object bean) {
         Class<?> cls = bean.getClass();
         List<Field> _list = new ArrayList<>();

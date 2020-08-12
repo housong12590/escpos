@@ -18,8 +18,7 @@ public class XmlParseFactory {
         try {
             return PARSER_FACTORY.newSAXParser();
         } catch (ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
-        return null;
     }
 }
