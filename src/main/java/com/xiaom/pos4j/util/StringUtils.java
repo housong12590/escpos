@@ -2,6 +2,7 @@ package com.xiaom.pos4j.util;
 
 
 import com.xiaom.pos4j.enums.Align;
+import com.xiaom.pos4j.enums.Size;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,16 +40,16 @@ public class StringUtils {
     }
 
     public static List<String> splitOfGBKLength(String text, int len) {
-        return splitOfGBKLength(text, len, null);
+        return splitOfGBKLength(text, len, null, Size.normal);
     }
 
-    public static List<String> splitOfGBKLength(String text, int len, Align align) {
+    public static List<String> splitOfGBKLength(String text, int len, Align align, Size size) {
         char[] chars = text.toCharArray();
         int subLen = 0;
         List<String> _list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         for (char c : chars) {
-            int charLen = lengthOfGBK(c);
+            int charLen = lengthOfGBK(c) * size.w;
             if (subLen + charLen > len) {
                 subLen = charLen;
                 _list.add(sb.toString());
@@ -64,13 +65,13 @@ public class StringUtils {
             if (align != null) {
                 switch (align) {
                     case LEFT:
-                        value = fillBlankRight2GBKLength(sb.toString(), len);
+                        value = fillBlankRight2GBKLength(sb.toString(), len, size);
                         break;
                     case RIGHT:
-                        value = fillBlankLeft2GBKLength(sb.toString(), len);
+                        value = fillBlankLeft2GBKLength(sb.toString(), len, size);
                         break;
                     case CENTER:
-                        value = fillBlankBoth2GBKLength(sb.toString(), len);
+                        value = fillBlankBoth2GBKLength(sb.toString(), len, size);
                         break;
                 }
             } else {
@@ -81,8 +82,8 @@ public class StringUtils {
         return _list;
     }
 
-    public static String fillBlankLeft2GBKLength(String src, int dstLen) {
-        int srcLen = lengthOfGBK(src);
+    public static String fillBlankLeft2GBKLength(String src, int dstLen, Size size) {
+        int srcLen = lengthOfGBK(src) * size.w;
         int len = dstLen - srcLen;
         StringBuilder sb = new StringBuilder(src);
         for (int i = 0; i < len; i++) {
@@ -91,8 +92,8 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String fillBlankRight2GBKLength(String src, int dstLen) {
-        int srcLen = lengthOfGBK(src);
+    public static String fillBlankRight2GBKLength(String src, int dstLen, Size size) {
+        int srcLen = lengthOfGBK(src) * size.w;
         int len = dstLen - srcLen;
         StringBuilder sb = new StringBuilder(src);
         for (int i = 0; i < len; i++) {
@@ -101,8 +102,8 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String fillBlankBoth2GBKLength(String src, int dstLen) {
-        int srcLen = lengthOfGBK(src);
+    public static String fillBlankBoth2GBKLength(String src, int dstLen, Size size) {
+        int srcLen = lengthOfGBK(src) * size.w;
         int len = dstLen - srcLen;
         StringBuilder sb = new StringBuilder(src);
         for (int i = 0; i < len; i++) {

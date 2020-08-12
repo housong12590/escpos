@@ -41,4 +41,6 @@ public class Attribute {
 
     public static final String WEIGHT = "weight";
 
+    public static final String LENGTH = "length";
+
 }

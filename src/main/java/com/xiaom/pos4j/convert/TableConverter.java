@@ -26,11 +26,12 @@ public class TableConverter implements Converter<Table> {
         buffer.write(orderSet.align(Align.LEFT));
         buffer.write(orderSet.bold(false));
         buffer.write(orderSet.underline(false));
-        buffer.write(orderSet.textSize(Size.normal));
         for (Table.TR tr : trs) {
             calculateTdWidth(tr, charLen);
+            Size size = tr.getSize();
             buffer.write(orderSet.bold(tr.isBold()));
-            String[] rows = toRows(tr);
+            buffer.write(orderSet.textSize(size));
+            String[] rows = toRows(tr, size);
             outRows(rows, buffer, device);
         }
         return buffer.toByteArray();
@@ -65,14 +66,14 @@ public class TableConverter implements Converter<Table> {
         }
     }
 
-    private String[] toRows(Table.TR tr) {
+    private String[] toRows(Table.TR tr, Size size) {
         List<Table.TD> tds = tr.getTds();
         Map<Table.TD, List<String>> temp = new HashMap<>();
         int maxLine = 0;
         for (Table.TD td : tds) {
             String value = td.getValue();
             int width = td.getWidth();
-            List<String> valueList = StringUtils.splitOfGBKLength(value, width, td.getAlign());
+            List<String> valueList = StringUtils.splitOfGBKLength(value, width, td.getAlign(), size);
             temp.put(td, valueList);
             if (valueList.size() > maxLine) {
                 maxLine = valueList.size();

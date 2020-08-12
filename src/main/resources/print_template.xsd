@@ -105,6 +105,7 @@
             <xs:attribute name="repeatKey" type="subexpression"/>
             <xs:attribute name="repeat" type="xs:boolean"/>
             <xs:attribute name="bold" type="xs:boolean"/>
+            <xs:attribute name="size" type="size"/>
         </xs:complexType>
     </xs:element>
 

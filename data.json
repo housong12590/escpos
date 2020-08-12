@@ -1,0 +1,56 @@
+{
+  "keys": {
+    "tel": "0519-85262866",
+    "adds": "江苏常州武宜中路188号吾悦广场1楼东北角",
+    "title": "天语外卖",
+    "sn": "12002",
+    "ctime": "2020-03-15 16:18",
+    "guests": 1,
+    "order_code": "688783176063262720",
+    "sum_value": 68,
+    "delivery_address": "广东省广州市海珠区新港中路397号",
+    "receiver_name": "张三",
+    "receiver_mobile": "020-81167888",
+    "pay_name": "微信支付"
+  },
+  "goods": [
+    {
+      "unit": "份",
+      "name": "酸菜鱼套餐",
+      "num": 1,
+      "price": "48",
+      "amount": "48",
+      "item_remark": ""
+    },
+    {
+      "unit": "份",
+      "name": "黄闷鸡",
+      "num": 1,
+      "price": "25",
+      "amount": "25",
+      "item_remark": ""
+    },
+    {
+      "unit": "份",
+      "name": "酸菜鱼套餐",
+      "num": 1,
+      "price": "48",
+      "amount": "48",
+      "item_remark": ""
+    },
+    {
+      "unit": "份",
+      "name": "黄闷鸡黄闷鸡黄闷鸡黄闷鸡",
+      "num": 6666,
+      "price": "55555",
+      "amount": "5555",
+      "item_remark": ""
+    }
+  ],
+  "attach": [
+    {
+      "name": "配送费",
+      "amount": 20
+    }
+  ]
+}

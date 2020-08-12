@@ -44,7 +44,7 @@ public enum Repeat {
         }
         try {
             Repeat.count.value = ConvertUtils.toInt(value, 0);
-            return Repeat.count;
+            return Repeat.none;
         } catch (Exception e) {
             return repeat;
         }

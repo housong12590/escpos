@@ -4,6 +4,7 @@ package com.xiaom.pos4j.element;
 import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.common.Dict;
 import com.xiaom.pos4j.enums.Align;
+import com.xiaom.pos4j.enums.Size;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
 import com.xiaom.pos4j.util.ExpressionUtils;
@@ -35,6 +36,7 @@ public class Table extends Element {
         this.trs = trs;
     }
 
+
     @Override
     public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         this.data = data;
@@ -52,6 +54,7 @@ public class Table extends Element {
         private boolean bold = false;
         private boolean repeat;
         private String repeatKey;
+        private Size size = Size.normal;
 
         public TR() {
 
@@ -93,10 +96,19 @@ public class Table extends Element {
             this.repeatKey = repeatKey;
         }
 
+        public Size getSize() {
+            return size;
+        }
+
+        public void setSize(Size size) {
+            this.size = size;
+        }
+
         public void parser(AttributeSet attrs) throws TemplateParseException {
             this.bold = attrs.getBooleanValue(Attribute.BOLD, false);
             this.repeat = attrs.getBooleanValue(Attribute.REPEAT, false);
             this.repeatKey = attrs.getAttributeValue(Attribute.REPEAT_KEY);
+            this.size = Size.of(attrs.getAttributeValue(Attribute.SIZE), this.size);
             for (AttributeSet attributeSet : attrs.getAttributeSets()) {
                 TD td = new TD(attributeSet);
                 tds.add(td);
@@ -129,12 +141,12 @@ public class Table extends Element {
                 for (Object value : ((Iterable<?>) expressionValue)) {
                     Dict item = Dict.create(value);
                     TR tr1 = new TR();
-                    tr.setBold(isBold());
                     for (TD td : tr.getTds()) {
                         String text = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, td.getValue(), item);
                         TD td1 = new TD(text, td.weight, td.align, td.width);
                         tr1.addTd(td1);
                         tr1.setBold(bold);
+                        tr1.setSize(size);
                     }
                     trs.add(tr1);
                 }
