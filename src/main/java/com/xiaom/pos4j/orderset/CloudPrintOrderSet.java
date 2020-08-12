@@ -7,24 +7,6 @@ public class CloudPrintOrderSet implements OrderSet {
 
     public static final byte[] EMPTY_ARR = new byte[0];
 
-    //<BR>：换行符（同一行有闭合标签(如 </C>)则应放到闭合标签前面, 连续两个换行符<BR><BR>可以表示加一空行）
-    // <L></L>：左对齐
-    // <C></C>：居中对齐
-    // <R></R>：右对齐
-    // <N></N>：字体正常大小
-    // <HB></HB>：字体变高一倍
-    // <WB></WB>：字体变宽一倍
-    // <B></B>：字体放大一倍
-    // <CB></CB>：字体放大一倍居中
-    // <HB2></HB2>：字体变高二倍
-    // <WB2></WB2>：字体变宽二倍
-    // <B2></B2>：字体放大二倍
-    // <BOLD></BOLD>：字体加粗
-    // <LOGO></LOGO>：LOGO图片（标签内容是图片Base64格式字符串, 暂未开放）
-    // <QR></QR>：二维码（标签内容是二维码值, 最大不能超过256个字符）
-    // <BARCODE></BARCODE>：条形码（标签内容是条形码值）
-    // <CUT>：切刀指令（主动切纸，仅限于切刀打印机使用才有效果。注意：切刀打印机的打印订单最后默认带一个切刀指令）
-
     public static final byte[] BR = "<BR>".getBytes();
     public static final byte[] L = "<L>".getBytes();
     public static final byte[] C = "<C>".getBytes();
