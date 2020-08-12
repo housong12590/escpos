@@ -105,12 +105,22 @@ public interface Printer {
     /**
      * 获取打印时间间隔
      */
-    long getIntervalTime();
+    long getPrintInterval();
 
     /**
      * 设置打印时间间隔
      */
-    void setIntervalTime(long intervalTime);
+    void setPrintInterval(long interval);
+
+    /**
+     * 获取打印错误重试间隔时间
+     */
+    long getErrorInterval();
+
+    /**
+     * 打印错误间隔时间,重试间隔
+     */
+    void setErrorInterval(long interval);
 
     /**
      * 初始化打印列表

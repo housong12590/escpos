@@ -1,6 +1,6 @@
 package com.xiaom.pos4j.printer;
 
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.element.Document;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.listener.OnPaperChangeListener;
@@ -18,7 +18,7 @@ import com.xiaom.pos4j.util.LogUtils;
 public class PrintTask {
 
     // 默认打印任务超时时间
-    private static final int DEFAULT_PRINT_TIMEOUT = 60 * 60 * 1000;
+    private static final int DEFAULT_PRINT_TIMEOUT = 60000;
 
     private String taskId;
     private Template template;

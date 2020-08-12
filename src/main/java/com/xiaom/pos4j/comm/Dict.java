@@ -1,26 +1,14 @@
-package com.xiaom.pos4j.common;
+package com.xiaom.pos4j.comm;
 
 
-import com.xiaom.pos4j.util.BeanUtils;
-import com.xiaom.pos4j.util.ExpressionUtils;
-import com.xiaom.pos4j.util.JSONUtils;
-import com.xiaom.pos4j.util.StringUtils;
+import com.xiaom.pos4j.util.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-/**
- * @author hous
- */
 public class Dict implements Map<String, Object> {
 
     private Map<String, Object> map;
@@ -39,18 +27,21 @@ public class Dict implements Map<String, Object> {
 
     public static Dict create(Object obj) {
         if (obj instanceof Map) {
-            Map map = (Map) obj;
+            Map<?, ?> map = (Map<?, ?>) obj;
             return new Dict(map);
         }
         return new Dict(obj);
     }
 
     public Dict(String json) {
+        if (StringUtils.isEmpty(json)) {
+            this.map = new HashMap<>();
+        }
         this.map = JSONUtils.toBean(json, Dict.class);
     }
 
     public Dict(Map<?, ?> map) {
-        this.map = new LinkedHashMap<>();
+        this.map = new HashMap<>();
         Set<? extends Entry<?, ?>> entries = map.entrySet();
         for (Entry<?, ?> entry : entries) {
             this.map.put(entry.getKey().toString(), entry.getValue());
@@ -61,9 +52,10 @@ public class Dict implements Map<String, Object> {
         this.map = BeanUtils.toMap(bean);
     }
 
-    public void setQueryString(String queryString) {
+    public Dict setQueryString(String queryString) {
         Map<String, Object> queryMap = StringUtils.parseQueryString(queryString);
         queryMap.forEach(Dict.this::put);
+        return this;
     }
 
     public String toQueryString() {
@@ -90,33 +82,6 @@ public class Dict implements Map<String, Object> {
         return v.toString();
     }
 
-
-    public String getStringEx(String key) {
-        return getStringEx(key, null);
-    }
-
-    public String getStringEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getString(key);
-    }
-
-
-    public String getStringExp(String exp) {
-        return getStringExp(exp, null);
-    }
-
-    public String getStringExp(String exp, String defValue) {
-        Object value = getExpressionValue(exp);
-        if (value == null) {
-            return defValue;
-        }
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return value.toString();
-    }
-
-
     public Integer getInt(String key) {
         return getInt(key, null);
     }
@@ -131,28 +96,6 @@ public class Dict implements Map<String, Object> {
         }
         try {
             return (int) Double.parseDouble(v.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return defValue;
-    }
-
-    public Integer getIntEx(String key) {
-        return getIntEx(key, null);
-    }
-
-    public Integer getIntEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getInt(key);
-    }
-
-    public Integer getIntExp(String expression, Integer defValue) {
-        Object value = getExpressionValue(expression);
-        if (value == null) {
-            return defValue;
-        }
-        try {
-            return (int) Double.parseDouble(value.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -179,36 +122,6 @@ public class Dict implements Map<String, Object> {
         return defValue;
     }
 
-    public Double getDoubleEx(String key) {
-        return getDoubleEx(key, null);
-    }
-
-    public Double getDoubleEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getDouble(key);
-    }
-
-    public Double getDoubleExp(String expression) {
-        return getDoubleExp(expression, null);
-    }
-
-    public Double getDoubleExp(String expression, Double defValue) {
-        Object value = ExpressionUtils.getExpressionValue(this, expression);
-        if (value == null) {
-            return defValue;
-        }
-        if (value instanceof Double) {
-            return (Double) value;
-        }
-        try {
-            return Double.parseDouble(value.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return defValue;
-    }
-
-
     public Float getFloat(String key) {
         return getFloat(key, null);
     }
@@ -229,38 +142,10 @@ public class Dict implements Map<String, Object> {
         return defValue;
     }
 
-    public Float getFloatEx(String key) {
-        return getFloatEx(key, null);
-    }
-
-    public Float getFloatEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getFloat(key);
-    }
-
     public Boolean getBool(String key) {
         return getBool(key, false);
     }
 
-    public Float getFloatExp(String expression) {
-        return getFloatExp(expression, null);
-    }
-
-    public Float getFloatExp(String expression, Float defValue) {
-        Object value = ExpressionUtils.getExpressionValue(this, expression);
-        if (value == null) {
-            return defValue;
-        }
-        if (value instanceof Float) {
-            return (Float) value;
-        }
-        try {
-            return Float.parseFloat(value.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return defValue;
-    }
 
     public Boolean getBool(String key, Boolean defValue) {
         Object v = this.map.get(key);
@@ -276,15 +161,6 @@ public class Dict implements Map<String, Object> {
             e.printStackTrace();
         }
         return defValue;
-    }
-
-    public Boolean getBoolEx(String key) {
-        return getBoolEx(key, null);
-    }
-
-    public Boolean getBoolEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getBool(key);
     }
 
     public BigDecimal getBigDecimal(String key) {
@@ -308,30 +184,76 @@ public class Dict implements Map<String, Object> {
         return decimal;
     }
 
-    public BigDecimal getBigDecimalEx(String key) {
-        return getBigDecimalEx(key, null);
+    public Long getLong(String key) {
+        return getLong(key, 0L);
     }
 
-    public BigDecimal getBigDecimalEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getBigDecimal(key);
+    public Long getLong(String key, Long defValue) {
+        Object v = this.map.get(key);
+        if (v == null) {
+            return defValue;
+        }
+        if (v instanceof Long) {
+            return (Long) v;
+        }
+        try {
+            return Long.parseLong(v.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return defValue;
     }
 
 
     public Dict getDict(String key) {
+        return this.getDict(key, null);
+    }
+
+    public Dict getDict(String key, Dict defValue) {
         Object value = this.map.get(key);
+        if (value == null) {
+            if (defValue != null) {
+                this.map.put(key, defValue);
+                return defValue;
+            }
+            return null;
+        }
         if (value instanceof Dict) {
             return (Dict) value;
         } else if (value instanceof Map) {
-            Map map = (Map) value;
+            Map<?, ?> map = (Map<?, ?>) value;
             return Dict.create(map);
         }
         return new Dict(value);
     }
 
-    public Dict getDictEx(String key, String msg) {
-        checkKeyExists(key, msg);
-        return getDict(key);
+    public List getList(String key) {
+        Object value = this.map.get(key);
+        if (value instanceof List) {
+            return (List) value;
+        }
+        return null;
+    }
+
+    public <T> List<T> getList(String key, Class<T> cls) {
+        Object value = this.map.get(key);
+        if (value instanceof List) {
+            List<T> _list = new ArrayList<>();
+            ((List<?>) value).forEach(o -> {
+                T t = BeanUtils.toBean((Map<?, ?>) o, cls);
+                _list.add(t);
+            });
+            return _list;
+        }
+        return null;
+    }
+
+    public <T> T getBean(String key, Class<T> cls) {
+        Object value = this.map.get(key);
+        if (value == null) {
+            return null;
+        }
+        return BeanUtils.toBean((Map<?, ?>) value, cls);
     }
 
     public Dict sortKey() {
@@ -350,10 +272,64 @@ public class Dict implements Map<String, Object> {
         return dict;
     }
 
-    public Object getExpressionValue(String expression) {
-        return ExpressionUtils.getExpressionValue(this, expression);
+    public Object getValue(String exp) {
+        return ExpressionUtils.getValue(this, exp);
     }
 
+    public <T> T getValue(String expression, T defValue) {
+        Object value = this.getValue(expression, defValue.getClass());
+        if (value == null) {
+            return defValue;
+        }
+        return (T) value;
+    }
+
+    public <T> T getValue(String exp, Class<T> cls) {
+        Object value = getValue(exp);
+        if (value == null) {
+            return null;
+        }
+        if (ClassUtils.isPrimitive(value)) {
+            return ConvertUtils.matchTypeCast(cls, value);
+        }
+        if (cls == Dict.class) {
+            return (T) Dict.create(value);
+        }
+        if (Map.class.isAssignableFrom(cls)) {
+            if (value instanceof Map) {
+                return (T) value;
+            }
+            return (T) BeanUtils.toMap(value);
+        }
+        if (List.class.isAssignableFrom(cls)) {
+            return (T) value;
+        }
+        if (value instanceof Map) {
+            return BeanUtils.toBean((Map<?, ?>) value, cls);
+        }
+        return BeanUtils.toBean(Dict.create(value), cls);
+    }
+
+    public void setValue(String exp, Object value) {
+        ExpressionUtils.setValue(this, exp, value);
+    }
+
+    public void removeValue(String exp, boolean autoClear) {
+        int index = exp.lastIndexOf(".");
+        if (index == -1) {
+            this.remove(exp);
+            return;
+        }
+        String key = exp.substring(index + 1);
+        exp = exp.substring(0, index);
+        Object value = getValue(exp);
+        if (value instanceof Map) {
+            ((Map<?, ?>) value).remove(key);
+            if (autoClear && ((Map<?, ?>) value).isEmpty()) {
+                removeValue(exp, true);
+            }
+        }
+    }
 
     @Override
     public Set<String> keySet() {
@@ -492,21 +468,5 @@ public class Dict implements Map<String, Object> {
     @Override
     public String toString() {
         return this.map.toString();
-    }
-
-    private void checkKeyExists(String key, String msg) {
-        if (!this.map.containsKey(key)) {
-            throw new KeyErrorException(msg == null ? String.format("%s 属性不存在", key) : msg);
-        }
-    }
-
-
-    public static class KeyErrorException extends RuntimeException {
-
-        private static final long serialVersionUID = 2843905076377664046L;
-
-        KeyErrorException(String message) {
-            super(message);
-        }
     }
 }

@@ -64,8 +64,6 @@ public abstract class AbstractIOStreamPrinter extends AbstractPrinter {
 
     @Override
     protected void printEnd0() {
-        if (connection.isConnect()) {
-            this.connection.close();
-        }
+        this.connection.close();
     }
 }

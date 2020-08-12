@@ -1,4 +1,4 @@
-package com.xiaom.pos4j.common;
+package com.xiaom.pos4j.comm;
 
 /**
  * @author hous

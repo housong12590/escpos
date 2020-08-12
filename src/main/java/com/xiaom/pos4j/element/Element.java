@@ -135,7 +135,7 @@ public abstract class Element implements Parser {
         }
         String placeholderKey = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, condition);
         if (!StringUtils.isEmpty(placeholderKey)) {
-            Object value = ExpressionUtils.getExpressionValue(data, placeholderKey);
+            Object value = ExpressionUtils.getValue(data, placeholderKey);
             if (value == null) {
                 return false;
             } else {

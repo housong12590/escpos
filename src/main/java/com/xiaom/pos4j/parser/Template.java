@@ -3,7 +3,7 @@ package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.LocalVariable;
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.convert.ConverterKit;
 import com.xiaom.pos4j.element.Document;
 import com.xiaom.pos4j.element.Element;
@@ -85,7 +85,7 @@ public class Template {
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String expression = matcher.group(1);
-            Object obj = ExpressionUtils.getExpressionValue(data, expression);
+            Object obj = ExpressionUtils.getValue(data, expression);
             String value = obj == null ? null : obj.toString();
             if (value == null) {
                 value = LocalVariable.getValue(expression);

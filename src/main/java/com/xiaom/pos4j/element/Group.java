@@ -1,7 +1,7 @@
 package com.xiaom.pos4j.element;
 
 import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.convert.ConverterKit;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
@@ -9,7 +9,9 @@ import com.xiaom.pos4j.util.ExpressionUtils;
 import com.xiaom.pos4j.util.LogUtils;
 import com.xiaom.pos4j.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author hous
@@ -29,7 +31,7 @@ public class Group extends Element {
         if (StringUtils.isEmpty(expression)) {
             throw new TemplateParseException("表达式错误: " + repeatKey);
         }
-        Object value = ExpressionUtils.getExpressionValue(data, expression);
+        Object value = ExpressionUtils.getValue(data, expression);
         if (value == null) {
             throw new TemplateParseException(expression + " 值为null");
         }

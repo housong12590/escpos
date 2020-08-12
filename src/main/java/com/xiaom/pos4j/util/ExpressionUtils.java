@@ -1,24 +1,22 @@
 package com.xiaom.pos4j.util;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author hous
- */
 public class ExpressionUtils {
 
     private final static Pattern ARRAY_PATTERN = Pattern.compile("(\\w+)\\[(-?\\d+)\\]");
 
-    public static String replacePlaceholder(Pattern regexp, String content, Map<?, ?> data) {
+    public static String replacePlaceholder(Pattern regexp, String content, Map data) {
         Matcher matcher = regexp.matcher(content);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String expression = matcher.group(1);
-            Object value = getExpressionValue(data, expression);
+            Object value = getValue(data, expression);
             if (value == null) {
                 return expression;
             }
@@ -37,7 +35,23 @@ public class ExpressionUtils {
         return null;
     }
 
-    public static Object getExpressionValue(Object source, String expression) {
+    public static void setValue(Map source, String exp, Object value) {
+        if (StringUtils.isEmpty(exp)) {
+            return;
+        }
+        int index = exp.indexOf(".");
+        if (index == -1) {
+            source.put(exp, value);
+            return;
+        }
+        String key = exp.substring(0, index);
+        exp = exp.substring(index + 1);
+        Object v = source.computeIfAbsent(key, k -> new HashMap<>());
+        Map tempMap = (Map) v;
+        setValue(tempMap, exp, value);
+    }
+
+    public static Object getValue(Object source, String expression) {
         if (source == null) {
             return null;
         }
@@ -76,7 +90,7 @@ public class ExpressionUtils {
         if (value == null) {
             return null;
         }
-        return getExpressionValue(value, expression);
+        return getValue(value, expression);
     }
 
     private static Object getListItem(Object source, int index) {
@@ -104,5 +118,15 @@ public class ExpressionUtils {
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
         }
         return null;
+    }
+
+    private static void setObjectField(Object source, String fieldName, Object value) {
+        try {
+            Field field = source.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(source, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }
