@@ -49,10 +49,10 @@ public class TextConverter implements Converter<Text> {
         // 处理文字
         String value = handleString(device, text);
 
-        int width = text.getWidth();
-        if (width != Text.WARP_CONTENT) {
-            //TODO
-        }
+//        int width = text.getWidth();
+//        if (width != Text.WARP_CONTENT) {
+//            //TODO
+//        }
 
         // 写入文字
         buffer.write(value.getBytes(device.getCharset()));

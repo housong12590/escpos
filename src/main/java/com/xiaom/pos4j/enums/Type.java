@@ -1,5 +1,6 @@
 package com.xiaom.pos4j.enums;
 
+import com.xiaom.pos4j.element.Image;
 import com.xiaom.pos4j.util.ImageCreator;
 
 /**
@@ -21,6 +22,10 @@ public enum Type {
     barcode;
 
 
+    public int[] createPixels(Image image) {
+        return createPixels(image.getValue(), image.getWidth(), image.getHeight());
+    }
+
     public int[] createPixels(String value, int width, int height) {
         switch (this) {
             case image:
@@ -32,6 +37,8 @@ public enum Type {
         }
         return null;
     }
+
+
 
     public static Type of(String value, Type type) {
         for (Type t : Type.values()) {

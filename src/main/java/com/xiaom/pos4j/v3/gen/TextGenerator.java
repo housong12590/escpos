@@ -1,16 +1,19 @@
-package com.xiaom.pos4j.v3;
+package com.xiaom.pos4j.v3.gen;
 
 import com.xiaom.pos4j.element.Text;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
 import com.xiaom.pos4j.util.ConvertUtils;
+import com.xiaom.pos4j.v3.ElementExample;
+import com.xiaom.pos4j.v3.Property;
+import com.xiaom.pos4j.v3.Transform;
 
 public class TextGenerator implements Generator<Text> {
 
     @Override
-    public Text create(ElementSample sample, Transform transform, Object env) {
+    public Text create(ElementExample example, Transform transform, Object env) {
         Text text = new Text();
-        for (Property property : sample.getProperties()) {
+        for (Property property : example.getProperties()) {
             String name = property.getName();
             String value = property.getValue();
             switch (name) {

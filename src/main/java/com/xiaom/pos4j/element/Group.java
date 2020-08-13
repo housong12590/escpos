@@ -21,6 +21,14 @@ public class Group extends Element {
     private String repeatKey;
     private List<Element> children = new ArrayList<>();
 
+    public Group() {
+        children = new ArrayList<>();
+    }
+
+    public void addChildren(Element element) {
+        children.add(element);
+    }
+
     @Override
     public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
         this.repeatKey = attrs.getAttributeValue(Attribute.REPEAT_KEY, null);

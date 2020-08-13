@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="print_template">
 
-    <text value="订单编号: #{order_id}    下单时间: #{pay_time}   #{pay_time}" align="center" bold="true" size="big"/>
+    <!--    <text value="订单编号: #{order_id}    下单时间: #{pay_time}   #{pay_time}" align="center" bold="true" size="big"/>-->
+    <!--    <section>-->
+    <!--        <text value="餐具数量:"/>-->
+    <!--        <text value="${keys.guests}" size="w1h2"/>-->
+    <!--        <text value="份"/>-->
+    <!--    </section>-->
+
+  <table>
+      <tr repeatKey="#{goods}">
+          <td value="#{this.name}" weight="4"/>
+          <td value="#{this.num}" weight="2"/>
+          <td value="#{this.amount}" weight="2"/>
+      </tr>
+  </table>
 </document>

@@ -1,5 +1,7 @@
 package com.xiaom.pos4j.parser.attr;
 
+import com.xiaom.pos4j.v3.Attribute;
+
 import java.util.List;
 
 

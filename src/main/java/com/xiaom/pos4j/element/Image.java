@@ -17,6 +17,8 @@ import java.util.Map;
 public class Image extends Element {
 
     private Type type = Type.image;
+    private int width;
+    private int height;
     private String value = "";
     private int[] pixels;
     private Align align = Align.LEFT;
@@ -27,8 +29,8 @@ public class Image extends Element {
 
     public Image(int width, int height, int[] pixels) {
         this.pixels = pixels;
-        setWidth(width);
-        setHeight(height);
+        this.width = width;
+        this.height = height;
     }
 
     public Type getType() {
@@ -63,6 +65,21 @@ public class Image extends Element {
         this.align = align;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
     @Override
     public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {

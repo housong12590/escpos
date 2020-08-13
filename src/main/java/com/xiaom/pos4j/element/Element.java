@@ -17,26 +17,8 @@ public abstract class Element implements Parser {
 
 
     public static final int WARP_CONTENT = -1;
-    private int width;
-    private int height;
     private int[] margin = new int[4];
     private boolean newLine = true;
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
 
     public int[] getMargin() {
         return margin;
@@ -81,8 +63,6 @@ public abstract class Element implements Parser {
 //            throw new UnsatisfiedConditionException(errorMsg);
         }
 
-        this.width = attrs.getIntValue(Attribute.WIDTH, WARP_CONTENT);
-        this.height = attrs.getIntValue(Attribute.HEIGHT, WARP_CONTENT);
         parserMargin(attrs, margin);
         parser0(attrs, data);
     }

@@ -2,10 +2,10 @@ package com.xiaom.pos4j.v3;
 
 import java.util.List;
 
-public class ElementSample {
+public class ElementExample {
 
     private Class<?> elementClass;
-    private ElementSample parentElement;
+    private ElementExample[] children;
     private List<Property> properties;
 
     public Class<?> getElementClass() {
@@ -16,14 +16,6 @@ public class ElementSample {
         this.elementClass = elementClass;
     }
 
-    public ElementSample getParentElement() {
-        return parentElement;
-    }
-
-    public void setParentElement(ElementSample parentElement) {
-        this.parentElement = parentElement;
-    }
-
     public List<Property> getProperties() {
         return properties;
     }
@@ -32,12 +24,16 @@ public class ElementSample {
         this.properties = properties;
     }
 
+    public ElementExample[] getChildren() {
+        return children;
+    }
+
+    public void setChildren(ElementExample[] children) {
+        this.children = children;
+    }
+
     @Override
     public String toString() {
-        return "ElementSample{" +
-                "elementClass=" + elementClass +
-                ", parentElement=" + parentElement +
-                ", elementProperty=" + properties +
-                '}';
+        return elementClass.toString();
     }
 }

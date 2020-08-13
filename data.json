@@ -29,22 +29,6 @@
       "price": "25",
       "amount": "25",
       "item_remark": ""
-    },
-    {
-      "unit": "份",
-      "name": "酸菜鱼套餐",
-      "num": 1,
-      "price": "48",
-      "amount": "48",
-      "item_remark": ""
-    },
-    {
-      "unit": "份",
-      "name": "黄闷鸡黄闷鸡黄闷鸡黄闷鸡",
-      "num": 6666,
-      "price": "55555",
-      "amount": "5555",
-      "item_remark": ""
     }
   ],
   "attach": [

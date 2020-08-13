@@ -1,13 +1,10 @@
 package com.xiaom.pos4j.v3;
 
-import com.xiaom.pos4j.element.Document;
-import com.xiaom.pos4j.element.Element;
-import com.xiaom.pos4j.element.Text;
+import com.xiaom.pos4j.element.*;
 import com.xiaom.pos4j.parser.XmlParseFactory;
-import com.xiaom.pos4j.parser.XmlParseHandler;
-import com.xiaom.pos4j.parser.attr.Attribute;
-import com.xiaom.pos4j.parser.attr.AttributeSet;
+import com.xiaom.pos4j.parser.XmlParseHandler1;
 import com.xiaom.pos4j.util.FileUtils;
+import com.xiaom.pos4j.v3.gen.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.SAXParser;
@@ -16,14 +13,32 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 public class Template {
 
-    private String templateStr;
+    public static Map<String, Class<? extends Element>> elMap = new HashMap<>();
+    public static Map<Class<? extends Element>, Class<? extends Generator>> gMAP = new HashMap<>();
 
-    private List<ElementSample> elementSamples;
+    static {
+        elMap.put("text", Text.class);
+        elMap.put("section", Section.class);
+        elMap.put("table", Table.class);
+        elMap.put("image", Image.class);
+        elMap.put("group", Group.class);
+
+        gMAP.put(Text.class, TextGenerator.class);
+        gMAP.put(Image.class, ImageGenerator.class);
+        gMAP.put(Section.class, SectionGenerator.class);
+        gMAP.put(Group.class, GroupGenerator.class);
+        gMAP.put(Table.class, TableGenerator.class);
+    }
+
+    private String templateStr;
+    private List<ElementExample> elementExamples;
 
     public static Template compile(File file) {
         String content = FileUtils.read(file);
@@ -36,41 +51,57 @@ public class Template {
     }
 
     public Template(String templateStr) {
-        this.elementSamples = new ArrayList<>();
+        this.elementExamples = new ArrayList<>();
         this.templateStr = templateStr;
         this.compile();
     }
 
     private void compile() {
         AttributeSet attributeSet = parseXmlTemplate(templateStr);
-        for (AttributeSet attrSet : attributeSet.getAttributeSets()) {
-            ElementSample sample = new ElementSample();
-            sample.setElementClass(Text.class);
-            List<Property> propertyList = new ArrayList<>();
-            for (Attribute attr : attrSet) {
-                List<Placeholder> placeholders = parsePlaceHolder(attr.getValue());
-                Property property = new Property(attr.getName(), attr.getValue(), placeholders);
-                propertyList.add(property);
-            }
-            sample.setProperties(propertyList);
-            elementSamples.add(sample);
+        List<AttributeSet> children = attributeSet.getChildren();
+        for (AttributeSet attrSet : children) {
+            ElementExample example = parseElement(attrSet);
+            elementExamples.add(example);
         }
+    }
+
+    private ElementExample parseElement(AttributeSet attributes) {
+        ElementExample example = new ElementExample();
+        Class<? extends Element> aClass = elMap.get(attributes.getElementName());
+        example.setElementClass(aClass);
+        List<Property> properties = new ArrayList<>();
+        for (Attribute attr : attributes) {
+            List<Placeholder> placeholders = parsePlaceHolder(attr.getValue());
+            Property property = new Property(attr.getKey(), attr.getValue(), placeholders);
+            properties.add(property);
+        }
+        example.setProperties(properties);
+        List<ElementExample> children = new ArrayList<>();
+        for (AttributeSet attrSet : attributes.getChildren()) {
+            children.add(parseElement(attrSet));
+        }
+        example.setChildren(children.toArray(new ElementExample[0]));
+        return example;
     }
 
     public Document toDocument(Transform transform, Object env) {
         Document document = new Document();
-        for (ElementSample elementSample : elementSamples) {
-            Element element = generate(elementSample, transform, env);
+        for (ElementExample elementExample : elementExamples) {
+            Element element = generate(elementExample, transform, env);
             document.addElement(element);
         }
         return document;
     }
 
-    public Element generate(ElementSample sample, Transform transform, Object env) {
-        TextGenerator generator = new TextGenerator();
-        return generator.create(sample, transform, env);
+    public Element generate(ElementExample example, Transform transform, Object env) {
+        Class<? extends Generator> aClass = gMAP.get(example.getElementClass());
+        try {
+            Generator generator = aClass.newInstance();
+            return generator.create(example, transform, env);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
-
 
     public List<Placeholder> parsePlaceHolder(String text) {
         Matcher matcher = Const.PARSE_PATTERN.matcher(text);
@@ -87,7 +118,7 @@ public class Template {
     }
 
     private AttributeSet parseXmlTemplate(String templateStr) {
-        XmlParseHandler handler = new XmlParseHandler();
+        XmlParseHandler1 handler = new XmlParseHandler1();
         InputStream is = new ByteArrayInputStream(templateStr.getBytes());
         SAXParser saxParser = XmlParseFactory.newParser();
         try {
@@ -100,6 +131,15 @@ public class Template {
 
     @Override
     public String toString() {
-        return elementSamples.toString();
+        StringBuilder sb = new StringBuilder();
+        for (ElementExample example : elementExamples) {
+            sb.append(example.getElementClass());
+            List<Property> properties = example.getProperties();
+            for (Property property : properties) {
+                sb.append(" ").append(property.getName()).append("=").append(property.getValue());
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

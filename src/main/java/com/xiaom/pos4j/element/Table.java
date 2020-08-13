@@ -1,15 +1,10 @@
 package com.xiaom.pos4j.element;
 
 
-import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
 import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.parser.attr.AttributeSet;
-import com.xiaom.pos4j.util.ExpressionUtils;
-import com.xiaom.pos4j.util.LogUtils;
-import com.xiaom.pos4j.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,52 +15,33 @@ import java.util.Map;
  */
 public class Table extends Element {
 
-    private List<TR> trs = new ArrayList<>();
-    private Map<?, ?> data;
-
+    private List<TR> trs;
 
     public Table() {
-
+        trs = new ArrayList<>();
     }
 
     public List<TR> getTrs() {
         return trs;
     }
 
-    public void setTrs(List<TR> trs) {
-        this.trs = trs;
+    public void addTr(TR tr) {
+        trs.add(tr);
     }
-
 
     @Override
     public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
-        this.data = data;
-        List<AttributeSet> attributeSets = attrs.getAttributeSets();
-        for (AttributeSet trAttrs : attributeSets) {
-            TR tr = new TR();
-            tr.parser(trAttrs);
-        }
+
     }
 
+    public static class TR {
 
-    public class TR {
-
-        private List<TD> tds = new ArrayList<>();
+        private List<TD> tds;
         private boolean bold = false;
-        private boolean repeat;
-        private String repeatKey;
         private Size size = Size.normal;
 
         public TR() {
-
-        }
-
-        public boolean isRepeat() {
-            return repeat;
-        }
-
-        public void setRepeat(boolean repeat) {
-            this.repeat = repeat;
+            tds = new ArrayList<>();
         }
 
         public List<TD> getTds() {
@@ -76,24 +52,12 @@ public class Table extends Element {
             this.tds.add(td);
         }
 
-        public void setTds(List<TD> tds) {
-            this.tds = tds;
-        }
-
-        public String getRepeatKey() {
-            return repeatKey;
-        }
-
         public boolean isBold() {
             return bold;
         }
 
         public void setBold(boolean bold) {
             this.bold = bold;
-        }
-
-        public void setRepeatKey(String repeatKey) {
-            this.repeatKey = repeatKey;
         }
 
         public Size getSize() {
@@ -104,56 +68,7 @@ public class Table extends Element {
             this.size = size;
         }
 
-        public void parser(AttributeSet attrs) throws TemplateParseException {
-            this.bold = attrs.getBooleanValue(Attribute.BOLD, false);
-            this.repeat = attrs.getBooleanValue(Attribute.REPEAT, false);
-            this.repeatKey = attrs.getAttributeValue(Attribute.REPEAT_KEY);
-            this.size = Size.of(attrs.getAttributeValue(Attribute.SIZE), this.size);
-            for (AttributeSet attributeSet : attrs.getAttributeSets()) {
-                TD td = new TD(attributeSet);
-                tds.add(td);
-            }
-            if (!this.repeat) {
-                trs.add(this);
-            } else {
-                repeatTr(this);
-            }
-        }
 
-        private void repeatTr(TR tr) throws TemplateParseException {
-            if (data == null) {
-                LogUtils.error("模版数据为空, 无法进行table repeat操作");
-                return;
-            }
-            String expression = ExpressionUtils.getExpression(Constants.PARSE_PATTERN, tr.repeatKey);
-            if (StringUtils.isEmpty(expression)) {
-                throw new TemplateParseException("无效的表达式" + tr.repeatKey);
-            }
-            Object expressionValue = ExpressionUtils.getValue(data, expression);
-            if (expressionValue == null) {
-                throw new TemplateParseException(tr.repeatKey + "表达式值为空值");
-            }
-            if (!(expressionValue instanceof Iterable)) {
-                throw new TemplateParseException(tr.repeatKey + "的值不是一个可迭代对象,无法进行遍历");
-            }
-
-            try {
-                for (Object value : ((Iterable<?>) expressionValue)) {
-                    Dict item = Dict.create(value);
-                    TR tr1 = new TR();
-                    for (TD td : tr.getTds()) {
-                        String text = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, td.getValue(), item);
-                        TD td1 = new TD(text, td.weight, td.align, td.width);
-                        tr1.addTd(td1);
-                        tr1.setBold(bold);
-                        tr1.setSize(size);
-                    }
-                    trs.add(tr1);
-                }
-            } catch (Exception e) {
-                throw new TemplateParseException(tr.repeatKey + " 数据格式不正确", e);
-            }
-        }
     }
 
     public static class TD {
@@ -212,5 +127,4 @@ public class Table extends Element {
             this.width = width;
         }
     }
-
 }
