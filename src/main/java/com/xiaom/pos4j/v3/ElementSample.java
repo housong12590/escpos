@@ -1,11 +1,12 @@
 package com.xiaom.pos4j.v3;
 
-import java.util.Map;
+import java.util.List;
 
 public class ElementSample {
 
     private Class<?> elementClass;
-    private Map<String, Properties> elementProperty;
+    private ElementSample parentElement;
+    private List<Property> properties;
 
     public Class<?> getElementClass() {
         return elementClass;
@@ -15,11 +16,28 @@ public class ElementSample {
         this.elementClass = elementClass;
     }
 
-    public Map<String, Properties> getElementProperty() {
-        return elementProperty;
+    public ElementSample getParentElement() {
+        return parentElement;
     }
 
-    public void setElementProperty(Map<String, Properties> elementProperty) {
-        this.elementProperty = elementProperty;
+    public void setParentElement(ElementSample parentElement) {
+        this.parentElement = parentElement;
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public String toString() {
+        return "ElementSample{" +
+                "elementClass=" + elementClass +
+                ", parentElement=" + parentElement +
+                ", elementProperty=" + properties +
+                '}';
     }
 }

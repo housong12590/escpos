@@ -1,52 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="print_template">
 
-    <text value="${keys.mch}" align="center" bold="true" size="big"/>
-    <text value="${keys.title}" align="center" bold="true" size="big"/>
-    <text value="单号: ${keys.sn}" marginTop="1"/>
-    <section>
-        <text value="台号: ${keys.table_name}"/>
-        <text value=" " repeat="auto"/>
-        <text value="人数: ${keys.guests}位"/>
-    </section>
-    <section>
-        <text value="开台: ${keys.ctime}"/>
-        <text value=" " repeat="auto"/>
-        <text value="员工: ${keys.oper_name}"/>
-    </section>
-    <text value="-" repeat="fill"/>
-    <table>
-        <tr bold="true">
-            <td value=" 品项名称" weight="9"/>
-            <td value=" 单价" weight="2" align="right"/>
-            <td value=" 数量" weight="1" align="right"/>
-            <td value=" 金额" weight="1" align="right"/>
-        </tr>
-        <tr repeat="true" repeatKey="#{goods}">
-            <td value=" #{name}" weight="9"/>
-            <td value=" #{unit}" weight="2" align="right"/>
-            <td value=" #{num}" weight="1" align="right"/>
-            <td value=" #{price}" weight="1" align="right"/>
-        </tr>
-    </table>
-    <text value="-" repeat="fill"/>
-    <text value="${keys.sum_value}" align="right" bold="true"/>
-    <text value="-" repeat="fill"/>
-    <text value="收款明细" condition="#{payments}"/>
-    <group repeatKey="#{payments}" condition="#{payments}">
-        <section>
-            <text value="N0.#{js_num}    #{js_user}"/>
-            <text value=" " repeat="auto"/>
-            <text value="#{js_time}"/>
-        </section>
-        <group repeatKey="#{_list}">
-            <text value="#{pay_name}"/>
-        </group>
-    </group>
-    <text value="-" repeat="fill" condition="#{payments}"/>
-    <text value="电话: ${keys.tel}"/>
-    <text value="地址: ${keys.adds}"/>
-    <image type="qrcode" value="${keys.qrcode}" width="220" height="220" align="center"/>
-    <text value="${keys.qrcode_tips}" align="center"/>
-    <text value="打印时间: ${date}" align="right" marginTop="1" marginBottom="1"/>
+    <text value="订单编号: #{order_id}    下单时间: #{pay_time}   #{pay_time}" align="center" bold="true" size="big"/>
 </document>

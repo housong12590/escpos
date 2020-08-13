@@ -1,8 +1,10 @@
 package com.xiaom.pos4j.v3;
 
+import com.xiaom.pos4j.util.ClassUtils;
+
 import java.util.Map;
 
-public class MapTransform implements Transform<Map<String, Object>, Object> {
+public class MapTransform implements Transform {
 
     private static MapTransform INSTANCE = new MapTransform();
 
@@ -11,7 +13,11 @@ public class MapTransform implements Transform<Map<String, Object>, Object> {
     }
 
     @Override
-    public Object get(String key, Map<String, Object> env) {
-        return env.get(key);
+    public <T> T get(String key, Object env) {
+        if (env instanceof Map) {
+            Object value = ((Map<?, ?>) env).get(key);
+            return ClassUtils.cast(value);
+        }
+        return null;
     }
 }

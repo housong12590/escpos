@@ -3,10 +3,7 @@ package com.xiaom.pos4j.parser.attr;
 
 import com.xiaom.pos4j.util.ConvertUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author hous
@@ -88,5 +85,18 @@ public class AttributeSetImpl implements AttributeSet {
 
     public AttributeSetImpl getParent() {
         return parentAttr;
+    }
+
+    @Override
+    public Iterator<Attribute> iterator() {
+        Set<String> keySet = attributeSet.keySet();
+        Attribute[] attributes = new Attribute[keySet.size()];
+        int index = 0;
+        for (String key : keySet) {
+            Object value = attributeSet.get(key);
+            attributes[index] = new Attribute(key, (String) value);
+            index++;
+        }
+        return new ArrayIterator<>(attributes);
     }
 }

@@ -2,10 +2,8 @@ package com.xiaom.pos4j.parser.attr;
 
 import java.util.List;
 
-/**
- * @author hous
- */
-public interface AttributeSet {
+
+public interface AttributeSet extends Iterable<Attribute> {
 
     String getName();
 

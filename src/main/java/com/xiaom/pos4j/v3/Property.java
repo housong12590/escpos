@@ -2,13 +2,19 @@ package com.xiaom.pos4j.v3;
 
 import java.util.List;
 
-public class Properties {
+public class Property {
 
     private String name;
 
     private String value;
 
     private List<Placeholder> placeholders;
+
+    public Property(String name, String value, List<Placeholder> placeholders) {
+        this.name = name;
+        this.value = value;
+        this.placeholders = placeholders;
+    }
 
     public String getName() {
 
@@ -35,5 +41,14 @@ public class Properties {
             sb.replace(start, end, p.getVariable().execute(transform, env));
         }
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                ", placeholders=" + placeholders +
+                '}';
     }
 }

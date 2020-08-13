@@ -85,4 +85,16 @@ public class Text extends Element {
         this.repeat = Repeat.of(attrs.getAttributeValue(Attribute.REPEAT), this.repeat);
         this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, this.value, data);
     }
+
+    @Override
+    public String toString() {
+        return "Text{" +
+                "value='" + value + '\'' +
+                ", repeat=" + repeat +
+                ", align=" + align +
+                ", size=" + size +
+                ", bold=" + bold +
+                ", underline=" + underline +
+                '}';
+    }
 }

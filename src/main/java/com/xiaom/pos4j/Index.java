@@ -19,13 +19,20 @@ public class Index {
         String data = FileUtils.read("data.json");
         Template template = new Template(content, Dict.create(data));
         try {
-            Document document = template.toDocument();
             Device device = new Device(new Paper_58());
             device.setCharset(Charset.defaultCharset());
             device.setOrderSet(new CloudPrintOrderSet());
-            byte[] bytes = document.toBytes(device);
-            String s = new String(bytes);
 
+            long sTime = System.currentTimeMillis();
+            Document document = null;
+            byte[] bytes = null;
+            for (int i = 0; i < 10000; i++) {
+                document = template.toDocument();
+            }
+            bytes = document.toBytes(device);
+            long nTime = System.currentTimeMillis();
+            System.out.println(String.format("耗时: %sms", (nTime - sTime)));
+            String s = new String(bytes);
             System.out.println(s);
         } catch (TemplateParseException e) {
             e.printStackTrace();

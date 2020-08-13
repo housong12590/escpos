@@ -34,4 +34,9 @@ public class Document {
         }
         return buffer.toByteArray();
     }
+
+    @Override
+    public String toString() {
+        return elements.toString();
+    }
 }
