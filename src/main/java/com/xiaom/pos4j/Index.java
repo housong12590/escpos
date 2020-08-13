@@ -1,6 +1,6 @@
 package com.xiaom.pos4j;
 
-import com.xiaom.pos4j.common.Dict;
+import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.device.Device;
 import com.xiaom.pos4j.device.Paper_58;
 import com.xiaom.pos4j.element.Document;
@@ -29,5 +29,6 @@ public class Index {
         } catch (TemplateParseException e) {
             e.printStackTrace();
         }
+
     }
 }

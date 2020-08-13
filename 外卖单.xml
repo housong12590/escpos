@@ -6,8 +6,8 @@
     <text value="-" repeat="fill"/>
     <text value="${keys.title}" align="center" size="big"/>
     <text value="${keys.pay_name}" align="center" size="w1h2"/>
-    <text value="订 单 号: ${keys.order_code}" marginTop="1"/>
     <text value="下单时间: ${keys.ctime}"/>
+    <text value="订 单 号: ${keys.order_code}" marginTop="1"/>
     <section>
         <text value="餐具数量:"/>
         <text value="${keys.guests}" size="w1h2"/>
