@@ -73,4 +73,15 @@ public class Image extends Element {
     public void setHeight(int height) {
         this.height = height;
     }
+
+    @Override
+    public String toString() {
+        return "Image{" +
+                "type=" + type +
+                ", width=" + width +
+                ", height=" + height +
+                ", value='" + value + '\'' +
+                ", align=" + align +
+                '}';
+    }
 }

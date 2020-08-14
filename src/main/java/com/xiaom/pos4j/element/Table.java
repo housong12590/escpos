@@ -61,7 +61,14 @@ public class Table extends Element {
             this.size = size;
         }
 
-
+        @Override
+        public String toString() {
+            return "TR{" +
+                    "tds=" + tds +
+                    ", bold=" + bold +
+                    ", size=" + size +
+                    '}';
+        }
     }
 
     public static class TD {
@@ -112,5 +119,22 @@ public class Table extends Element {
         public void setWidth(int width) {
             this.width = width;
         }
+
+        @Override
+        public String toString() {
+            return "TD{" +
+                    "value='" + value + '\'' +
+                    ", weight=" + weight +
+                    ", align=" + align +
+                    ", width=" + width +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Table{" +
+                "trs=" + trs +
+                '}';
     }
 }

@@ -1,34 +1,26 @@
 package com.xiaom.pos4j.parser;
 
-import com.xiaom.pos4j.element.*;
+import com.xiaom.pos4j.Constants;
+import com.xiaom.pos4j.element.Document;
+import com.xiaom.pos4j.element.Element;
 import com.xiaom.pos4j.util.FileUtils;
-import com.xiaom.pos4j.v3.Const;
-import com.xiaom.pos4j.v3.Transform;
-import com.xiaom.pos4j.v3.gen.*;
+import com.xiaom.pos4j.util.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.SAXParser;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 
 public class Template {
-
-    public static Map<String, Class<? extends Element>> elMap = new HashMap<>();
-
-    static {
-        elMap.put("text", Text.class);
-        elMap.put("section", Section.class);
-        elMap.put("table", Table.class);
-        elMap.put("image", Image.class);
-        elMap.put("group", Group.class);
-    }
 
     private String templateStr;
     private List<ElementExample> elementExamples;
@@ -50,6 +42,7 @@ public class Template {
     }
 
     private void compile() {
+        validateXml();
         AttributeSet attributeSet = parseXmlTemplate(templateStr);
         List<AttributeSet> children = attributeSet.getChildren();
         for (AttributeSet attrSet : children) {
@@ -60,10 +53,10 @@ public class Template {
 
     private ElementExample parseElement(AttributeSet attributes) {
         ElementExample example = new ElementExample();
-        Class<? extends Element> aClass = elMap.get(attributes.getElementName());
+        Class<? extends Element> aClass = ElementKit.getElementClass(attributes.getElementName());
         example.setElementClass(aClass);
         for (Attribute attr : attributes) {
-            List<Placeholder> placeholders = parsePlaceHolder(attr.getValue());
+            List<Placeholder> placeholders = parsePlaceHolder(attr);
             Property property = new Property(attr.getKey(), attr.getValue(), placeholders);
             example.addProperty(property);
         }
@@ -75,10 +68,18 @@ public class Template {
         return example;
     }
 
+    public Document toDocument() {
+        return toDocument(MapTransform.get(), null);
+    }
+
+    public Document toDocument(Object env) {
+        return toDocument(MapTransform.get(), env);
+    }
+
     public Document toDocument(Transform transform, Object env) {
         Document document = new Document();
         for (ElementExample elementExample : elementExamples) {
-            Element element = GeneratorFactory.getElement(elementExample, transform, env);
+            Element element = ElementKit.getElement(elementExample, transform, env);
             if (element != null) {
                 document.addElement(element);
             }
@@ -86,9 +87,9 @@ public class Template {
         return document;
     }
 
-    private List<Placeholder> parsePlaceHolder(String text) {
-        Matcher matcher = Const.PARSE_PATTERN.matcher(text);
+    private List<Placeholder> parsePlaceHolder(Attribute attr) {
         List<Placeholder> list = null;
+        Matcher matcher = Constants.PARSE_PATTERN.matcher(attr.getValue());
         while (matcher.find()) {
             if (list == null) list = new ArrayList<>();
             int start = matcher.start();
@@ -111,6 +112,21 @@ public class Template {
         }
         return handler.getRootAttributeSet();
     }
+
+    private boolean validateXml() {
+        try {
+            InputStream xsdStream = StringUtils.string2inputStream(Constants.XSD_CONTENT);
+            InputStream xmlInputStream = StringUtils.string2inputStream(templateStr);
+            Schema schema = XmlParseFactory.newSchema(xsdStream);
+            Validator validator = schema.newValidator();
+            Source xmlSource = new StreamSource(xmlInputStream);
+            validator.validate(xmlSource);
+            return true;
+        } catch (SAXException | IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
     @Override
     public String toString() {

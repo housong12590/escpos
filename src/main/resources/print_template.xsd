@@ -10,9 +10,6 @@
 
     <xs:simpleType name="size">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="normal"/>
-            <xs:enumeration value="big"/>
-            <xs:enumeration value="oversized"/>
             <xs:enumeration value="w1h1"/>
             <xs:enumeration value="w1h2"/>
             <xs:enumeration value="w1h3"/>
@@ -62,7 +59,6 @@
             <xs:attribute name="marginTop" type="xs:integer"/>
             <xs:attribute name="marginRight" type="xs:integer"/>
             <xs:attribute name="marginBottom" type="xs:integer"/>
-            <xs:attribute name="condition" type="subexpression"/>
         </xs:complexType>
     </xs:element>
 
@@ -73,7 +69,6 @@
             </xs:choice>
             <xs:attribute name="marginTop" type="xs:integer"/>
             <xs:attribute name="marginBottom" type="xs:integer"/>
-            <xs:attribute name="condition" type="subexpression"/>
         </xs:complexType>
     </xs:element>
 
@@ -85,7 +80,6 @@
             <xs:attribute name="width" type="xs:integer" use="required"/>
             <xs:attribute name="height" type="xs:integer" use="required"/>
             <xs:attribute name="align" type="align"/>
-            <xs:attribute name="condition" type="subexpression"/>
         </xs:complexType>
     </xs:element>
 
@@ -102,7 +96,7 @@
             <xs:choice maxOccurs="unbounded">
                 <xs:element ref="td"/>
             </xs:choice>
-            <xs:attribute name="list" type="subexpression"/>
+            <xs:attribute name="list" type="xs:string"/>
             <xs:attribute name="item" type="xs:string"/>
             <xs:attribute name="bold" type="xs:boolean"/>
             <xs:attribute name="size" type="size"/>
@@ -114,21 +108,21 @@
             <xs:choice maxOccurs="unbounded">
                 <xs:element ref="tr"/>
             </xs:choice>
-            <xs:attribute name="condition" type="subexpression"/>
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="group">
+    <xs:element name="block">
         <xs:complexType>
             <xs:choice maxOccurs="unbounded">
                 <xs:element ref="text"/>
-                <xs:element ref="section"/>
+                <xs:element ref="table"/>
+                <xs:element ref="block"/>
                 <xs:element ref="image"/>
-                <xs:element ref="group"/>
+                <xs:element ref="section"/>
             </xs:choice>
-            <xs:attribute name="list" type="subexpression" use="required"/>
-            <xs:attribute name="item" type="xs:string" use="required"/>
-            <xs:attribute name="condition" type="subexpression"/>
+            <xs:attribute name="test" type="xs:string"/>
+            <xs:attribute name="list" type="xs:string"/>
+            <xs:attribute name="item" type="xs:string"/>
         </xs:complexType>
     </xs:element>
 
@@ -139,7 +133,7 @@
                 <xs:element ref="section"/>
                 <xs:element ref="image"/>
                 <xs:element ref="table"/>
-                <xs:element ref="group"/>
+                <xs:element ref="block"/>
             </xs:choice>
         </xs:complexType>
 

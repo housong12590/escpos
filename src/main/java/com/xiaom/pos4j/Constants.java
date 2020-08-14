@@ -5,25 +5,23 @@ import java.util.regex.Pattern;
 /**
  * @author hous
  */
-public final class Constants {
+public interface Constants {
 
-    public static final int PRINTER_PORT = 9100;
+    int PRINTER_PORT = 9100;
 
-    public static final String LOCAL_HOST = "127.0.0.1";
+    String LOCAL_HOST = "127.0.0.1";
 
-    public static final String CHARSET_GBK = "GBK";
+    String CHARSET_GBK = "GBK";
 
-    public static final String CHARSET_UTF8 = "UTF-8";
+    String CHARSET_UTF8 = "UTF-8";
 
-    public static final int SOCKET_TIMEOUT = 10000;
+    int SOCKET_TIMEOUT = 10000;
 
-    public static final int BUFFER_SIZE = 512;
+    int BUFFER_SIZE = 512;
 
-    public static Pattern REPLACE_PATTERN = Pattern.compile("\\$\\{\\s*(.*?)\\s*\\}");
+    Pattern PARSE_PATTERN = Pattern.compile("#\\{\\s*(.+?)\\s*\\}");
 
-    public static Pattern PARSE_PATTERN = Pattern.compile("#\\{\\s*(.*?)\\s*\\}");
-
-    public static String TEST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    String TEST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<document xmlns=\"print_template\">\n" +
             "    <text value=\"测试打印\" align=\"center\" bold=\"true\" size=\"big\" marginBottom=\"1\"/>\n" +
             "    <text value=\"  POS打印机，打印方式为行式热敏，打印速度为220mm/s(Max)，纸宽79.5±0.5mm。\" marginTop=\"1\"/>\n" +
@@ -45,4 +43,147 @@ public final class Constants {
             "    <text value=\"打印时间: #{date}\" align=\"right\" marginTop=\"1\"/>\n" +
             "\n" +
             "</document>";
+
+    String XSD_CONTENT = "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
+            "           targetNamespace=\"print_template\"\n" +
+            "           xmlns=\"print_template\">\n" +
+            "\n" +
+            "    <xs:simpleType name=\"subexpression\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:pattern value=\"#\\{.+\\}\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "    <xs:simpleType name=\"size\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:enumeration value=\"w1h1\"/>\n" +
+            "            <xs:enumeration value=\"w1h2\"/>\n" +
+            "            <xs:enumeration value=\"w1h3\"/>\n" +
+            "            <xs:enumeration value=\"w2h1\"/>\n" +
+            "            <xs:enumeration value=\"w3h1\"/>\n" +
+            "            <xs:enumeration value=\"w2h3\"/>\n" +
+            "            <xs:enumeration value=\"w3h2\"/>\n" +
+            "            <xs:enumeration value=\"w2h2\"/>\n" +
+            "            <xs:enumeration value=\"w3h3\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "    <xs:simpleType name=\"align\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:enumeration value=\"left\"/>\n" +
+            "            <xs:enumeration value=\"center\"/>\n" +
+            "            <xs:enumeration value=\"right\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "    <xs:simpleType name=\"imageType\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:enumeration value=\"image\"/>\n" +
+            "            <xs:enumeration value=\"qrcode\"/>\n" +
+            "            <xs:enumeration value=\"barcode\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "    <xs:simpleType name=\"repeat\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:enumeration value=\"none\"/>\n" +
+            "            <xs:enumeration value=\"fill\"/>\n" +
+            "            <xs:enumeration value=\"auto\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "    <xs:element name=\"text\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:attribute name=\"value\" type=\"xs:string\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"bold\" type=\"xs:boolean\" default=\"false\"/>\n" +
+            "            <xs:attribute name=\"size\" type=\"size\"/>\n" +
+            "            <xs:attribute name=\"align\" type=\"align\"/>\n" +
+            "            <xs:attribute name=\"underline\" type=\"xs:boolean\"/>\n" +
+            "            <xs:attribute name=\"repeat\" type=\"repeat\"/>\n" +
+            "            <xs:attribute name=\"margin\" type=\"xs:string\"/>\n" +
+            "            <xs:attribute name=\"marginLeft\" type=\"xs:integer\"/>\n" +
+            "            <xs:attribute name=\"marginTop\" type=\"xs:integer\"/>\n" +
+            "            <xs:attribute name=\"marginRight\" type=\"xs:integer\"/>\n" +
+            "            <xs:attribute name=\"marginBottom\" type=\"xs:integer\"/>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "    <xs:element name=\"section\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:choice maxOccurs=\"unbounded\">\n" +
+            "                <xs:element ref=\"text\"/>\n" +
+            "            </xs:choice>\n" +
+            "            <xs:attribute name=\"marginTop\" type=\"xs:integer\"/>\n" +
+            "            <xs:attribute name=\"marginBottom\" type=\"xs:integer\"/>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "\n" +
+            "    <xs:element name=\"image\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:attribute name=\"type\" type=\"imageType\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"value\" type=\"xs:string\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"width\" type=\"xs:integer\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"height\" type=\"xs:integer\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"align\" type=\"align\"/>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "\n" +
+            "    <xs:element name=\"td\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:attribute name=\"value\" type=\"xs:string\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"weight\" type=\"xs:int\" use=\"required\"/>\n" +
+            "            <xs:attribute name=\"align\" type=\"align\"/>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "    <xs:element name=\"tr\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:choice maxOccurs=\"unbounded\">\n" +
+            "                <xs:element ref=\"td\"/>\n" +
+            "            </xs:choice>\n" +
+            "            <xs:attribute name=\"list\" type=\"xs:string\"/>\n" +
+            "            <xs:attribute name=\"item\" type=\"xs:string\"/>\n" +
+            "            <xs:attribute name=\"bold\" type=\"xs:boolean\"/>\n" +
+            "            <xs:attribute name=\"size\" type=\"size\"/>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "    <xs:element name=\"table\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:choice maxOccurs=\"unbounded\">\n" +
+            "                <xs:element ref=\"tr\"/>\n" +
+            "            </xs:choice>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "    <xs:element name=\"block\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:choice maxOccurs=\"unbounded\">\n" +
+            "                <xs:element ref=\"text\"/>\n" +
+            "                <xs:element ref=\"table\"/>\n" +
+            "                <xs:element ref=\"block\"/>\n" +
+            "                <xs:element ref=\"image\"/>\n" +
+            "                <xs:element ref=\"section\"/>\n" +
+            "            </xs:choice>\n" +
+            "            <xs:attribute name=\"test\" type=\"xs:string\"/>\n" +
+            "            <xs:attribute name=\"list\" type=\"xs:string\"/>\n" +
+            "            <xs:attribute name=\"item\" type=\"xs:string\"/>\n" +
+            "        </xs:complexType>\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "    <xs:element name=\"document\">\n" +
+            "        <xs:complexType>\n" +
+            "            <xs:choice maxOccurs=\"unbounded\" minOccurs=\"0\">\n" +
+            "                <xs:element ref=\"text\"/>\n" +
+            "                <xs:element ref=\"section\"/>\n" +
+            "                <xs:element ref=\"image\"/>\n" +
+            "                <xs:element ref=\"table\"/>\n" +
+            "                <xs:element ref=\"block\"/>\n" +
+            "            </xs:choice>\n" +
+            "        </xs:complexType>\n" +
+            "\n" +
+            "    </xs:element>\n" +
+            "\n" +
+            "</xs:schema>";
 }

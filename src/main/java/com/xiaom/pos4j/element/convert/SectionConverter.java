@@ -1,9 +1,10 @@
-package com.xiaom.pos4j.convert;
+package com.xiaom.pos4j.element.convert;
 
 
 
 import com.xiaom.pos4j.element.Section;
 import com.xiaom.pos4j.element.Text;
+import com.xiaom.pos4j.parser.ElementKit;
 import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.device.Device;
 import com.xiaom.pos4j.orderset.OrderSet;
@@ -22,7 +23,7 @@ public class SectionConverter implements Converter<Section> {
             buffer.write(orderSet.paperFeed(marginTop));
         }
         for (Text text : section.getTexts()) {
-            byte[] bytes = ConverterKit.matchConverterToBytes(text, device);
+            byte[] bytes = ElementKit.matchConverterToBytes(text, device);
             buffer.write(bytes);
         }
         buffer.write(orderSet.newLine());

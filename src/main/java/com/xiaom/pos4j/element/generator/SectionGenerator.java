@@ -1,9 +1,9 @@
-package com.xiaom.pos4j.v3.gen;
+package com.xiaom.pos4j.element.generator;
 
 import com.xiaom.pos4j.element.Section;
 import com.xiaom.pos4j.element.Text;
 import com.xiaom.pos4j.parser.ElementExample;
-import com.xiaom.pos4j.v3.Transform;
+import com.xiaom.pos4j.parser.Transform;
 
 public class SectionGenerator implements Generator<Section> {
 

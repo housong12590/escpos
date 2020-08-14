@@ -26,4 +26,11 @@ public class Section extends Element {
         text.setNewLine(false);
         texts.add(text);
     }
+
+    @Override
+    public String toString() {
+        return "Section{" +
+                "texts=" + texts +
+                '}';
+    }
 }

@@ -1,14 +1,11 @@
-package com.xiaom.pos4j.v3.gen;
+package com.xiaom.pos4j.element.generator;
 
 import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.element.Table;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
-import com.xiaom.pos4j.parser.ElementExample;
-import com.xiaom.pos4j.parser.Placeholder;
-import com.xiaom.pos4j.parser.Property;
+import com.xiaom.pos4j.parser.*;
 import com.xiaom.pos4j.util.ConvertUtils;
-import com.xiaom.pos4j.v3.*;
 
 import java.util.List;
 
@@ -52,11 +49,7 @@ public class TableGenerator implements Generator<Table> {
             return;
         }
         Property itemProperty = example.getProperty("item");
-        List<Placeholder> placeholders = listProperty.getPlaceholders();
-        if (placeholders.isEmpty()) {
-            return;
-        }
-        Object value = placeholders.get(0).getVariable().execute(transform, env);
+        Object value = transform.get(listProperty.getValue(), env);
         Dict newEnv = Dict.create(env);
         if (!(value instanceof List)) {
             return;

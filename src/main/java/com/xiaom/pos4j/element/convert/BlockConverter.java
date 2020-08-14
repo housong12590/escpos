@@ -1,19 +1,21 @@
-package com.xiaom.pos4j.convert;
+package com.xiaom.pos4j.element.convert;
 
+import com.xiaom.pos4j.element.Block;
 import com.xiaom.pos4j.element.Element;
-import com.xiaom.pos4j.element.Group;
+import com.xiaom.pos4j.parser.ElementKit;
 import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.device.Device;
 
 /**
  * @author hous
  */
-public class GroupConverter implements Converter<Group> {
+public class BlockConverter implements Converter<Block> {
+
     @Override
-    public byte[] toBytes(Device device, Group element) {
+    public byte[] toBytes(Device device, Block element) {
         ByteBuffer buffer = new ByteBuffer();
         for (Element child : element.getChildren()) {
-            byte[] bytes = ConverterKit.matchConverterToBytes(child, device);
+            byte[] bytes = ElementKit.matchConverterToBytes(child, device);
             buffer.write(bytes);
         }
         return buffer.toByteArray();

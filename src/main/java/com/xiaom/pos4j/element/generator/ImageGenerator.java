@@ -1,4 +1,4 @@
-package com.xiaom.pos4j.v3.gen;
+package com.xiaom.pos4j.element.generator;
 
 import com.xiaom.pos4j.element.Image;
 import com.xiaom.pos4j.enums.Align;
@@ -6,7 +6,7 @@ import com.xiaom.pos4j.enums.Type;
 import com.xiaom.pos4j.util.ConvertUtils;
 import com.xiaom.pos4j.parser.ElementExample;
 import com.xiaom.pos4j.parser.Property;
-import com.xiaom.pos4j.v3.Transform;
+import com.xiaom.pos4j.parser.Transform;
 
 import java.util.List;
 

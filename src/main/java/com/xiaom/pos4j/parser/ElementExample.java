@@ -1,6 +1,7 @@
 package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.element.Element;
+import com.xiaom.pos4j.element.generator.CCCCC;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,9 +13,12 @@ public class ElementExample {
     private Class<? extends Element> elementClass;
     private ElementExample[] children;
     private Map<String, Property> properties;
+    private Element element;
+    private List<CCCCC<Element>> mappings;
 
     public ElementExample() {
         properties = new HashMap<>();
+        mappings = new ArrayList<>();
     }
 
     public Class<? extends Element> getElementClass() {
@@ -43,6 +47,22 @@ public class ElementExample {
 
     public void setChildren(ElementExample[] children) {
         this.children = children;
+    }
+
+    public Element getElement() {
+        return element;
+    }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
+
+    public List<CCCCC<Element>> getMappings() {
+        return mappings;
+    }
+
+    public void addMapping(CCCCC<Element> e) {
+        mappings.add(e);
     }
 
     @Override

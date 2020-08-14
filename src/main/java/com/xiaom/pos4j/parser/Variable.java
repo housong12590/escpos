@@ -1,7 +1,6 @@
 package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.util.ClassUtils;
-import com.xiaom.pos4j.v3.Transform;
 
 public class Variable {
 

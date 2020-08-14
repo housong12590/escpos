@@ -1,4 +1,4 @@
-package com.xiaom.pos4j.v3;
+package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.util.ClassUtils;
 import com.xiaom.pos4j.util.ExpressionUtils;

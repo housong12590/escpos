@@ -1,7 +1,6 @@
 package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.util.ConvertUtils;
-import com.xiaom.pos4j.v3.Transform;
 
 import java.util.List;
 

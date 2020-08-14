@@ -8,7 +8,7 @@ import com.xiaom.pos4j.enums.Size;
 /**
  * @author hous
  */
-public class Text extends Element {
+public class Text extends Element implements Cloneable {
 
     private String value = "";
     private Repeat repeat = Repeat.none;
@@ -79,5 +79,14 @@ public class Text extends Element {
                 ", bold=" + bold +
                 ", underline=" + underline +
                 '}';
+    }
+
+    @Override
+    public Text clone() {
+        try {
+            return (Text) super.clone();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

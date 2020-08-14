@@ -1,7 +1,7 @@
 package com.xiaom.pos4j.element;
 
 
-import com.xiaom.pos4j.convert.ConverterKit;
+import com.xiaom.pos4j.parser.ElementKit;
 import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.device.Device;
 
@@ -29,7 +29,7 @@ public class Document {
     public byte[] toBytes(Device device) {
         ByteBuffer buffer = new ByteBuffer();
         for (Element element : elements) {
-            byte[] bytes = ConverterKit.matchConverterToBytes(element, device);
+            byte[] bytes = ElementKit.matchConverterToBytes(element, device);
             buffer.write(bytes);
         }
         return buffer.toByteArray();
@@ -37,6 +37,10 @@ public class Document {
 
     @Override
     public String toString() {
-        return elements.toString();
+        StringBuilder sb = new StringBuilder();
+        for (Element element : elements) {
+            sb.append(element.toString()).append("\n");
+        }
+        return sb.toString();
     }
 }

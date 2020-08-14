@@ -1,4 +1,4 @@
-package com.xiaom.pos4j.convert;
+package com.xiaom.pos4j.element.convert;
 
 
 import com.xiaom.pos4j.element.Table;
