@@ -1,24 +1,24 @@
 package com.xiaom.pos4j.parser;
 
 
-import com.xiaom.pos4j.parser.attr.AttributeSet;
-import com.xiaom.pos4j.parser.attr.AttributeSetImpl;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+
 /**
+ * xml解析处理器
+ *
  * @author hous
  */
 public class XmlParseHandler extends DefaultHandler {
 
-    private AttributeSetImpl rootAttributeSet;
-    private AttributeSetImpl parentAttributeSet;
-    private AttributeSetImpl currentAttributeSet;
+    private AttributeSet rootAttributeSet;
+    private AttributeSet parentAttributeSet;
+    private AttributeSet currentAttributeSet;
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        AttributeSetImpl attribute = new AttributeSetImpl(qName);
+        AttributeSet attribute = new AttributeSet(qName);
         for (int i = 0; i < attributes.getLength(); i++) {
             String name = attributes.getQName(i);
             String value = attributes.getValue(i);
@@ -28,7 +28,7 @@ public class XmlParseHandler extends DefaultHandler {
             parentAttributeSet = rootAttributeSet = attribute;
         } else {
             attribute.setParent(parentAttributeSet);
-            parentAttributeSet.addAttributeSet(attribute);
+            parentAttributeSet.addChildren(attribute);
         }
         parentAttributeSet = currentAttributeSet = attribute;
     }
@@ -37,12 +37,12 @@ public class XmlParseHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) {
         if (currentAttributeSet.getParent() != null) {
-            if (currentAttributeSet.getName().equals(currentAttributeSet.getParent().getName())) {
+            if (currentAttributeSet.getElementName().equals(currentAttributeSet.getParent().getElementName())) {
                 currentAttributeSet = currentAttributeSet.getParent();
             }
         }
         if (currentAttributeSet != null) {
-            while (!currentAttributeSet.getName().equals(qName)) {
+            while (!currentAttributeSet.getElementName().equals(qName)) {
                 currentAttributeSet = parentAttributeSet;
             }
             parentAttributeSet = currentAttributeSet.getParent();

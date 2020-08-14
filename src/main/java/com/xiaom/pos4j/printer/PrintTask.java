@@ -1,16 +1,12 @@
 package com.xiaom.pos4j.printer;
 
-import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.element.Document;
-import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.listener.OnPaperChangeListener;
 import com.xiaom.pos4j.listener.OnPrintEventListener;
 import com.xiaom.pos4j.listener.PrintEvent;
 import com.xiaom.pos4j.orderset.OrderSet;
-import com.xiaom.pos4j.parser.Template;
 import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.util.IdUtils;
-import com.xiaom.pos4j.util.LogUtils;
 
 /**
  * @author hous
@@ -21,7 +17,7 @@ public class PrintTask {
     private static final int DEFAULT_PRINT_TIMEOUT = 60000;
 
     private String taskId;
-    private Template template;
+    private Document document;
     private Object tag;
     private Printer printer;
     private long timeout = DEFAULT_PRINT_TIMEOUT;
@@ -31,29 +27,14 @@ public class PrintTask {
     private OnPaperChangeListener paperChangeListener;
     private OnPrintEventListener printEventListener;
 
-    public PrintTask(Template template) {
-        this(IdUtils.uuid(), template);
+    public PrintTask(Document document) {
+        this(IdUtils.uuid(), document);
     }
 
-    public PrintTask(String taskId, Template template) {
+    public PrintTask(String taskId, Document document) {
         this.createTime = System.currentTimeMillis();
         this.taskId = taskId;
-        this.template = template;
-    }
-
-    public PrintTask(String taskId, String templateStr, Dict templateData, Object tag) {
-        this.template = new Template(templateStr, templateData);
-        this.taskId = taskId;
-        this.createTime = System.currentTimeMillis();
-        this.tag = tag;
-    }
-
-    public Template getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(Template template) {
-        this.template = template;
+        this.document = document;
     }
 
     public Printer getPrinter() {
@@ -140,7 +121,7 @@ public class PrintTask {
         return this.taskId;
     }
 
-    public byte[] printData() throws TemplateParseException {
+    public byte[] printData() {
         ByteBuffer buffer = new ByteBuffer();
         if (printer == null) {
             throw new NullPointerException("请先调用PrintTask.setPrinter()绑定打印机再进行打印...");
@@ -149,9 +130,6 @@ public class PrintTask {
         OrderSet orderSet = printer.getDevice().getOrderSet();
         // 初始化打印机
         buffer.write(orderSet.reset());
-        LogUtils.debug(String.format("%s 开始解析模版 ", taskId));
-        // 解析模版
-        Document document = template.toDocument();
         // 写入打印数据
         buffer.write(document.toBytes(printer.getDevice()));
         // 进纸

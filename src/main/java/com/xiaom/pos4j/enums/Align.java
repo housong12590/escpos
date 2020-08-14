@@ -7,15 +7,15 @@ public enum Align {
     /**
      * 左对齐
      */
-    LEFT,
+    left,
     /**
      * 居中对齐
      */
-    CENTER,
+    center,
     /**
      * 右边齐
      */
-    RIGHT;
+    right;
 
     @Override
     public String toString() {
@@ -29,20 +29,14 @@ public enum Align {
         attribute = attribute.toLowerCase().trim();
         switch (attribute) {
             case "center":
-            case "1":
-            case "c":
-                align = Align.CENTER;
+                align = Align.center;
                 break;
             case "right":
-            case "2":
-            case "r":
-                align = Align.RIGHT;
+                align = Align.right;
                 break;
             case "left":
-            case "0":
-            case "l":
             default:
-                align = Align.LEFT;
+                align = Align.left;
                 break;
         }
         return align;

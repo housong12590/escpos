@@ -4,8 +4,8 @@ import com.xiaom.pos4j.element.Image;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Type;
 import com.xiaom.pos4j.util.ConvertUtils;
-import com.xiaom.pos4j.v3.ElementExample;
-import com.xiaom.pos4j.v3.Property;
+import com.xiaom.pos4j.parser.ElementExample;
+import com.xiaom.pos4j.parser.Property;
 import com.xiaom.pos4j.v3.Transform;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class ImageGenerator implements Generator<Image> {
                     image.setValue(apply);
                     break;
                 case "align":
-                    Align align = Align.of(value, Align.CENTER);
+                    Align align = Align.of(value, Align.center);
                     image.setAlign(align);
                     break;
                 case "cache":

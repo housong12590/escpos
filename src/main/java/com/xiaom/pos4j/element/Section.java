@@ -1,11 +1,7 @@
 package com.xiaom.pos4j.element;
 
 
-import com.xiaom.pos4j.exception.TemplateParseException;
-import com.xiaom.pos4j.parser.attr.AttributeSet;
-
 import java.util.LinkedList;
-import java.util.Map;
 
 
 /**
@@ -13,10 +9,10 @@ import java.util.Map;
  */
 public class Section extends Element {
 
-    private LinkedList<Text> texts = new LinkedList<>();
+    private LinkedList<Text> texts;
 
     public Section() {
-
+        texts = new LinkedList<>();
     }
 
     public LinkedList<Text> getTexts() {
@@ -29,15 +25,5 @@ public class Section extends Element {
     public void addText(Text text) {
         text.setNewLine(false);
         texts.add(text);
-    }
-
-
-    @Override
-    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
-        for (AttributeSet attributeSet : attrs.getAttributeSets()) {
-            Text text = new Text();
-            text.parser(attributeSet, data);
-            addText(text);
-        }
     }
 }

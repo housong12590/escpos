@@ -6,7 +6,12 @@
 
     <groupId>com.xiaom</groupId>
     <artifactId>escpos4j</artifactId>
+    <packaging>pom</packaging>
     <version>1.0.3</version>
+    <modules>
+        <module>escpos-tmpl</module>
+        <module>escpos-print</module>
+    </modules>
 
     <dependencies>
 

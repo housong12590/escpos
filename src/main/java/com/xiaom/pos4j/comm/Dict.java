@@ -26,6 +26,9 @@ public class Dict implements Map<String, Object> {
     }
 
     public static Dict create(Object obj) {
+        if (obj == null) {
+            return new Dict();
+        }
         if (obj instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) obj;
             return new Dict(map);

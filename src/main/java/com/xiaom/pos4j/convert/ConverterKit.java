@@ -13,8 +13,7 @@ import java.util.Map;
  */
 public class ConverterKit {
 
-    @SuppressWarnings("rawtypes")
-    private static Map<Class<? extends Element>, Converter> converterMap = new HashMap<>();
+    private static Map<Class<? extends Element>, Converter<Element>> converterMap = new HashMap<>();
     private static Map<String, Class<? extends Element>> elementMap = new HashMap<>();
 
     static {
@@ -33,8 +32,7 @@ public class ConverterKit {
 
     }
 
-    @SuppressWarnings("rawtypes")
-    public static Converter matchConverter(String elementName) {
+    public static Converter<? extends Element> matchConverter(String elementName) {
         if (StringUtils.isNotEmpty(elementName)) {
             Class<? extends Element> elementClass = elementMap.get(elementName);
             if (elementClass != null) {
@@ -57,16 +55,15 @@ public class ConverterKit {
         return null;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    public static <T extends Element> byte[] matchConverterToBytes(T element, Device device) {
-        Converter converter = converterMap.get(element.getClass());
+    public static <T extends Element> byte[] matchConverterToBytes(Element element, Device device) {
+        Converter<Element> converter = converterMap.get(element.getClass());
         if (converter != null) {
             return converter.toBytes(device, element);
         }
         LogUtils.error(String.format("没有匹配到%s元素的转换器", element.getClass().getName()));
         LogUtils.info("可用的转换器如下: ");
-        for (Map.Entry<Class<? extends Element>, Converter> entry : converterMap.entrySet()) {
-            Converter value = entry.getValue();
+        for (Map.Entry<Class<? extends Element>, Converter<Element>> entry : converterMap.entrySet()) {
+            Converter<Element> value = entry.getValue();
             LogUtils.info(value.getClass().getName());
         }
         return new byte[0];

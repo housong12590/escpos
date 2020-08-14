@@ -3,7 +3,14 @@ package com.xiaom.pos4j.orderset;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
 
+/**
+ * 云打印机指令集
+ *
+ * @author hous
+ */
 public class CloudPrintOrderSet implements OrderSet {
+
+    public static OrderSet INSTANCE = new CloudPrintOrderSet();
 
     public static final byte[] EMPTY_ARR = new byte[0];
 
@@ -51,11 +58,11 @@ public class CloudPrintOrderSet implements OrderSet {
     @Override
     public byte[] align(Align align) {
         switch (align) {
-            case LEFT:
+            case left:
                 return L;
-            case RIGHT:
+            case right:
                 return R;
-            case CENTER:
+            case center:
                 return C;
         }
         return new byte[0];
@@ -63,11 +70,6 @@ public class CloudPrintOrderSet implements OrderSet {
 
     @Override
     public byte[] bold(boolean bold) {
-//        if (bold) {
-//            return BOLD;
-//        }
-//        return "</BOLD>".getBytes();
-
         return EMPTY_ARR;
     }
 
@@ -79,10 +81,8 @@ public class CloudPrintOrderSet implements OrderSet {
     @Override
     public byte[] textSize(Size size) {
         switch (size) {
-            case normal:
             case w1h1:
                 return N;
-            case big:
             case w2h2:
                 return B;
             case w1h2:
@@ -90,7 +90,6 @@ public class CloudPrintOrderSet implements OrderSet {
             case w2h1:
                 return WB;
             case w3h3:
-            case oversized:
                 return B2;
             case w1h3:
                 return HB2;

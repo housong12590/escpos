@@ -42,7 +42,7 @@ public final class Constants {
             "    <image type=\"qrcode\" value=\"https://github.com/housong12590/escpos\" width=\"180\" height=\"180\"\n" +
             "           align=\"center\"/>\n" +
             "\n" +
-            "    <text value=\"打印时间: ${date}\" align=\"right\" marginTop=\"1\"/>\n" +
+            "    <text value=\"打印时间: #{date}\" align=\"right\" marginTop=\"1\"/>\n" +
             "\n" +
             "</document>";
 }

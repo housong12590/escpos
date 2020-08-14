@@ -1,18 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="print_template">
-
-    <!--    <text value="订单编号: #{order_id}    下单时间: #{pay_time}   #{pay_time}" align="center" bold="true" size="big"/>-->
-    <!--    <section>-->
-    <!--        <text value="餐具数量:"/>-->
-    <!--        <text value="${keys.guests}" size="w1h2"/>-->
-    <!--        <text value="份"/>-->
-    <!--    </section>-->
-
-  <table>
-      <tr repeatKey="#{goods}">
-          <td value="#{this.name}" weight="4"/>
-          <td value="#{this.num}" weight="2"/>
-          <td value="#{this.amount}" weight="2"/>
-      </tr>
-  </table>
+    <text value="${date}" align="left"/>
+    <text value="-" repeat="fill" condition="#{keys.order_remark}"/>
+    <text value="备注: ${keys.order_remark}" size="w2h2" condition="#{keys.order_remark}"/>
+    <text value="-" repeat="fill"/>
+    <text value="${keys.title}" align="center" size="big"/>
+    <text value="${keys.pay_name}" align="center" size="w1h2"/>
+    <text value="订 单 号: ${keys.order_code}" marginTop="1"/>
+    <text value="下单时间: ${keys.ctime}"/>
+    <section>
+        <text value="餐具数量:"/>
+        <text value="${keys.guests}" size="w1h2"/>
+        <text value="份"/>
+    </section>
+    <text value="-" repeat="fill"/>
+        <table>
+            <tr list="#{goods}" item="g" size="w1h2">
+                <td value="#{g.name}" weight="4"/>
+                <td value="X#{g.num}" weight="2" align="right"/>
+                <td value="#{g.amount}" weight="2" align="right"/>
+            </tr>
+            <tr>
+                <td value=" " weight="1"/>
+            </tr>
+            <tr>
+                <td value="合计:" weight="4"/>
+                <td value="x5" weight="2" align="right"/>
+                <td value="44" weight="2" align="right"/>
+            </tr>
+        </table>
+        <section>
+            <text value="-" repeat="auto"/>
+            <text value="其它"/>
+            <text value="-" repeat="auto"/>
+        </section>
+    <group list="#{goods}" item="g">
+        <text value="#{g.name} : #{g.amount}"/>
+    </group>
+        <text value="-" repeat="fill"/>
+        <text value="总计: ￥#{keys.sum_value}" align="right" size="w1h2"/>
+        <text value="-" repeat="fill"/>
+        <text value="#{keys.receiver_name}  #{keys.receiver_mobile}" size="w1h2"/>
+        <text value="#{keys.delivery_address}" size="w1h2"/>
 </document>

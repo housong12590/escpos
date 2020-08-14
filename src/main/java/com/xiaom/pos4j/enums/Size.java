@@ -5,18 +5,6 @@ package com.xiaom.pos4j.enums;
  */
 public enum Size {
 
-    /**
-     * 正常大小
-     */
-    normal(1, 1),
-    /**
-     * 较大
-     */
-    big(2, 2),
-    /**
-     * 超大
-     */
-    oversized(3, 3),
     w1h1(1, 1),
     w2h1(2, 1),
     w3h1(3, 1),
@@ -46,26 +34,7 @@ public enum Size {
         if (value == null) {
             return size;
         }
-        value = value.toLowerCase().trim();
         switch (value) {
-            case "normal":
-            case "1":
-            case "x1":
-                size = Size.normal;
-                break;
-            case "big":
-            case "2":
-            case "x2":
-                size = Size.big;
-                break;
-            case "oversized":
-            case "3":
-            case "x3":
-                size = Size.oversized;
-                break;
-            case "w1h1":
-                size = Size.w1h1;
-                break;
             case "w2h1":
                 size = Size.w2h1;
                 break;
@@ -91,7 +60,7 @@ public enum Size {
                 size = Size.w3h3;
                 break;
             default:
-                size = Size.normal;
+                size = Size.w1h1;
                 break;
         }
         return size;

@@ -40,7 +40,7 @@ public class StringUtils {
     }
 
     public static List<String> splitOfGBKLength(String text, int len) {
-        return splitOfGBKLength(text, len, null, Size.normal);
+        return splitOfGBKLength(text, len, null, Size.w1h1);
     }
 
     public static List<String> splitOfGBKLength(String text, int len, Align align, Size size) {
@@ -64,13 +64,13 @@ public class StringUtils {
             String value = "";
             if (align != null) {
                 switch (align) {
-                    case LEFT:
+                    case left:
                         value = fillBlankRight2GBKLength(sb.toString(), len, size);
                         break;
-                    case RIGHT:
+                    case right:
                         value = fillBlankLeft2GBKLength(sb.toString(), len, size);
                         break;
-                    case CENTER:
+                    case center:
                         value = fillBlankBoth2GBKLength(sb.toString(), len, size);
                         break;
                 }

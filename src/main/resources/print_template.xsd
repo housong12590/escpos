@@ -102,8 +102,8 @@
             <xs:choice maxOccurs="unbounded">
                 <xs:element ref="td"/>
             </xs:choice>
-            <xs:attribute name="repeatKey" type="subexpression"/>
-            <xs:attribute name="repeat" type="xs:boolean"/>
+            <xs:attribute name="list" type="subexpression"/>
+            <xs:attribute name="item" type="xs:string"/>
             <xs:attribute name="bold" type="xs:boolean"/>
             <xs:attribute name="size" type="size"/>
         </xs:complexType>
@@ -126,7 +126,8 @@
                 <xs:element ref="image"/>
                 <xs:element ref="group"/>
             </xs:choice>
-            <xs:attribute name="repeatKey" type="subexpression" use="required"/>
+            <xs:attribute name="list" type="subexpression" use="required"/>
+            <xs:attribute name="item" type="xs:string" use="required"/>
             <xs:attribute name="condition" type="subexpression"/>
         </xs:complexType>
     </xs:element>

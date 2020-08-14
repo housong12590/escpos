@@ -1,15 +1,9 @@
 package com.xiaom.pos4j.element;
 
 
-import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Repeat;
 import com.xiaom.pos4j.enums.Size;
-import com.xiaom.pos4j.exception.TemplateParseException;
-import com.xiaom.pos4j.parser.attr.AttributeSet;
-import com.xiaom.pos4j.util.ExpressionUtils;
-
-import java.util.Map;
 
 /**
  * @author hous
@@ -18,8 +12,8 @@ public class Text extends Element {
 
     private String value = "";
     private Repeat repeat = Repeat.none;
-    private Align align = Align.LEFT;
-    private Size size = Size.normal;
+    private Align align = Align.left;
+    private Size size = Size.w1h1;
     private boolean bold;
     private boolean underline;
 
@@ -73,17 +67,6 @@ public class Text extends Element {
 
     public void setUnderline(boolean underline) {
         this.underline = underline;
-    }
-
-    @Override
-    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
-        this.bold = attrs.getBooleanValue(Attribute.BOLD, this.bold);
-        this.underline = attrs.getBooleanValue(Attribute.UNDERLINE, this.underline);
-        this.align = Align.of(attrs.getAttributeValue(Attribute.ALIGN), this.align);
-        this.size = Size.of(attrs.getAttributeValue(Attribute.SIZE), this.size);
-        this.value = attrs.getAttributeValue(Attribute.VALUE, this.value);
-        this.repeat = Repeat.of(attrs.getAttributeValue(Attribute.REPEAT), this.repeat);
-        this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, this.value, data);
     }
 
     @Override

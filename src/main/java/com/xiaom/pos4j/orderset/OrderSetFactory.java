@@ -5,10 +5,13 @@ package com.xiaom.pos4j.orderset;
  */
 public class OrderSetFactory {
 
-    private static OrderSet orderSet = new StandardOrderSet();
 
     public static OrderSet getDefault() {
-        return orderSet;
+        return StandardOrderSet.INSTANCE;
+    }
+
+    public static OrderSet cloudPrint() {
+        return CloudPrintOrderSet.INSTANCE;
     }
 
 }

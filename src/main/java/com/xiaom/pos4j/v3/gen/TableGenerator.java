@@ -4,6 +4,9 @@ import com.xiaom.pos4j.comm.Dict;
 import com.xiaom.pos4j.element.Table;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
+import com.xiaom.pos4j.parser.ElementExample;
+import com.xiaom.pos4j.parser.Placeholder;
+import com.xiaom.pos4j.parser.Property;
 import com.xiaom.pos4j.util.ConvertUtils;
 import com.xiaom.pos4j.v3.*;
 
@@ -25,7 +28,6 @@ public class TableGenerator implements Generator<Table> {
     private void parseTableTr(Table table, ElementExample example, Transform transform, Object env) {
         Table.TR tr = new Table.TR();
         List<Property> properties = example.getProperties();
-        Property repeatProperty = null;
         for (Property property : properties) {
             String value = property.getValue();
             switch (property.getName()) {
@@ -34,15 +36,13 @@ public class TableGenerator implements Generator<Table> {
                     tr.setBold(bold);
                     break;
                 case "size":
-                    Size size = Size.of(value, Size.normal);
+                    Size size = Size.of(value, Size.w1h1);
                     tr.setSize(size);
-                    break;
-                case "repeatKey":
-                    repeatProperty = property;
                     break;
             }
         }
-        boolean isRepeat = repeatProperty != null;
+        Property listProperty = example.getProperty("list");
+        boolean isRepeat = listProperty != null;
         for (ElementExample exampleChild : example.getChildren()) {
             Table.TD td = createTableTd(isRepeat, exampleChild, transform, env);
             tr.addTd(td);
@@ -51,7 +51,8 @@ public class TableGenerator implements Generator<Table> {
             table.addTr(tr);
             return;
         }
-        List<Placeholder> placeholders = repeatProperty.getPlaceholders();
+        Property itemProperty = example.getProperty("item");
+        List<Placeholder> placeholders = listProperty.getPlaceholders();
         if (placeholders.isEmpty()) {
             return;
         }
@@ -61,9 +62,9 @@ public class TableGenerator implements Generator<Table> {
             return;
         }
         List<?> list = (List<?>) value;
-        ThisTransform thisTransform = new ThisTransform(transform);
+        MapTransform mapTransform = MapTransform.get();
         for (Object item : list) {
-            newEnv.put(ThisTransform.THIS, item);
+            newEnv.put(itemProperty.getValue(), item);
             Table.TR tr1 = new Table.TR();
             tr1.setSize(tr.getSize());
             tr1.setBold(tr.isBold());
@@ -73,7 +74,7 @@ public class TableGenerator implements Generator<Table> {
                 Table.TD td1 = new Table.TD();
                 td1.setAlign(td.getAlign());
                 td1.setWeight(td.getWeight());
-                Object o = thisTransform.get(td.getValue(), newEnv);
+                Object o = mapTransform.get(td.getValue(), newEnv);
                 td1.setValue(ConvertUtils.toString(o));
                 tr1.addTd(td1);
             }
@@ -92,7 +93,7 @@ public class TableGenerator implements Generator<Table> {
                     td.setWidth(weight);
                     break;
                 case "align":
-                    Align align = Align.of(value, Align.LEFT);
+                    Align align = Align.of(value, Align.left);
                     td.setAlign(align);
                     break;
                 case "value":

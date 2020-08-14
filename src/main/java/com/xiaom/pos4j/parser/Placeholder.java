@@ -1,4 +1,4 @@
-package com.xiaom.pos4j.v3;
+package com.xiaom.pos4j.parser;
 
 public class Placeholder {
 

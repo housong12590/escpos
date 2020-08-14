@@ -1,4 +1,7 @@
-package com.xiaom.pos4j.v3;
+package com.xiaom.pos4j.parser;
+
+import com.xiaom.pos4j.util.ConvertUtils;
+import com.xiaom.pos4j.v3.Transform;
 
 import java.util.List;
 
@@ -38,7 +41,10 @@ public class Property {
             Placeholder p = placeholders.get(i);
             int start = p.getStart();
             int end = p.getEnd();
-            sb.replace(start, end, p.getVariable().execute(transform, env));
+            Object value = p.getVariable().execute(transform, env);
+            if (value != null) {
+                sb.replace(start, end, ConvertUtils.toString(value));
+            }
         }
         return sb.toString();
     }

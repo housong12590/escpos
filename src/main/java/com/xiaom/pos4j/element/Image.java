@@ -1,15 +1,8 @@
 package com.xiaom.pos4j.element;
 
 
-import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Type;
-import com.xiaom.pos4j.exception.TemplateParseException;
-import com.xiaom.pos4j.parser.attr.AttributeSet;
-import com.xiaom.pos4j.util.ExpressionUtils;
-import com.xiaom.pos4j.util.StringUtils;
-
-import java.util.Map;
 
 /**
  * @author hous
@@ -21,7 +14,7 @@ public class Image extends Element {
     private int height;
     private String value = "";
     private int[] pixels;
-    private Align align = Align.LEFT;
+    private Align align = Align.left;
 
     public Image() {
 
@@ -79,22 +72,5 @@ public class Image extends Element {
 
     public void setHeight(int height) {
         this.height = height;
-    }
-
-    @Override
-    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
-        this.value = attrs.getAttributeValue(Attribute.VALUE, this.value);
-        this.value = ExpressionUtils.replacePlaceholder(Constants.PARSE_PATTERN, this.value, data);
-        this.type = Type.of(attrs.getAttributeValue(Attribute.TYPE), this.type);
-        this.align = Align.of(attrs.getAttributeValue(Attribute.ALIGN), this.align);
-        if (StringUtils.isEmpty(this.value)) {
-            throw new TemplateParseException("image value can not null");
-        }
-        if (getWidth() > 0 && getHeight() > 0) {
-            this.pixels = type.createPixels(value, getWidth(), getHeight());
-            if (this.pixels == null) {
-                throw new TemplateParseException("image pixels can not null !");
-            }
-        }
     }
 }

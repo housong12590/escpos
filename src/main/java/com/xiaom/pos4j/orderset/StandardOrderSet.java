@@ -7,9 +7,12 @@ import com.xiaom.pos4j.enums.Size;
 
 /**
  * 标准打印机指令集
+ *
  * @author hous
  */
 public class StandardOrderSet implements OrderSet {
+
+    public static OrderSet INSTANCE = new StandardOrderSet();
 
     private static final byte LF = 0x0a;
     private static final byte ESC = 0x1b;
@@ -51,8 +54,8 @@ public class StandardOrderSet implements OrderSet {
     @Override
     public byte[] align(Align align) {
         byte b;
-        if (align == Align.CENTER) b = 0x01;
-        else if (align == Align.RIGHT) b = 0x02;
+        if (align == Align.center) b = 0x01;
+        else if (align == Align.right) b = 0x02;
         else b = 0x00;
         return new byte[]{ESC, 0x61, b};
     }

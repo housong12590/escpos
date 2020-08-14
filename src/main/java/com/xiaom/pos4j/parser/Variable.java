@@ -1,6 +1,7 @@
-package com.xiaom.pos4j.v3;
+package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.util.ClassUtils;
+import com.xiaom.pos4j.v3.Transform;
 
 public class Variable {
 
@@ -20,6 +21,9 @@ public class Variable {
     }
 
     public <T> T execute(Transform transform, Object env) {
+        if (transform == null || env == null) {
+            return null;
+        }
         Object value = transform.get(variable, env);
         if (value == null) {
             return null;

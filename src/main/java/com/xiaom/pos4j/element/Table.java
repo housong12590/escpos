@@ -3,12 +3,9 @@ package com.xiaom.pos4j.element;
 
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
-import com.xiaom.pos4j.exception.TemplateParseException;
-import com.xiaom.pos4j.parser.attr.AttributeSet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author hous
@@ -29,16 +26,12 @@ public class Table extends Element {
         trs.add(tr);
     }
 
-    @Override
-    public void parser0(AttributeSet attrs, Map<?, ?> data) throws TemplateParseException {
-
-    }
 
     public static class TR {
 
         private List<TD> tds;
         private boolean bold = false;
-        private Size size = Size.normal;
+        private Size size = Size.w1h1;
 
         public TR() {
             tds = new ArrayList<>();
@@ -75,24 +68,17 @@ public class Table extends Element {
 
         private String value = "";
         private int weight = 1;
-        private Align align = Align.LEFT;
+        private Align align = Align.left;
         private int width;
 
         public TD() {
 
         }
 
-        public TD(AttributeSet attr) {
-            this.value = attr.getAttributeValue(Attribute.VALUE, this.value);
-            this.weight = attr.getIntValue(Attribute.WEIGHT, this.weight);
-            this.align = Align.of(attr.getAttributeValue(Attribute.ALIGN), this.align);
-        }
-
-        public TD(String value, int weight, Align align, int width) {
+        public TD(String value, int weight, Align align) {
             this.value = value;
             this.weight = weight;
             this.align = align;
-            this.width = width;
         }
 
         public String getValue() {

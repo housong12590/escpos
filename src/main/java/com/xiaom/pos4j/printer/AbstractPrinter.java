@@ -2,15 +2,15 @@ package com.xiaom.pos4j.printer;
 
 import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.device.Device;
+import com.xiaom.pos4j.element.Document;
 import com.xiaom.pos4j.exception.PrintTimeoutException;
-import com.xiaom.pos4j.exception.TemplateParseException;
 import com.xiaom.pos4j.listener.OnPaperChangeListener;
 import com.xiaom.pos4j.listener.OnPrintEventListener;
 import com.xiaom.pos4j.listener.OnPrinterListener;
 import com.xiaom.pos4j.listener.PrintEvent;
-import com.xiaom.pos4j.parser.Template;
 import com.xiaom.pos4j.util.ConvertUtils;
 import com.xiaom.pos4j.util.LogUtils;
+import com.xiaom.pos4j.parser.Template;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,7 +99,9 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public void testPrint() {
-        PrintTask printTask = new PrintTask(new Template(Constants.TEST_TEMPLATE));
+        Template template = new Template(Constants.TEST_TEMPLATE);
+        Document document = template.toDocument(null, null);
+        PrintTask printTask = new PrintTask(document);
         printTask.setTempPrint(true);
         print(printTask);
     }
@@ -198,7 +200,9 @@ public abstract class AbstractPrinter implements Printer, Runnable {
 
     @Override
     public PrintResult syncTestPrint() {
-        PrintTask printTask = new PrintTask(new Template(Constants.TEST_TEMPLATE));
+        Template template = new Template(Constants.TEST_TEMPLATE);
+        Document document = template.toDocument(null, null);
+        PrintTask printTask = new PrintTask(document);
         printTask.setTempPrint(true);
         return syncPrint(printTask);
     }
@@ -379,14 +383,8 @@ public abstract class AbstractPrinter implements Printer, Runnable {
                                 printTaskTimeout(curPrintTask);
                                 continue;
                             }
-                            // 打印过程中出现不可逆的异常, 比如模版解析失败, 重试也不可能打印成功的, 直接触发回调
-                            String errorMsg;
-                            if (e instanceof TemplateParseException) {
-                                errorMsg = "template parse error: " + e.getMessage();
-                            } else {
-                                errorMsg = "print error: " + e.getMessage();
-                            }
-                            printTaskError(curPrintTask, errorMsg);
+                            // 打印过程中出现不可逆的异常, 重试也不可能打印成功的, 直接触发回调
+                            printTaskError(curPrintTask, "print error: " + e.getMessage());
                         }
                     }
                 }
