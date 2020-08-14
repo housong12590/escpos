@@ -10,10 +10,6 @@ public interface Generator<T extends Element> {
 
     T create(ElementExample example, Transform transform, Object env);
 
-
-    default void apply(ElementExample example, Transform transform, Object env) {
-    }
-
     default void parseMargin(Element element, ElementExample example) {
         int[] margin = element.getMargin();
         Property marginLeft = example.getProperty("marginLeft");

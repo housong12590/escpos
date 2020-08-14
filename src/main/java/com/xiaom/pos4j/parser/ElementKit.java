@@ -4,6 +4,7 @@ import com.xiaom.pos4j.device.Device;
 import com.xiaom.pos4j.element.*;
 import com.xiaom.pos4j.element.convert.*;
 import com.xiaom.pos4j.element.generator.*;
+import com.xiaom.pos4j.util.ClassUtils;
 import com.xiaom.pos4j.util.LogUtils;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class ElementKit {
     public static <T extends Element> T getElement(ElementExample example, Transform transform, Object env) {
         Class<? extends Element> elementClass = example.getElementClass();
         Generator<? extends Element> generator = generatorMap.get(elementClass);
-        return (T) generator.create(example, transform, env);
+        return ClassUtils.cast(generator.create(example, transform, env));
     }
 
     public static Class<? extends Element> getElementClass(String elName) {
@@ -46,8 +47,7 @@ public class ElementKit {
     }
 
     public static byte[] matchConverterToBytes(Element element, Device device) {
-        Converter<Element> converter = (Converter<Element>) converterMap.get(element.getClass());
-
+        Converter<Element> converter = ClassUtils.cast(converterMap.get(element.getClass()));
         if (converter != null) {
             return converter.toBytes(device, element);
         }
