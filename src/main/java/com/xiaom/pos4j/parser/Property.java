@@ -40,7 +40,7 @@ public class Property {
             Placeholder p = placeholders.get(i);
             int start = p.getStart();
             int end = p.getEnd();
-            Object value = p.getVariable().execute(transform, env);
+            Object value = p.execute(transform, env);
             if (value != null) {
                 sb.replace(start, end, ConvertUtils.toString(value));
             }

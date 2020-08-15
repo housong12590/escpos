@@ -32,6 +32,10 @@ public class Placeholder {
         return variable;
     }
 
+    public <T> T execute(Transform transform, Object env) {
+        return variable.execute(transform, env);
+    }
+
     @Override
     public String toString() {
         return "Placeholder{" +
