@@ -83,5 +83,28 @@
       "value": "3"
     }
   ],
-  "order_id": "129680747652059136"
+  "order_id": "129680747652059136",
+  "store": {
+    "store_name": "牛奶铺子",
+    "create_time": "2020-08-08 21:03:13",
+    "goods_amount": "248",
+    "pay_amount": "226",
+    "user": {
+      "username": "hous",
+      "attach": [
+        {
+          "name": "店铺满减",
+          "value": "-20"
+        },
+        {
+          "name": "优惠券",
+          "value": "-5"
+        },
+        {
+          "name": "配送费",
+          "value": "3"
+        }
+      ]
+    }
+  }
 }

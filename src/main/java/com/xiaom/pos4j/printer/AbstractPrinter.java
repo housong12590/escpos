@@ -100,7 +100,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     @Override
     public void testPrint() {
         Template template = new Template(Constants.TEST_TEMPLATE);
-        Document document = template.toDocument(null, null);
+        Document document = template.toDocument(null);
         PrintTask printTask = new PrintTask(document);
         printTask.setTempPrint(true);
         print(printTask);
@@ -201,7 +201,7 @@ public abstract class AbstractPrinter implements Printer, Runnable {
     @Override
     public PrintResult syncTestPrint() {
         Template template = new Template(Constants.TEST_TEMPLATE);
-        Document document = template.toDocument(null, null);
+        Document document = template.toDocument(null);
         PrintTask printTask = new PrintTask(document);
         printTask.setTempPrint(true);
         return syncPrint(printTask);

@@ -68,17 +68,13 @@ public class Template {
     }
 
     public Document toDocument() {
-        return toDocument(MapTransform.get(), null);
+        return toDocument(null);
     }
 
     public Document toDocument(Object env) {
-        return toDocument(MapTransform.get(), env);
-    }
-
-    public Document toDocument(Transform transform, Object env) {
         Document document = new Document();
         for (ElementExample elementExample : elementExamples) {
-            Element element = ElementKit.getElement(elementExample, transform, env);
+            Element element = ElementKit.getElement(elementExample, MapTransform.get(), env);
             if (element != null) {
                 document.addElement(element);
             }

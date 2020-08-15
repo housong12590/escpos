@@ -10,8 +10,8 @@
         <text value="-" repeat="auto"/>
     </section>
 
-    <block list="deliverys" item="item">
-        <text value="#{item}" size="w1h2"/>
+    <block list="delivery" item="item">
+        <text value="#{item.name}" size="w1h2"/>
     </block>
 
     <section>
