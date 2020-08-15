@@ -2,16 +2,20 @@ package com.xiaom.pos4j;
 
 import com.googlecode.aviator.AviatorEvaluator;
 import com.xiaom.pos4j.comm.Dict;
+import com.xiaom.pos4j.device.Device;
+import com.xiaom.pos4j.device.DeviceFactory;
+import com.xiaom.pos4j.orderset.CloudPrintOrderSet;
 import com.xiaom.pos4j.parser.Document;
 import com.xiaom.pos4j.parser.Template;
 import com.xiaom.pos4j.util.Expression;
 import com.xiaom.pos4j.util.FileUtils;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 public class Index {
 
-    static int count = 1000000;
+    static int count = 100000;
 
     public static void main(String[] args) {
         test01();
@@ -19,15 +23,15 @@ public class Index {
 
     public static void test01() {
         String data = FileUtils.read("data.json");
-        Dict env = Dict.create(data);
+        Dict env = Dict.of(data);
         Template template = Template.compile(new File("example.xml"));
         long sTime = System.currentTimeMillis();
-        for (int i = 0; i < 1_000_000; i++) {
+        for (int i = 0; i < 10000; i++) {
             Document document = template.toDocument(env);
-//            Device device = DeviceFactory.device_58();
-//            device.setOrderSet(CloudPrintOrderSet.INSTANCE);
-//            device.setCharset(Charset.defaultCharset());
-//            byte[] bytes = document.toBytes(device);
+            Device device = DeviceFactory.device_58();
+            device.setOrderSet(CloudPrintOrderSet.INSTANCE);
+            device.setCharset(Charset.defaultCharset());
+            byte[] bytes = document.toBytes(device);
         }
         long nTime = System.currentTimeMillis();
         System.out.println(String.format("耗时: %sms", (nTime - sTime)));
@@ -35,7 +39,7 @@ public class Index {
 
     public static void test02() {
         String data = FileUtils.read("data.json");
-        Dict env = Dict.create(data);
+        Dict env = Dict.of(data);
         long sTime = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
             AviatorEvaluator.execute("store_name", env, true);
@@ -48,7 +52,7 @@ public class Index {
 
     public static void test03() {
         String data = FileUtils.read("data.json");
-        Dict env = Dict.create(data);
+        Dict env = Dict.of(data);
         long sTime = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
             Object o = env.getValue("store.user.attach[0].name");
@@ -61,7 +65,7 @@ public class Index {
 
     public static void test05() {
         String data = FileUtils.read("data.json");
-        Dict env = Dict.create(data);
+        Dict env = Dict.of(data);
         Expression expression = Expression.of("store.user.attach[0].name");
         long sTime = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {

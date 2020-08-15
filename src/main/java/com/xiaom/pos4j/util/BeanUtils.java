@@ -2,18 +2,17 @@ package com.xiaom.pos4j.util;
 
 
 import java.lang.reflect.Field;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BeanUtils {
 
+
     public static <T> T copyProperties(Object source, Class<T> cls) {
         try {
-            T instance = cls.newInstance();
-            copyProperties(source, instance);
-            return instance;
+            T target = cls.newInstance();
+            copyProperties(source, target);
+            return target;
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -21,80 +20,74 @@ public class BeanUtils {
     }
 
     public static void copyProperties(Object source, Object target) {
-        Map<String, Field> sourceMap = getFieldMap(source);
-        Map<String, Field> targetMap = getFieldMap(target);
-        targetMap.forEach(new BiConsumer<String, Field>() {
-            @Override
-            public void accept(String key, Field targetField) {
-                Field sourceField = sourceMap.get(key);
-                try {
-                    if (sourceField != null) {
-                        Object value = sourceField.get(source);
-                        if (value == null) {
-                            return;
-                        }
-                        if (sourceField.getType() != targetField.getType()) {
-                            value = ConvertUtils.matchTypeCast(targetField.getType(), value);
-                        }
-                        targetField.set(target, value);
-                    }
-                } catch (Exception ignored) {
+        copyProperties0(source, target);
+    }
 
+    public static void copyProperties0(Object source, Object target) {
+        if (source == null || target == null) return;
+        Class<?> srcClass = source.getClass();
+        Class<?> dstClass = target.getClass();
+        for (Field srcField : srcClass.getDeclaredFields()) {
+            if (ClassUtils.isStatic(srcField)) continue;
+            if (!ClassUtils.isPublic(srcField)) {
+                srcField.setAccessible(true);
+            }
+            try {
+                Field dstField = dstClass.getDeclaredField(srcField.getName());
+                if (dstField == null) continue;
+                if (!ClassUtils.isPublic(dstField)) {
+                    dstField.setAccessible(true);
                 }
+                Class<?> srcType = srcField.getType();
+                Class<?> dstType = dstField.getType();
+                Object value = srcField.get(source);
+                if (value == null) continue;
+                if (srcType != dstType) {
+                    value = ConvertUtils.matchTypeCast(srcType, value);
+                }
+                dstField.set(target, value);
+            } catch (Exception ignored) {
+
             }
-        });
-    }
-
-    private static Map<String, Field> getFieldMap(Object obj) {
-        Map<String, Field> maps = new HashMap<>();
-        if (obj != null) {
-            for (Field field : ClassUtils.getFields(obj)) {
-                field.setAccessible(true);
-                String fieldName = field.getName();
-                maps.put(fieldName, field);
-            }
         }
-        return maps;
     }
 
-    public static <Key, Entity> Map<Key, Entity> toMap(Collection<Entity> list, Function<Entity, Key> mapping) {
-        if (list.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        return list.stream().collect(Collectors.toMap(mapping, v -> v));
-    }
-
-    public static <E, R> List<R> toList(Collection<E> list, Function<E, R> mapping) {
-        if (list.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return list.stream().map(mapping).collect(Collectors.toList());
-    }
-
-    public static <T> T toBean(Map<?, ?> map, Class<T> bean) {
+    public static <T> T mapToBean(Map<?, ?> map, Class<T> cls) {
+        if (map == null) return null;
+        T obj;
         try {
-            T object = bean.newInstance();
-            for (Field field : ClassUtils.getFields(object)) {
-                field.setAccessible(true);
-                Class<?> type = field.getType();
-                Object value = map.get(field.getName());
-                if (value instanceof Map) {
-                    value = BeanUtils.toBean((Map<?, ?>) value, type);
-                } else if (value instanceof List && type == List.class) {
-                    Class<?> cls = ClassUtils.getParameterizedType(field);
-                    List<Object> _list = new ArrayList<>();
-                    ((List<?>) value).forEach(o -> _list.add(toBean((Map<?, ?>) o, cls)));
-                    value = _list;
-                } else {
-                    value = ConvertUtils.matchTypeCast(type, value);
+            obj = cls.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            return null;
+        }
+        for (Field f : cls.getDeclaredFields()) {
+            if (ClassUtils.isStatic(f)) continue;
+            if (!ClassUtils.isPublic(f)) f.setAccessible(true);
+            Object value = map.get(f.getName());
+            if (value == null) continue;
+            Class<?> fieldType = f.getType();
+            try {
+                if (fieldType.isInstance(value)) {
+                    f.set(obj, value);
+                } else if (ClassUtils.isPrimitive(fieldType)) {
+                    value = ConvertUtils.matchTypeCast(cls, value);
+                    f.set(obj, value);
                 }
-                if (value != null) {
-                    field.set(object, value);
-                }
+            } catch (Exception ignored) {
+
             }
-            return object;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        }
+        return obj;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T toBean(Object value, Class<T> cls) {
+        if (value == null) return null;
+        else if (cls.isInstance(value)) return (T) value;
+        else if (value instanceof Map) {
+            return mapToBean((Map<?, ?>) value, cls);
+        } else {
+            return copyProperties(value, cls);
         }
     }
 
@@ -103,37 +96,13 @@ public class BeanUtils {
         return JSONUtils.toBean(json, cls);
     }
 
-    public static <T> T toBeanOrDefault(String json, Class<T> cls) {
-        if (StringUtils.isEmpty(json)) {
-            try {
-                return cls.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return JSONUtils.toBean(json, cls);
-    }
-
-    public static List<Object> toListOrDefault(String json) {
-        if (StringUtils.isEmpty(json)) {
-            return new ArrayList<>();
-        }
-        return JSONUtils.toBean(json, List.class);
-    }
-
-    public static <T> List<T> toListOrDefault(String json, Class<T> cls) {
-        return toListOrDefault(json, cls, new ArrayList<>());
-    }
-
-    public static <T> List<T> toListOrDefault(String json, Class<T> cls, List<T> defValue) {
-        if (StringUtils.isEmpty(json)) {
-            return defValue;
-        }
-        return JSONUtils.toList(json, cls);
-    }
-
     public static Map<String, Object> toMap(Object bean) {
         Map<String, Object> map = new HashMap<>();
+        toMap(bean, map);
+        return map;
+    }
+
+    public static void toMap(Object bean, Map<String, Object> map) {
         try {
             for (Field field : ClassUtils.getFields(bean)) {
                 field.setAccessible(true);
@@ -141,7 +110,6 @@ public class BeanUtils {
                 Object value = field.get(bean);
                 map.put(key, value);
             }
-            return map;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }

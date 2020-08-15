@@ -113,7 +113,7 @@ public class ForwardingPrinter extends AbstractPrinter {
     private boolean checkResult(PrintTask printTask, PrintProtocol protocol) {
         if (protocol != null && protocol.getHead() == PrintProtocol.result_head) {
             String resultJson = new String(protocol.getData());
-            Dict dict = Dict.create(resultJson);
+            Dict dict = Dict.of(resultJson);
             if (dict.getBool("error")) {
                 throw new RuntimeException(dict.getString("msg"));
             } else if (dict.getBool("success")) {

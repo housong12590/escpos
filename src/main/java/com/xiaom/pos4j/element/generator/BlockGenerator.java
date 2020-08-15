@@ -26,7 +26,7 @@ public class BlockGenerator implements Generator<Block> {
         Property testProperty = example.getProperty("test");
         Property listProperty = example.getProperty("list");
         Property itemProperty = example.getProperty("item");
-        Map<String, Object> newEnv = Dict.create(env);
+        Map<String, Object> newEnv = Dict.of(env);
         if (testProperty != null) {
             String value = testProperty.getValue();
             // 不满足测试条件, 跳过生成元素

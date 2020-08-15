@@ -7,9 +7,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author hous
- */
 public class ClassUtils {
 
     public static boolean isPrimitive(Class<?> cls) {
@@ -33,7 +30,7 @@ public class ClassUtils {
     }
 
     public static boolean isInt(Class<?> cls) {
-        return cls == int.class || cls == Integer.class;
+        return cls == Integer.TYPE || cls == Integer.class;
     }
 
     public static boolean isString(Object obj) {
@@ -49,7 +46,7 @@ public class ClassUtils {
     }
 
     public static boolean isBool(Class<?> cls) {
-        return cls == boolean.class || cls == Boolean.class;
+        return cls == Boolean.TYPE || cls == Boolean.class;
     }
 
     public static boolean isFloat(Object obj) {
@@ -57,7 +54,7 @@ public class ClassUtils {
     }
 
     public static boolean isFloat(Class<?> cls) {
-        return cls == float.class || cls == Float.class;
+        return cls == Float.TYPE || cls == Float.class;
     }
 
     public static boolean isDouble(Object obj) {
@@ -65,7 +62,7 @@ public class ClassUtils {
     }
 
     public static boolean isDouble(Class<?> cls) {
-        return cls == double.class || cls == Double.class;
+        return cls == Double.TYPE || cls == Double.class;
     }
 
     public static boolean isByte(Object obj) {
@@ -73,7 +70,7 @@ public class ClassUtils {
     }
 
     public static boolean isByte(Class<?> cls) {
-        return cls == byte.class || cls == Byte.class;
+        return cls == Byte.TYPE || cls == Byte.class;
     }
 
     public static boolean isChar(Object obj) {
@@ -81,7 +78,7 @@ public class ClassUtils {
     }
 
     public static boolean isChar(Class<?> cls) {
-        return cls == char.class || cls == Character.class;
+        return cls == Character.TYPE || cls == Character.class;
     }
 
     public static boolean isShort(Object obj) {
@@ -89,7 +86,7 @@ public class ClassUtils {
     }
 
     public static boolean isShort(Class<?> cls) {
-        return cls == short.class || cls == Short.class;
+        return cls == Short.TYPE || cls == Short.class;
     }
 
     public static boolean isLong(Object obj) {
@@ -97,17 +94,27 @@ public class ClassUtils {
     }
 
     public static boolean isLong(Class<?> cls) {
-        return cls == long.class || cls == Long.class;
+        return cls == Long.TYPE || cls == Long.class;
     }
 
     public static boolean isStatic(Field field) {
         return Modifier.isStatic(field.getModifiers());
     }
 
+    public static boolean isPublic(Field field) {
+        return Modifier.isPublic(field.getModifiers());
+    }
+
+    public static boolean isFinal(Field field) {
+        return Modifier.isFinal(field.getModifiers());
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T cast(Object obj) {
-        if (obj == null) return null;
-        return (T) obj;
+        if (obj != null) {
+            return (T) obj;
+        }
+        return null;
     }
 
     public static Field[] getFields(Object bean) {
@@ -132,5 +139,12 @@ public class ClassUtils {
             }
         }
         return null;
+    }
+
+    public static Type getParameterizedType(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        return ((ParameterizedType) obj.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 }

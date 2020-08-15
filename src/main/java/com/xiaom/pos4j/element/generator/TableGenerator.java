@@ -57,7 +57,7 @@ public class TableGenerator implements Generator<Table> {
         if (!(value instanceof List)) {
             return;
         }
-        Dict newEnv = Dict.create(env);
+        Dict newEnv = Dict.of(env);
         List<?> list = (List<?>) value;
         for (Object item : list) {
             newEnv.put(itemProperty.getValue(), item);
