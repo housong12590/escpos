@@ -1,9 +1,9 @@
-package com.xiaom.pos4j.element;
+package com.xiaom.pos4j.parser;
 
 
-import com.xiaom.pos4j.parser.ElementKit;
-import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.device.Device;
+import com.xiaom.pos4j.element.Element;
+import com.xiaom.pos4j.util.ByteBuffer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,8 +28,9 @@ public class Document {
 
     public byte[] toBytes(Device device) {
         ByteBuffer buffer = new ByteBuffer();
+        StyleSheet sheet = new StyleSheet(device.getOrderSet());
         for (Element element : elements) {
-            byte[] bytes = ElementKit.matchConverterToBytes(element, device);
+            byte[] bytes = ElementKit.matchConverterToBytes(element, sheet, device);
             buffer.write(bytes);
         }
         return buffer.toByteArray();

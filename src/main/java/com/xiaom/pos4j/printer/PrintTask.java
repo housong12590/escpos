@@ -1,6 +1,6 @@
 package com.xiaom.pos4j.printer;
 
-import com.xiaom.pos4j.element.Document;
+import com.xiaom.pos4j.parser.Document;
 import com.xiaom.pos4j.listener.OnPaperChangeListener;
 import com.xiaom.pos4j.listener.OnPrintEventListener;
 import com.xiaom.pos4j.listener.PrintEvent;

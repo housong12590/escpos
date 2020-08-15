@@ -76,6 +76,13 @@ public interface Constants {
             "        </xs:restriction>\n" +
             "    </xs:simpleType>\n" +
             "\n" +
+            "    <xs:simpleType name=\"overflow\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:enumeration value=\"hidden\"/>\n" +
+            "            <xs:enumeration value=\"newline\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
             "    <xs:simpleType name=\"imageType\">\n" +
             "        <xs:restriction base=\"xs:string\">\n" +
             "            <xs:enumeration value=\"image\"/>\n" +
@@ -146,6 +153,7 @@ public interface Constants {
             "            <xs:attribute name=\"item\" type=\"xs:string\"/>\n" +
             "            <xs:attribute name=\"bold\" type=\"xs:boolean\"/>\n" +
             "            <xs:attribute name=\"size\" type=\"size\"/>\n" +
+            "            <xs:attribute name=\"overflow\" type=\"overflow\"/>\n" +
             "        </xs:complexType>\n" +
             "    </xs:element>\n" +
             "\n" +

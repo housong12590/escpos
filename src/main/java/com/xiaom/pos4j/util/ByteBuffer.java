@@ -24,8 +24,10 @@ public class ByteBuffer {
         byte[] allBytes = new byte[length];
         int pos = 0;
         for (byte[] bytes : bytesList) {
-            System.arraycopy(bytes, 0, allBytes, pos, bytes.length);
-            pos += bytes.length;
+            if (bytes.length != 0) {
+                System.arraycopy(bytes, 0, allBytes, pos, bytes.length);
+                pos += bytes.length;
+            }
         }
         return allBytes;
     }

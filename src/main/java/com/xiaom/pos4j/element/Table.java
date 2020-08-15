@@ -2,6 +2,7 @@ package com.xiaom.pos4j.element;
 
 
 import com.xiaom.pos4j.enums.Align;
+import com.xiaom.pos4j.enums.Overflow;
 import com.xiaom.pos4j.enums.Size;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class Table extends Element {
         private List<TD> tds;
         private boolean bold = false;
         private Size size = Size.w1h1;
+        private Overflow overflow = Overflow.newline;
 
         public TR() {
             tds = new ArrayList<>();
@@ -61,12 +63,21 @@ public class Table extends Element {
             this.size = size;
         }
 
+        public Overflow getOverflow() {
+            return overflow;
+        }
+
+        public void setOverflow(Overflow overflow) {
+            this.overflow = overflow;
+        }
+
         @Override
         public String toString() {
             return "TR{" +
                     "tds=" + tds +
                     ", bold=" + bold +
                     ", size=" + size +
+                    ", overflow=" + overflow +
                     '}';
         }
     }

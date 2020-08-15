@@ -1,12 +1,13 @@
 package com.xiaom.pos4j.element.convert;
 
 
-import com.xiaom.pos4j.element.Table;
-import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.device.Device;
+import com.xiaom.pos4j.element.Table;
 import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Size;
 import com.xiaom.pos4j.orderset.OrderSet;
+import com.xiaom.pos4j.parser.StyleSheet;
+import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.util.StringUtils;
 
 import java.util.HashMap;
@@ -18,20 +19,21 @@ import java.util.Map;
  */
 public class TableConverter implements Converter<Table> {
     @Override
-    public byte[] toBytes(Device device, Table table) {
-        OrderSet orderSet = device.getOrderSet();
+    public byte[] toBytes(Device device, StyleSheet styleSheet, Table table) {
         ByteBuffer buffer = new ByteBuffer();
         int charLen = device.getPaper().getCharLen();
         List<Table.TR> trs = table.getTrs();
-        buffer.write(orderSet.align(Align.left));
-        buffer.write(orderSet.bold(false));
-        buffer.write(orderSet.underline(false));
+
+        styleSheet.align(buffer, Align.left);
+        styleSheet.underline(buffer, false);
+
         for (Table.TR tr : trs) {
             calculateTdWidth(tr, charLen);
-            Size size = tr.getSize();
-            buffer.write(orderSet.bold(tr.isBold()));
-            buffer.write(orderSet.textSize(size));
-            String[] rows = toRows(tr, size);
+
+            styleSheet.bold(buffer, tr.isBold());
+            styleSheet.size(buffer, tr.getSize());
+
+            String[] rows = toRows(tr, tr.getSize());
             outRows(rows, buffer, device);
         }
         return buffer.toByteArray();
@@ -41,7 +43,7 @@ public class TableConverter implements Converter<Table> {
         OrderSet orderSet = device.getOrderSet();
         for (String row : rows) {
             buffer.write(row.getBytes(device.getCharset()));
-            buffer.write(orderSet.newLine());
+            buffer.write(orderSet.paperFeed(1));
         }
     }
 

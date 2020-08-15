@@ -2,11 +2,10 @@ package com.xiaom.pos4j.element.convert;
 
 
 import com.xiaom.pos4j.device.Device;
+import com.xiaom.pos4j.parser.StyleSheet;
 import com.xiaom.pos4j.element.Text;
-import com.xiaom.pos4j.enums.Align;
 import com.xiaom.pos4j.enums.Repeat;
 import com.xiaom.pos4j.enums.Size;
-import com.xiaom.pos4j.orderset.OrderSet;
 import com.xiaom.pos4j.util.ByteBuffer;
 import com.xiaom.pos4j.util.StringUtils;
 
@@ -18,33 +17,26 @@ import java.util.List;
  */
 public class TextConverter implements Converter<Text> {
     @Override
-    public byte[] toBytes(Device device, Text text) {
-        OrderSet orderSet = device.getOrderSet();
+    public byte[] toBytes(Device device, StyleSheet styleSheet, Text text) {
         if (StringUtils.isEmpty(text.getValue())) {
             return new byte[0];
         }
         ByteBuffer buffer = new ByteBuffer();
 
         // 距离上面的无素 有多少行的距离
-        int marginTop = text.getMarginTop();
-        if (marginTop > 0) {
-            buffer.write(orderSet.paperFeed(marginTop));
-        }
+        styleSheet.paperFeed(buffer, text.getMarginTop());
 
         // 文字加粗
-        buffer.write(orderSet.bold(text.isBold()));
+        styleSheet.bold(buffer, text.isBold());
 
         // 文字下划线
-        boolean underline = text.isUnderline();
-        buffer.write(orderSet.underline(underline));
+        styleSheet.underline(buffer, text.isUnderline());
 
         // 文字大小
-        Size size = text.getSize();
-        buffer.write(orderSet.textSize(size));
+        styleSheet.size(buffer, text.getSize());
 
         // 文字对齐方向
-        Align align = text.getAlign();
-        buffer.write(orderSet.align(align));
+        styleSheet.align(buffer, text.getAlign());
 
         // 处理文字
         String value = handleString(device, text);
@@ -58,17 +50,10 @@ public class TextConverter implements Converter<Text> {
         buffer.write(value.getBytes(device.getCharset()));
 
         // 是否需要换行
-        boolean newLine = text.isNewLine();
-        if (newLine) {
-            buffer.write(orderSet.newLine());
-        }
-
+        if (text.isNewLine()) styleSheet.newLine(buffer);
 
         // 距离下面的无素 有多少行的距离
-        int marginBottom = text.getMarginBottom();
-        if (marginBottom > 0) {
-            buffer.write(orderSet.paperFeed(marginBottom));
-        }
+        styleSheet.paperFeed(buffer, text.getMarginBottom());
         return buffer.toByteArray();
     }
 

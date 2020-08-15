@@ -30,6 +30,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="overflow">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="hidden"/>
+            <xs:enumeration value="newline"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="imageType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="image"/>
@@ -100,6 +107,7 @@
             <xs:attribute name="item" type="xs:string"/>
             <xs:attribute name="bold" type="xs:boolean"/>
             <xs:attribute name="size" type="size"/>
+            <xs:attribute name="overflow" type="overflow"/>
         </xs:complexType>
     </xs:element>
 

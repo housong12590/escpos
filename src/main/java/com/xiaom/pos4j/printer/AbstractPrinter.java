@@ -2,7 +2,7 @@ package com.xiaom.pos4j.printer;
 
 import com.xiaom.pos4j.Constants;
 import com.xiaom.pos4j.device.Device;
-import com.xiaom.pos4j.element.Document;
+import com.xiaom.pos4j.parser.Document;
 import com.xiaom.pos4j.exception.PrintTimeoutException;
 import com.xiaom.pos4j.listener.OnPaperChangeListener;
 import com.xiaom.pos4j.listener.OnPrintEventListener;

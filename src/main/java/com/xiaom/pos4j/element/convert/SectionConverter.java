@@ -1,13 +1,13 @@
 package com.xiaom.pos4j.element.convert;
 
 
-
+import com.xiaom.pos4j.device.Device;
 import com.xiaom.pos4j.element.Section;
+import com.xiaom.pos4j.parser.StyleSheet;
 import com.xiaom.pos4j.element.Text;
+import com.xiaom.pos4j.orderset.OrderSet;
 import com.xiaom.pos4j.parser.ElementKit;
 import com.xiaom.pos4j.util.ByteBuffer;
-import com.xiaom.pos4j.device.Device;
-import com.xiaom.pos4j.orderset.OrderSet;
 
 /**
  * @author hous
@@ -15,7 +15,7 @@ import com.xiaom.pos4j.orderset.OrderSet;
 public class SectionConverter implements Converter<Section> {
 
     @Override
-    public byte[] toBytes(Device device, Section section) {
+    public byte[] toBytes(Device device, StyleSheet styleSheet, Section section) {
         OrderSet orderSet = device.getOrderSet();
         ByteBuffer buffer = new ByteBuffer();
         int marginTop = section.getMarginTop();
@@ -23,7 +23,7 @@ public class SectionConverter implements Converter<Section> {
             buffer.write(orderSet.paperFeed(marginTop));
         }
         for (Text text : section.getTexts()) {
-            byte[] bytes = ElementKit.matchConverterToBytes(text, device);
+            byte[] bytes = ElementKit.matchConverterToBytes(text,styleSheet ,device);
             buffer.write(bytes);
         }
         buffer.write(orderSet.newLine());

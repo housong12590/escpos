@@ -1,7 +1,6 @@
 package com.xiaom.pos4j.parser;
 
 import com.xiaom.pos4j.Constants;
-import com.xiaom.pos4j.element.Document;
 import com.xiaom.pos4j.element.Element;
 import com.xiaom.pos4j.util.FileUtils;
 import com.xiaom.pos4j.util.StringUtils;

@@ -1,40 +1,87 @@
 {
-  "keys": {
-    "tel": "0519-85262866",
-    "adds": "江苏常州武宜中路188号吾悦广场1楼东北角",
-    "title": "天语外卖",
-    "sn": "12002",
-    "ctime": "2020-03-15 16:18",
-    "guests": 1,
-    "order_code": "688783176063262720",
-    "sum_value": 68,
-    "delivery_address": "广东省广州市海珠区新港中路397号",
-    "receiver_name": "张三",
-    "receiver_mobile": "020-81167888",
-    "pay_name": "微信支付"
-  },
-  "goods": [
+  "delivery": [
     {
-      "unit": "份",
-      "name": "酸菜鱼套餐",
-      "num": 1,
-      "price": "48",
-      "amount": "48",
-      "item_remark": ""
+      "name": "送达时间: 21:22"
     },
     {
-      "unit": "份",
-      "name": "黄闷鸡",
-      "num": 1,
-      "price": "25",
-      "amount": "25",
-      "item_remark": ""
+      "name": "万达广场(新北店)"
+    },
+    {
+      "name": "圆圆 女士     15106128010"
     }
   ],
+  "deliverys": [
+    "送达时间: 21:22",
+    "万达广场(新北店)",
+    "圆圆 女士     15106128010"
+  ],
+  "create_time": "2020-08-08 21:03:13",
+  "goods_amount": "248",
+  "pay_amount": "226",
+  "goods": [
+    {
+      "amount": "56",
+      "price": "8",
+      "name": "柠檬茶",
+      "count": 7,
+      "spec": "杯"
+    },
+    {
+      "amount": "8",
+      "price": "8",
+      "name": "柠檬黑莓茶",
+      "count": 1,
+      "spec": "杯"
+    },
+    {
+      "amount": "112",
+      "price": "56",
+      "name": "东坡肉",
+      "count": 2,
+      "spec": "份"
+    },
+    {
+      "amount": "32",
+      "price": "8",
+      "name": "柠檬菠萝茶",
+      "count": 4,
+      "spec": "杯"
+    },
+    {
+      "amount": "16",
+      "price": "8",
+      "name": "凉拌木耳",
+      "count": 2,
+      "spec": "份"
+    },
+    {
+      "amount": "24",
+      "price": "8",
+      "name": "柠檬红茶",
+      "count": 3,
+      "spec": "杯"
+    }
+  ],
+  "pay_name": "会员卡支付",
+  "remark": "不加葱 ",
+  "goods_count": "19",
+  "title": "邻里小店",
+  "serial_num": "4",
+  "pay_time": "2020-08-08 21:03:18",
+  "store_name": "牛奶铺子",
   "attach": [
     {
+      "name": "店铺满减",
+      "value": "-20"
+    },
+    {
+      "name": "优惠券",
+      "value": "-5"
+    },
+    {
       "name": "配送费",
-      "amount": 20
+      "value": "3"
     }
-  ]
+  ],
+  "order_id": "129680747652059136"
 }

@@ -1,45 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="print_template">
-    <text value="${date}" align="left"/>
-    <block test="!isNull(keys.order_remark)">
-        <text value="-" repeat="fill"/>
-        <text value="备注: ${keys.order_remark}" size="w2h2"/>
+
+    <text value="##{serial_num}#{title}" align="center" size="w2h2"/>
+    <text value="#{store_name}" marginTop="1" align="center" size="w1h2" marginBottom="1"/>
+
+    <section>
+        <text value="-" repeat="auto"/>
+        <text value="配送信息"/>
+        <text value="-" repeat="auto"/>
+    </section>
+
+    <block list="deliverys" item="item">
+        <text value="#{item}" size="w1h2"/>
     </block>
 
-    <text value="-" repeat="fill"/>
-    <text value="${keys.title}" align="center" size="w2h2"/>
-    <text value="${keys.pay_name}" align="center" size="w1h2"/>
-    <text value="订 单 号: ${keys.order_code}" marginTop="1"/>
-    <text value="下单时间: ${keys.ctime}"/>
     <section>
-        <text value="餐具数量:"/>
-        <text value="${keys.guests}" size="w1h2"/>
-        <text value="份"/>
+        <text value="-" repeat="auto"/>
+        <text value="下单信息"/>
+        <text value="-" repeat="auto"/>
     </section>
-    <text value="-" repeat="fill"/>
+
+    <text value="下单时间: #{create_time}"/>
+    <text value="订 单 号: #{order_id}"/>
+
+    <section>
+        <text value="-" repeat="auto"/>
+        <text value="商品信息"/>
+        <text value="-" repeat="auto"/>
+    </section>
+
     <table>
-        <tr list="goods" item="item" size="w1h2">
-            <td value="#{item.name}" weight="4"/>
-            <td value="X#{item.num}" weight="2" align="right"/>
-            <td value="#{item.amount}" weight="2" align="right"/>
+        <tr list="goods" item="item" size="w1h2" overflow="hidden">
+            <td value="#{name}" weight="6"/>
+            <td value="X#{item.count} " weight="2" align="right"/>
+            <td value="#{item.amount}  " weight="2" align="right"/>
+        </tr>
+
+        <tr>
+            <td value=" " weight="1"/>
+        </tr>
+
+        <tr>
+            <td value="合计: " weight="6"/>
+            <td value="X#{goods_count} " weight="2" align="right"/>
+            <td value="#{goods_amount}  " weight="2" align="right"/>
         </tr>
     </table>
+
+    <block test="!isEmpty(attach)">
+        <section>
+            <text value="-" repeat="auto"/>
+            <text value="其它费用"/>
+            <text value="-" repeat="auto"/>
+        </section>
+        <block list="attach" item="item">
+            <section>
+                <text value="#{item.name}"/>
+                <text value=" " repeat="auto"/>
+                <text value="#{item.value}  "/>
+            </section>
+        </block>
+    </block>
+
     <section>
         <text value="-" repeat="auto"/>
-        <text value="其它"/>
+        <text value="付款信息"/>
         <text value="-" repeat="auto"/>
     </section>
-    <block list="attach" item="item" test="!isEmpty(attach)">
-        <text value="#{item.name} : #{amount}"/>
-        <section>
-            <text value="#{item.name}"/>
-            <text value="-" repeat="auto"/>
-            <text value="#{item.amount}"/>
-        </section>
+
+    <section>
+        <text value="#{pay_name}" size="w1h2"/>
+        <text value=" " repeat="auto"/>
+        <text value="￥#{pay_amount}  " size="w1h2"/>
+    </section>
+
+    <block test="!isEmpty(remark)">
+        <text value="备注: #{remark}" size="w1h2" marginTop="1" marginBottom="1"/>
     </block>
-    <text value="-" repeat="fill"/>
-    <text value="总计: ￥#{keys.sum_value}" align="right" size="w1h2"/>
-    <text value="-" repeat="fill"/>
-    <text value="#{keys.receiver_name}  #{keys.receiver_mobile}" size="w1h2"/>
-    <text value="#{keys.delivery_address}" size="w1h2"/>
+
+    <section marginTop="1">
+        <text value="*" repeat="auto"/>
+        <text value="##{serial_num}完"/>
+        <text value="*" repeat="auto"/>
+    </section>
 </document>

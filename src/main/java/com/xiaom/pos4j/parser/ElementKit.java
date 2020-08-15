@@ -46,10 +46,10 @@ public class ElementKit {
         return elementMap.get(elName);
     }
 
-    public static byte[] matchConverterToBytes(Element element, Device device) {
+    public static byte[] matchConverterToBytes(Element element, StyleSheet styleSheet, Device device) {
         Converter<Element> converter = ClassUtils.cast(converterMap.get(element.getClass()));
         if (converter != null) {
-            return converter.toBytes(device, element);
+            return converter.toBytes(device, styleSheet, element);
         }
         LogUtils.error(String.format("没有匹配到%s元素的转换器", element.getClass().getName()));
         LogUtils.info("可用的转换器如下: ");
