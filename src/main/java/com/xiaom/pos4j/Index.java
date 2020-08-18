@@ -16,7 +16,6 @@ public class Index {
     static int count = 100000;
 
     public static void main(String[] args) {
-        test01();
     }
 
     public static void test01() {
