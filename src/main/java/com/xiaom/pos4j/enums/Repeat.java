@@ -31,6 +31,7 @@ public enum Repeat {
 
     public List<Text> texts;
 
+    private static final Repeat[] ENUMS = Repeat.values();
 
     @Override
     public String toString() {
@@ -38,8 +39,8 @@ public enum Repeat {
     }
 
     public static Repeat of(String value, Repeat repeat) {
-        for (Repeat r : Repeat.values()) {
-            if (r.name().equalsIgnoreCase(value)) {
+        for (Repeat r : ENUMS) {
+            if (r.name().equals(value)) {
                 return r;
             }
         }
