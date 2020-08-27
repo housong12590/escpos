@@ -29,7 +29,6 @@ public enum Size {
         return this.name();
     }
 
-
     public static Size of(String value, Size size) {
         if (value == null) {
             return size;
