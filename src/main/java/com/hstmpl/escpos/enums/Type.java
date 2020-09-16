@@ -21,6 +21,8 @@ public enum Type {
      */
     barcode;
 
+    private static final Type[] ENUMS = Type.values();
+
 
     public int[] createPixels(Image image) {
         return createPixels(image.getValue(), image.getWidth(), image.getHeight());
@@ -41,7 +43,7 @@ public enum Type {
 
 
     public static Type of(String value, Type type) {
-        for (Type t : Type.values()) {
+        for (Type t : ENUMS) {
             if (t.name().equals(value)) {
                 return t;
             }

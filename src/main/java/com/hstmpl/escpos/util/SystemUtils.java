@@ -1,7 +1,5 @@
 package com.hstmpl.escpos.util;
 
-import com.sun.security.auth.module.NTSystem;
-
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import java.util.ArrayList;
@@ -32,14 +30,14 @@ public class SystemUtils {
         return null;
     }
 
-    public static boolean isWindowsAdmin() {
-        String[] groups = (new NTSystem()).getGroupIDs();
-        for (String group : groups) {
-            if (group.equals("S-1-5-32-544"))
-                return true;
-        }
-        return false;
-    }
+//    public static boolean isWindowsAdmin() {
+//        String[] groups = (new NTSystem()).getGroupIDs();
+//        for (String group : groups) {
+//            if (group.equals("S-1-5-32-544"))
+//                return true;
+//        }
+//        return false;
+//    }
 
     public static String machineSerialId() {
         String str = getHardDiskSerialNumber() + getCPUSerialNumber();
