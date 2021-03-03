@@ -2,7 +2,6 @@ package com.hstmpl.escpos.comm;
 
 
 import com.hstmpl.escpos.util.*;
-import com.xiaom.pos4j.util.*;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document xmlns="print_template">
     <text value="${date}" align="left"/>
-    <text value="-" repeat="fill" condition="#{keys.order_remark}"/>
-    <text value="备注: ${keys.order_remark}" size="w2h2" condition="#{keys.order_remark}"/>
+    <block test="isNotEmpty(#{keys.order_remark})">
+        <text value="-" repeat="fill"/>
+        <text value="备注: ${keys.order_remark}" size="w2h2"/>
+    </block>
+
     <text value="-" repeat="fill"/>
-    <text value="${keys.title}" align="center" size="big"/>
+    <text value="${keys.title}" align="center" size="w2h2"/>
     <text value="${keys.pay_name}" align="center" size="w1h2"/>
     <text value="订 单 号: ${keys.order_code}" marginTop="1"/>
     <text value="下单时间: ${keys.ctime}"/>
@@ -15,10 +18,10 @@
     </section>
     <text value="-" repeat="fill"/>
     <table>
-        <tr repeat="true" repeatKey="#{goods}" size="w1h2">
-            <td value="#{name}" weight="4"/>
-            <td value="X#{num}" weight="2" align="right"/>
-            <td value="#{amount}" weight="2" align="right"/>
+        <tr list="#{goods}" item="item" size="w1h2">
+            <td value="#{item.name}" weight="4"/>
+            <td value="X#{item.num}" weight="2" align="right"/>
+            <td value="#{item.amount}" weight="2" align="right"/>
         </tr>
         <tr>
             <td value=" " weight="1"/>
@@ -34,9 +37,9 @@
         <text value="其它"/>
         <text value="-" repeat="auto"/>
     </section>
-    <group repeatKey="#{attach}">
-        <text value="#{name} : #{amount}"/>
-    </group>
+    <block list="#{attach}" item="item">
+        <text value="#{item.name} : #{item.amount}"/>
+    </block>
     <text value="-" repeat="fill"/>
     <text value="总计: ￥#{keys.sum_value}" align="right" size="w1h2"/>
     <text value="-" repeat="fill"/>
